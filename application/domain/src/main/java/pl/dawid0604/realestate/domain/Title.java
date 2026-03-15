@@ -14,14 +14,14 @@ public record Title(String value) {
             throw new InvalidArgumentValueException("Title cannot be blank");
         }
 
-        if (value.length() > MAX_LENGTH) {
-            throw new InvalidArgumentValueException(
-                    "Title cannot be longer than " + MAX_LENGTH + " characters");
-        }
-
         if (value.length() < MIN_LENGTH) {
             throw new InvalidArgumentValueException(
                     "Title cannot be shorter than " + MIN_LENGTH + " characters");
+        }
+
+        if (value.length() > MAX_LENGTH) {
+            throw new InvalidArgumentValueException(
+                    "Title cannot be longer than " + MAX_LENGTH + " characters");
         }
     }
 }

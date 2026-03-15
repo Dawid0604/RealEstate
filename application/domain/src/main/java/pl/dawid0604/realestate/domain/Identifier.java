@@ -29,4 +29,14 @@ public final class Identifier {
     public UUID getValue() {
         return value;
     }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof final Identifier that && value.equals(that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
 }
