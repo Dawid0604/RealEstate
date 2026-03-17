@@ -3,10 +3,10 @@ package pl.dawid0604.realestate.domain;
 
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 
-public record NumberOfRooms(int value) {
+public record NumberOfRooms(Integer value) {
     public NumberOfRooms {
-        if (value < 0) {
-            throw new InvalidArgumentValueException("Number of rooms cannot be negative");
+        if (value != null && value < 0) {
+            throw new InvalidArgumentValueException("NumberOfRooms cannot be negative");
         }
     }
 }

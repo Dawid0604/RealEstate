@@ -6,14 +6,11 @@ import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueExcep
 import java.math.BigDecimal;
 
 public record Money(BigDecimal value, MoneyCurrency currency) {
+    private static final BigDecimal MINIMUM_PRICE = BigDecimal.valueOf(10_000);
 
     public Money {
-        if (value == null) {
-            throw new InvalidArgumentValueException("Value cannot be null");
-        }
-
-        if (value.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new InvalidArgumentValueException("Value cannot be less than or equal to zero");
+        if (value != null && value.compareTo(MINIMUM_PRICE) < 0) {
+            throw new InvalidArgumentValueException("Value cannot be less than " + MINIMUM_PRICE);
         }
 
         if (currency == null) {

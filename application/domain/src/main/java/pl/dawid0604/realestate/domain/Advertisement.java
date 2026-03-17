@@ -55,7 +55,7 @@ public final class Advertisement extends AggregateRoot {
             throw new InvalidArgumentValueException("New title cannot be the same as old title");
         }
 
-        return copy().title(newTitle).slug(Slug.create(newTitle.value())).build();
+        return copy().title(newTitle).slug(Slug.create(newTitle)).build();
     }
 
     public Advertisement updateDescription(final Description newDescription) {
@@ -222,7 +222,7 @@ public final class Advertisement extends AggregateRoot {
             validateRequiredFields();
 
             if (this.createMode) {
-                this.slug = Slug.create(title.value());
+                this.slug = Slug.create(title);
             }
 
             return new Advertisement(

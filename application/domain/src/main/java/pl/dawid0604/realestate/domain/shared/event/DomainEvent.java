@@ -3,7 +3,7 @@ package pl.dawid0604.realestate.domain.shared.event;
 
 import java.time.Instant;
 
-public abstract sealed class DomainEvent permits AdvertisementEvent {
+public abstract class DomainEvent {
     private final Instant occurredAt;
 
     protected DomainEvent() {
