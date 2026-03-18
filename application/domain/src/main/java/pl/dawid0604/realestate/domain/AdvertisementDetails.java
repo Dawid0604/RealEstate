@@ -30,6 +30,14 @@ public abstract sealed class AdvertisementDetails
         return Set.copyOf(claims);
     }
 
+    public final Area getArea() {
+        return area;
+    }
+
+    public final BuildingType getType() {
+        return type;
+    }
+
     protected final void requireNonNull(final Object field, final String name) {
         if (field == null) {
             throw new InvalidArgumentValueException(name + " cannot be null");

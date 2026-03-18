@@ -14,4 +14,8 @@ public final class PlotDetails extends AdvertisementDetails {
         super(area, buildingType, claims);
         this.typeOfMarket = TypeOfMarket.SECONDARY;
     }
+
+    public TypeOfMarket getTypeOfMarket() {
+        return typeOfMarket;
+    }
 }

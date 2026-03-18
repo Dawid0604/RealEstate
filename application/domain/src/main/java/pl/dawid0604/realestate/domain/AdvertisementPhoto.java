@@ -1,39 +1,30 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
-
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
-
-import java.util.regex.Pattern;
 
 public final class AdvertisementPhoto {
     private final Identifier id;
-    private final String url;
-    private static final Pattern URL_PATTERN = Pattern.compile("^https?://");
+    private final Url url;
 
-    private AdvertisementPhoto(final Identifier id, final String url) {
+    private AdvertisementPhoto(final Identifier id, final Url url) {
         if (id == null) {
             throw new InvalidArgumentValueException("Id cannot be null");
         }
 
-        if (isBlank(url)) {
-            throw new InvalidArgumentValueException("Url cannot be blank");
-        }
-
-        if (!URL_PATTERN.matcher(url).find()) {
-            throw new InvalidArgumentValueException("Url must be a valid URL");
+        if (url == null) {
+            throw new InvalidArgumentValueException("Url cannot be null");
         }
 
         this.id = id;
         this.url = url;
     }
 
-    public static AdvertisementPhoto of(final Identifier id, final String url) {
+    public static AdvertisementPhoto of(final Identifier id, final Url url) {
         return new AdvertisementPhoto(id, url);
     }
 
-    public static AdvertisementPhoto create(final String url) {
+    public static AdvertisementPhoto create(final Url url) {
         return new AdvertisementPhoto(Identifier.generate(), url);
     }
 
@@ -41,7 +32,7 @@ public final class AdvertisementPhoto {
         return id;
     }
 
-    public String getUrl() {
+    public Url getUrl() {
         return url;
     }
 }

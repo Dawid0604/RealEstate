@@ -29,4 +29,20 @@ public final class HouseDetails extends AdvertisementDetails {
         this.builtYear = builtYear;
         this.typeOfMarket = typeOfMarket;
     }
+
+    public NumberOfRooms getNumberOfRooms() {
+        return numberOfRooms;
+    }
+
+    public Floor getFloors() {
+        return floors;
+    }
+
+    public BuiltYear getBuiltYear() {
+        return builtYear;
+    }
+
+    public TypeOfMarket getTypeOfMarket() {
+        return typeOfMarket;
+    }
 }
