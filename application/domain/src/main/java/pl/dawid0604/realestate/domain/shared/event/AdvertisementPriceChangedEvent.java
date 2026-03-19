@@ -31,4 +31,12 @@ public final class AdvertisementPriceChangedEvent extends AdvertisementEvent {
         this.oldPrice = oldPrice;
         this.newPrice = newPrice;
     }
+
+    public Money getOldPrice() {
+        return oldPrice;
+    }
+
+    public Money getNewPrice() {
+        return newPrice;
+    }
 }

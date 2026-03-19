@@ -5,7 +5,7 @@ import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueExcep
 
 import java.util.Set;
 
-public abstract sealed class FlooredDetails extends AdvertisementDetails
+public abstract sealed class FlooredDetails<B extends BuildingType> extends AdvertisementDetails<B>
         permits FlatDetails, CommercialDetails {
 
     private final NumberOfRooms numberOfRooms;
@@ -16,7 +16,7 @@ public abstract sealed class FlooredDetails extends AdvertisementDetails
 
     protected FlooredDetails(
             final Area area,
-            final FlatBuildingType buildingType,
+            final B buildingType,
             final Set<AdvertisementClaim> claims,
             final NumberOfRooms numberOfRooms,
             final Floor floor,
@@ -30,15 +30,38 @@ public abstract sealed class FlooredDetails extends AdvertisementDetails
         requireNonNull(floors, "Floors");
         requireNonNull(builtYear, "BuiltYear");
         requireNonNull(typeOfMarket, "TypeOfMarket");
-
-        if (floor.value() > floors.value()) {
-            throw new InvalidArgumentValueException("Floor cannot be higher than floors");
-        }
+        requireValidFloor(floor, floors);
 
         this.numberOfRooms = numberOfRooms;
         this.floor = floor;
         this.floors = floors;
         this.builtYear = builtYear;
         this.typeOfMarket = typeOfMarket;
+    }
+
+    public final NumberOfRooms getNumberOfRooms() {
+        return numberOfRooms;
+    }
+
+    public final Floor getFloor() {
+        return floor;
+    }
+
+    public final Floor getFloors() {
+        return floors;
+    }
+
+    public final BuiltYear getBuiltYear() {
+        return builtYear;
+    }
+
+    public final TypeOfMarket getTypeOfMarket() {
+        return typeOfMarket;
+    }
+
+    private static void requireValidFloor(final Floor floor, final Floor floors) {
+        if (floor.value() != null && floors.value() != null && floor.value() > floors.value()) {
+            throw new InvalidArgumentValueException("Floor cannot be higher than floors");
+        }
     }
 }

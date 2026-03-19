@@ -3,7 +3,7 @@ package pl.dawid0604.realestate.domain;
 
 import java.util.Set;
 
-public final class FlatDetails extends FlooredDetails {
+public final class FlatDetails extends FlooredDetails<FlatBuildingType> {
 
     public FlatDetails(
             final Area area,

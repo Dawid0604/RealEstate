@@ -3,8 +3,8 @@ package pl.dawid0604.realestate.domain;
 
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 
-import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Objects;
 
 public final class ListingPriceHistoryEntry {
     private final Identifier id;
@@ -15,23 +15,15 @@ public final class ListingPriceHistoryEntry {
             final Identifier id, final Money oldPrice, final Money newPrice, final Instant date) {
 
         requireNonNull(id, "Id");
+        requireNonNull(oldPrice, "Old price");
+        requireNonNull(newPrice, "New price");
         requireNonNull(date, "Date");
-        requireNonNull(newPrice, "NewPrice");
-        requireNonNull(oldPrice, "OldPrice");
 
         if (date.isAfter(Instant.now())) {
             throw new InvalidArgumentValueException("Date cannot be in the future");
         }
 
-        if (oldPrice.value().compareTo(BigDecimal.ZERO) < 0) {
-            throw new InvalidArgumentValueException("Old price cannot be negative");
-        }
-
-        if (newPrice.value().compareTo(BigDecimal.ZERO) < 0) {
-            throw new InvalidArgumentValueException("New price cannot be negative");
-        }
-
-        if (oldPrice.value().compareTo(newPrice.value()) == 0) {
+        if (Objects.equals(oldPrice, newPrice)) {
             throw new InvalidArgumentValueException("New price cannot be equal to old price");
         }
 
@@ -56,5 +48,27 @@ public final class ListingPriceHistoryEntry {
             final Identifier id, final Money oldPrice, final Money newPrice, final Instant date) {
 
         return new ListingPriceHistoryEntry(id, oldPrice, newPrice, date);
+    }
+
+    public Identifier getId() {
+        return id;
+    }
+
+    public Money getOldPrice() {
+        return oldPrice;
+    }
+
+    public Instant getDate() {
+        return date;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof final ListingPriceHistoryEntry that && Objects.equals(that.id, id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

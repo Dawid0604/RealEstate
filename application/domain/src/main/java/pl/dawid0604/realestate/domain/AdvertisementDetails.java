@@ -6,17 +6,15 @@ import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueExcep
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract sealed class AdvertisementDetails
+public abstract sealed class AdvertisementDetails<B extends BuildingType>
         permits FlooredDetails, HouseDetails, PlotDetails {
 
     private final Area area;
-    private final BuildingType type;
+    private final B type;
     private final Set<AdvertisementClaim> claims;
 
     protected AdvertisementDetails(
-            final Area area,
-            final BuildingType buildingType,
-            final Set<AdvertisementClaim> claims) {
+            final Area area, final B buildingType, final Set<AdvertisementClaim> claims) {
 
         requireNonNull(area, "Area");
         requireNonNull(buildingType, "BuildingType");
@@ -34,7 +32,7 @@ public abstract sealed class AdvertisementDetails
         return area;
     }
 
-    public final BuildingType getType() {
+    public final B getType() {
         return type;
     }
 

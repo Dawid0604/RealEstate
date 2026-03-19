@@ -160,6 +160,33 @@ class HouseDetailsTest {
         Assertions.assertThat(instance.getClaims() != claims).isTrue();
     }
 
+    @Test
+    @DisplayName("Should create instance successfully and return same values")
+    void shouldCreateInstanceSuccessfullyAndReturnSameValues() {
+        // Given
+        final Set<AdvertisementClaim> claims = Set.of(new AdvertisementClaim("x", "y"));
+
+        // When
+        final HouseDetails instance =
+                new HouseDetails(
+                        getValidArea(),
+                        getValidHouseBuildingType(),
+                        claims,
+                        getValidNumberOfRooms(),
+                        getValidFloors(),
+                        getValidBuiltYear(),
+                        getValidTypeOfMarket());
+
+        // Then
+        Assertions.assertThat(instance.getArea()).isEqualTo(getValidArea());
+        Assertions.assertThat(instance.getType()).isEqualTo(getValidHouseBuildingType());
+        Assertions.assertThat(instance.getClaims()).isEqualTo(claims);
+        Assertions.assertThat(instance.getNumberOfRooms()).isEqualTo(getValidNumberOfRooms());
+        Assertions.assertThat(instance.getFloors()).isEqualTo(getValidFloors());
+        Assertions.assertThat(instance.getBuiltYear()).isEqualTo(getValidBuiltYear());
+        Assertions.assertThat(instance.getTypeOfMarket()).isEqualTo(getValidTypeOfMarket());
+    }
+
     private static Area getValidArea() {
         return new Area(null);
     }

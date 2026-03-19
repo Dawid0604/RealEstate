@@ -25,10 +25,18 @@ public final class AdvertisementStatusChangedEvent extends AdvertisementEvent {
         }
 
         if (oldStatus == newStatus) {
-            throw new InvalidArgumentValueException("Old status and new status cannot be the same");
+            throw new InvalidArgumentValueException("Statuses cannot be same");
         }
 
         this.oldStatus = oldStatus;
         this.newStatus = newStatus;
+    }
+
+    public AdvertisementStatus getOldStatus() {
+        return oldStatus;
+    }
+
+    public AdvertisementStatus getNewStatus() {
+        return newStatus;
     }
 }

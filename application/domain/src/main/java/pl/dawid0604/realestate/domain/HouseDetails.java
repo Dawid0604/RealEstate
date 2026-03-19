@@ -3,7 +3,7 @@ package pl.dawid0604.realestate.domain;
 
 import java.util.Set;
 
-public final class HouseDetails extends AdvertisementDetails {
+public final class HouseDetails extends AdvertisementDetails<HouseBuildingType> {
     private final NumberOfRooms numberOfRooms;
     private final Floor floors;
     private final BuiltYear builtYear;
