@@ -27,21 +27,21 @@ public record FullName(String firstName, String lastName) {
 
     private static void validateName(final String name, final String fieldName) {
         if (isBlank(name)) {
-            throw new InvalidArgumentValueException(fieldName + " name cannot be blank");
+            throw new InvalidArgumentValueException(fieldName + " cannot be blank");
         }
 
         if (name.length() < MIN_LENGTH) {
             throw new InvalidArgumentValueException(
-                    fieldName + " name cannot be less than " + MIN_LENGTH);
+                    fieldName + " cannot be less than " + MIN_LENGTH);
         }
 
         if (name.length() > MAX_LENGTH) {
             throw new InvalidArgumentValueException(
-                    fieldName + " name cannot be longer than " + MAX_LENGTH);
+                    fieldName + " cannot be longer than " + MAX_LENGTH);
         }
 
         if (!VALID_VALUE_PATTERN.matcher(name).matches()) {
-            throw new InvalidArgumentValueException(fieldName + " name is invalid");
+            throw new InvalidArgumentValueException(fieldName + " is invalid");
         }
     }
 }

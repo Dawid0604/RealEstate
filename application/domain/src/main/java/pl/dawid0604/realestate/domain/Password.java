@@ -14,13 +14,15 @@ public final class Password {
             Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$");
 
     private final String value;
+    private final boolean hashed;
 
-    private Password(final String value) {
+    private Password(final String value, final boolean hashed) {
         if (isBlank(value)) {
             throw new InvalidArgumentValueException("Value cannot be blank");
         }
 
         this.value = value.strip();
+        this.hashed = hashed;
     }
 
     public static Password ofPlain(final String value) {
@@ -37,14 +39,18 @@ public final class Password {
                     "Password must contain uppercase, lowercase, digit and special character");
         }
 
-        return new Password(value);
+        return new Password(value, false);
     }
 
     public static Password ofHashed(final String value) {
-        return new Password(value);
+        return new Password(value, true);
     }
 
     public String getValue() {
         return value;
+    }
+
+    public boolean isHashed() {
+        return hashed;
     }
 }
