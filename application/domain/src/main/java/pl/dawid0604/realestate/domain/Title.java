@@ -10,6 +10,10 @@ public record Title(String value) {
     private static final int MAX_LENGTH = 100;
 
     public Title {
+        if (value != null) {
+            value = value.strip();
+        }
+
         if (isBlank(value)) {
             throw new InvalidArgumentValueException("Title cannot be blank");
         }

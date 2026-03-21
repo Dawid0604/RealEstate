@@ -2,7 +2,7 @@
 package pl.dawid0604.realestate.domain.shared.exception;
 
 public abstract sealed class DomainException extends RuntimeException
-        permits InvalidArgumentValueException, MaxPhotosExceededException {
+        permits ForbiddenException, InvalidArgumentValueException, MaxPhotosExceededException {
 
     protected DomainException(final String message) {
         super(message);

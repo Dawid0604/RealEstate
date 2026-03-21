@@ -11,6 +11,10 @@ public record Description(String value) {
     private static final int MAX_LENGTH = 5000;
 
     public Description {
+        if (value != null) {
+            value = value.strip();
+        }
+
         if (StringUtils.length(value) > MAX_LENGTH) {
             throw new InvalidArgumentValueException(
                     "Description cannot be longer than " + MAX_LENGTH + " characters");

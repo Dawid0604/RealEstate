@@ -1,7 +1,10 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
+import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.toCollection;
+
+import org.apache.commons.lang3.BooleanUtils;
 
 import pl.dawid0604.realestate.domain.shared.event.AdvertisementPriceChangedEvent;
 import pl.dawid0604.realestate.domain.shared.event.AdvertisementStatusChangedEvent;
@@ -9,28 +12,30 @@ import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueExcep
 import pl.dawid0604.realestate.domain.shared.exception.MaxPhotosExceededException;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.IntStream;
 
-public final class Advertisement<B extends AdvertisementDetails<?>> extends AggregateRoot {
+public final class Advertisement extends AggregateRoot {
     private final Identifier id;
     private final Slug slug;
     private final Title title;
     private final Description description;
     private final Money price;
     private final Locality locality;
-    private final B details;
+    private final AdvertisementDetails<?> details;
     private final AdvertisementStatus status;
     private final Identifier userId;
     private final Set<AdvertisementPhoto> photos;
     private final Instant createdAt;
+    private final boolean featured;
     private static final int MAX_NUMBER_OF_PHOTOS = 20;
 
-    public Advertisement<B> addPhoto(final AdvertisementPhoto advertisementPhoto) {
-        if (advertisementPhoto == null) {
-            throw new InvalidArgumentValueException("AdvertisementPhoto cannot be null");
-        }
+    public Advertisement addPhoto(final AdvertisementPhoto advertisementPhoto) {
+        requireNonNull(advertisementPhoto, "AdvertisementPhoto");
 
         if (this.photos.contains(advertisementPhoto)) {
             throw new InvalidArgumentValueException("Photo already exists");
@@ -40,21 +45,36 @@ public final class Advertisement<B extends AdvertisementDetails<?>> extends Aggr
             throw new MaxPhotosExceededException(MAX_NUMBER_OF_PHOTOS);
         }
 
-        return this.copy().photos(getFixedPhotos(advertisementPhoto)).build();
+        return this.copy().photos(mergePhotos(advertisementPhoto)).build();
     }
 
-    public Advertisement<B> updateDetails(final B newDetails) {
-        if (newDetails == null) {
-            throw new InvalidArgumentValueException("Details cannot be null");
+    public Advertisement updateLocality(final Locality locality) {
+        requireNonNull(locality, "Locality");
+        return this.copy().locality(locality).build();
+    }
+
+    public Advertisement removePhoto(final AdvertisementPhoto advertisementPhoto) {
+        requireNonNull(advertisementPhoto, "AdvertisementPhoto");
+
+        if (!this.photos.contains(advertisementPhoto)) {
+            throw new InvalidArgumentValueException("Photo does not exist");
+        }
+
+        return this.copy().photos(removeFromPhotos(advertisementPhoto)).build();
+    }
+
+    public Advertisement updateDetails(final AdvertisementDetails<?> newDetails) {
+        requireNonNull(newDetails, "Details");
+
+        if (!Objects.equals(this.details.getClass(), newDetails.getClass())) {
+            throw new InvalidArgumentValueException("Details must be of the same type");
         }
 
         return this.copy().details(newDetails).build();
     }
 
-    public Advertisement<B> updateTitle(final Title newTitle) {
-        if (newTitle == null) {
-            throw new InvalidArgumentValueException("Title cannot be null");
-        }
+    public Advertisement updateTitle(final Title newTitle) {
+        requireNonNull(title, "Title");
 
         if (Objects.equals(this.title, newTitle)) {
             throw new InvalidArgumentValueException(
@@ -64,34 +84,31 @@ public final class Advertisement<B extends AdvertisementDetails<?>> extends Aggr
         return copy().title(newTitle).slug(Slug.create(newTitle)).build();
     }
 
-    public Advertisement<B> updateDescription(final Description newDescription) {
+    public Advertisement updateDescription(final Description newDescription) {
         return copy().description(newDescription).build();
     }
 
-    public Advertisement<B> updatePrice(final Money newPrice) {
-        if (newPrice == null) {
-            throw new InvalidArgumentValueException("Price cannot be null");
-        }
+    public Advertisement updatePrice(final Money newPrice) {
+        requireNonNull(newPrice, "Price");
 
         if (Objects.equals(this.price, newPrice)) {
             throw new InvalidArgumentValueException("Price cannot be the same as old price");
         }
 
-        final Advertisement<B> currentObj = this.copy().price(newPrice).build();
+        final Advertisement currentObj = this.copy().price(newPrice).build();
         currentObj.addEvent(
                 new AdvertisementPriceChangedEvent(currentObj.id, this.price, newPrice));
 
         return currentObj;
     }
 
-    public Advertisement<B> activate() {
+    public Advertisement activate() {
         if (this.status == AdvertisementStatus.SOLD) {
             throw new InvalidArgumentValueException("Advertisement is already sold");
         }
 
         if (this.status == AdvertisementStatus.INACTIVE) {
-            final Advertisement<B> currentObj =
-                    this.copy().status(AdvertisementStatus.ACTIVE).build();
+            final Advertisement currentObj = this.copy().status(AdvertisementStatus.ACTIVE).build();
 
             currentObj.addEvent(
                     new AdvertisementStatusChangedEvent(
@@ -103,13 +120,13 @@ public final class Advertisement<B extends AdvertisementDetails<?>> extends Aggr
         throw new InvalidArgumentValueException("Advertisement is already active");
     }
 
-    public Advertisement<B> inactivate() {
+    public Advertisement inactivate() {
         if (this.status == AdvertisementStatus.SOLD) {
             throw new InvalidArgumentValueException("Advertisement is already sold");
         }
 
         if (this.status == AdvertisementStatus.ACTIVE) {
-            final Advertisement<B> currentObj =
+            final Advertisement currentObj =
                     this.copy().status(AdvertisementStatus.INACTIVE).build();
 
             currentObj.addEvent(
@@ -122,14 +139,13 @@ public final class Advertisement<B extends AdvertisementDetails<?>> extends Aggr
         throw new InvalidArgumentValueException("Advertisement is already inactive");
     }
 
-    public Advertisement<B> setAsSold() {
+    public Advertisement setAsSold() {
         if (this.status == AdvertisementStatus.INACTIVE) {
             throw new InvalidArgumentValueException("Advertisement must be active");
         }
 
         if (this.status == AdvertisementStatus.ACTIVE) {
-            final Advertisement<B> currentObj =
-                    this.copy().status(AdvertisementStatus.SOLD).build();
+            final Advertisement currentObj = this.copy().status(AdvertisementStatus.SOLD).build();
 
             currentObj.addEvent(
                     new AdvertisementStatusChangedEvent(
@@ -139,6 +155,30 @@ public final class Advertisement<B extends AdvertisementDetails<?>> extends Aggr
         }
 
         throw new InvalidArgumentValueException("Advertisement is already sold");
+    }
+
+    public Advertisement setAsFeatured() {
+        if (this.status != AdvertisementStatus.ACTIVE) {
+            throw new InvalidArgumentValueException("Advertisement must be active");
+        }
+
+        if (this.isFeatured()) {
+            throw new InvalidArgumentValueException("Advertisement is already featured");
+        }
+
+        return this.copy().featured(true).build();
+    }
+
+    public Advertisement disableFeaturedState() {
+        if (this.status != AdvertisementStatus.ACTIVE) {
+            throw new InvalidArgumentValueException("Advertisement must be active");
+        }
+
+        if (!this.isFeatured()) {
+            throw new InvalidArgumentValueException("Advertisement is not featured");
+        }
+
+        return this.copy().featured(false).build();
     }
 
     public Identifier getId() {
@@ -157,7 +197,7 @@ public final class Advertisement<B extends AdvertisementDetails<?>> extends Aggr
         return Set.copyOf(photos);
     }
 
-    public B getDetails() {
+    public AdvertisementDetails<?> getDetails() {
         return details;
     }
 
@@ -173,8 +213,24 @@ public final class Advertisement<B extends AdvertisementDetails<?>> extends Aggr
         return price;
     }
 
-    public AdvertisementStatus getStatus() {
-        return status;
+    public Locality getLocality() {
+        return locality;
+    }
+
+    public boolean isFeatured() {
+        return featured;
+    }
+
+    public boolean isActive() {
+        return status == AdvertisementStatus.ACTIVE;
+    }
+
+    public boolean isInactive() {
+        return status == AdvertisementStatus.INACTIVE;
+    }
+
+    public boolean isSold() {
+        return status == AdvertisementStatus.SOLD;
     }
 
     private Advertisement(
@@ -184,10 +240,11 @@ public final class Advertisement<B extends AdvertisementDetails<?>> extends Aggr
             final Description description,
             final Money price,
             final Locality locality,
-            final B details,
+            final AdvertisementDetails<?> details,
             final AdvertisementStatus status,
             final Identifier userId,
             final Set<AdvertisementPhoto> photos,
+            final Boolean featured,
             final Instant createdAt) {
 
         this.id = id;
@@ -200,19 +257,20 @@ public final class Advertisement<B extends AdvertisementDetails<?>> extends Aggr
         this.status = status;
         this.userId = userId;
         this.photos = photos;
+        this.featured = featured;
         this.createdAt = createdAt;
     }
 
-    public static <B extends AdvertisementDetails<?>> Builder<B> create() {
-        return new Builder<>(true);
+    public static Builder create() {
+        return new Builder(true);
     }
 
-    public static <B extends AdvertisementDetails<?>> Builder<B> reconstitute() {
-        return new Builder<>(false);
+    public static Builder reconstitute() {
+        return new Builder(false);
     }
 
-    private Builder<B> copy() {
-        return new Builder<B>(false)
+    private Builder copy() {
+        return reconstitute()
                 .id(this.id)
                 .slug(this.slug)
                 .title(this.title)
@@ -226,31 +284,26 @@ public final class Advertisement<B extends AdvertisementDetails<?>> extends Aggr
                 .createdAt(this.createdAt);
     }
 
-    public static final class Builder<B extends AdvertisementDetails<?>> {
+    public static final class Builder {
         private Identifier id;
         private Slug slug;
         private Title title;
         private Description description;
         private Money price;
         private Locality locality;
-        private B details;
+        private AdvertisementDetails<?> details;
         private AdvertisementStatus status;
         private Identifier userId;
         private Set<AdvertisementPhoto> photos;
         private Instant createdAt;
+        private Boolean featured;
         private final boolean createMode;
 
         private Builder(final boolean createMode) {
             this.createMode = createMode;
         }
 
-        private void requireNonNull(final Object field, final String name) {
-            if (field == null) {
-                throw new InvalidArgumentValueException(name + " cannot be null");
-            }
-        }
-
-        public Advertisement<B> build() {
+        public Advertisement build() {
             requireNonNull(this.title, "Title");
             requireNonNull(this.description, "Description");
             requireNonNull(this.price, "Price");
@@ -282,7 +335,7 @@ public final class Advertisement<B extends AdvertisementDetails<?>> extends Aggr
                 throw new MaxPhotosExceededException(MAX_NUMBER_OF_PHOTOS);
             }
 
-            return new Advertisement<>(
+            return new Advertisement(
                     id,
                     slug,
                     title,
@@ -293,86 +346,106 @@ public final class Advertisement<B extends AdvertisementDetails<?>> extends Aggr
                     status,
                     userId,
                     photos,
+                    BooleanUtils.toBoolean(featured),
                     createdAt);
         }
 
-        public Builder<B> slug(final Slug slug) {
+        public Builder slug(final Slug slug) {
             this.slug = slug;
             return this;
         }
 
-        public Builder<B> title(final Title title) {
+        public Builder title(final Title title) {
             this.title = title;
             return this;
         }
 
-        public Builder<B> description(final Description description) {
+        public Builder description(final Description description) {
             this.description = description;
             return this;
         }
 
-        public Builder<B> price(final Money price) {
+        public Builder price(final Money price) {
             this.price = price;
             return this;
         }
 
-        public Builder<B> locality(final Locality locality) {
+        public Builder locality(final Locality locality) {
             this.locality = locality;
             return this;
         }
 
-        @SuppressWarnings("unchecked")
-        public <T extends AdvertisementDetails<?>> Builder<T> details(final T details) {
-            this.details = (B) details;
-            return (Builder<T>) this;
+        public Builder details(final AdvertisementDetails<?> details) {
+            this.details = details;
+            return this;
         }
 
-        public Builder<B> status(final AdvertisementStatus status) {
+        public Builder status(final AdvertisementStatus status) {
             this.status = status;
             return this;
         }
 
-        public Builder<B> userId(final Identifier userId) {
+        public Builder userId(final Identifier userId) {
             this.userId = userId;
             return this;
         }
 
-        public Builder<B> id(final Identifier id) {
+        public Builder id(final Identifier id) {
             this.id = id;
             return this;
         }
 
-        public Builder<B> photos(final Set<AdvertisementPhoto> photos) {
+        public Builder featured(final boolean featured) {
+            this.featured = featured;
+            return this;
+        }
+
+        public Builder photos(final Set<AdvertisementPhoto> photos) {
             this.photos = photos == null ? new HashSet<>() : new HashSet<>(photos);
             return this;
         }
 
-        public Builder<B> createdAt(final Instant createdAt) {
+        public Builder createdAt(final Instant createdAt) {
             this.createdAt = createdAt;
             return this;
         }
     }
 
-    private Set<AdvertisementPhoto> getFixedPhotos(final AdvertisementPhoto incomingPhoto) {
-        final Set<AdvertisementPhoto> fixedPhotos =
+    private Set<AdvertisementPhoto> removeFromPhotos(final AdvertisementPhoto advertisementPhoto) {
+        final List<AdvertisementPhoto> sortedPhotos =
                 this.photos.stream()
-                        .map(
-                                existing ->
-                                        existing.getPosition() >= incomingPhoto.getPosition()
-                                                ? AdvertisementPhoto.of(
-                                                        existing.getId(),
-                                                        existing.getUrl(),
-                                                        existing.getPosition() + 1)
-                                                : existing)
-                        .collect(toCollection(HashSet::new));
+                        .filter(p -> !Objects.equals(p, advertisementPhoto))
+                        .sorted(comparingInt(AdvertisementPhoto::getPosition))
+                        .toList();
 
-        fixedPhotos.add(incomingPhoto);
-        return fixedPhotos;
+        return reindexPhotos(sortedPhotos);
+    }
+
+    private Set<AdvertisementPhoto> mergePhotos(final AdvertisementPhoto advertisementPhoto) {
+        final List<AdvertisementPhoto> sortedPhotos = new ArrayList<>(photos);
+        sortedPhotos.sort(comparingInt(AdvertisementPhoto::getPosition));
+
+        final int targetIndex = Math.min(advertisementPhoto.getPosition(), sortedPhotos.size());
+        sortedPhotos.add(targetIndex, advertisementPhoto);
+
+        return reindexPhotos(sortedPhotos);
+    }
+
+    private static Set<AdvertisementPhoto> reindexPhotos(
+            final List<AdvertisementPhoto> sortedPhotos) {
+
+        return IntStream.range(0, sortedPhotos.size())
+                .mapToObj(
+                        pos -> {
+                            final AdvertisementPhoto photo = sortedPhotos.get(pos);
+                            return AdvertisementPhoto.of(photo.getId(), photo.getUrl(), pos);
+                        })
+                .collect(toCollection(HashSet::new));
     }
 
     @Override
     public boolean equals(final Object o) {
-        return o instanceof final Advertisement<?> that && Objects.equals(id, that.id);
+        return o instanceof final Advertisement that && Objects.equals(id, that.id);
     }
 
     @Override

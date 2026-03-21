@@ -77,6 +77,19 @@ class TitleTest {
         Assertions.assertThat(instance.value()).isEqualTo(title);
     }
 
+    @Test
+    @DisplayName("Should create instance successfully and strip value")
+    void shouldCreateInstanceSuccessfullyAndStripValue() {
+        // Given
+        final String title = RandomStringUtils.secure().nextAlphanumeric(50);
+
+        // When
+        final Title instance = new Title("   " + title + "   ");
+
+        // Then
+        Assertions.assertThat(instance.value()).isEqualTo(title);
+    }
+
     private static Stream<Arguments> shouldThrowExceptionWhenTitleIsTooShortDataProvider() {
         return Stream.of(
                 Arguments.of(RandomStringUtils.secure().nextAlphanumeric(1)),

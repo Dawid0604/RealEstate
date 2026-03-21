@@ -6,10 +6,14 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
+
+import java.util.stream.Stream;
 
 class UrlTest {
 
@@ -63,11 +67,7 @@ class UrlTest {
     }
 
     @ParameterizedTest
-    @ValueSource(
-            strings = {
-                "https://xyz",
-                "http://xyz",
-            })
+    @ValueSource(strings = {"https://xyz", "http://xyz"})
     @DisplayName("Should create instance successfully and return same value")
     void shouldCreateInstanceSuccessfullyAndReturnSameValue(final String value) {
         // Given
@@ -76,6 +76,27 @@ class UrlTest {
 
         // Then
         Assertions.assertThat(url.value()).isEqualTo(value);
+    }
+
+    @ParameterizedTest
+    @MethodSource("shouldCreateInstanceSuccessfullyAndRemoveSpacesDataProvider")
+    @DisplayName("Should create instance successfully and return same value")
+    void shouldCreateInstanceSuccessfullyAndRemoveSpaces(
+            final String value, final String expectedValue) {
+
+        // Given
+        // When
+        final Url url = new Url(value);
+
+        // Then
+        Assertions.assertThat(url.value()).isEqualTo(expectedValue);
+    }
+
+    private static Stream<Arguments> shouldCreateInstanceSuccessfullyAndRemoveSpacesDataProvider() {
+        return Stream.of(
+                Arguments.of("http:// abc.eu", "http://abc.eu"),
+                Arguments.of("http://    abc.eu", "http://abc.eu"),
+                Arguments.of(" http://abc . eu ", "http://abc.eu"));
     }
 
     @ParameterizedTest

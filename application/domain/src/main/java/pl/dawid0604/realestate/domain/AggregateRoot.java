@@ -21,4 +21,10 @@ public abstract class AggregateRoot {
     public final List<DomainEvent> getEvents() {
         return List.copyOf(events);
     }
+
+    protected static void requireNonNull(final Object field, final String name) {
+        if (field == null) {
+            throw new InvalidArgumentValueException(name + " cannot be null");
+        }
+    }
 }

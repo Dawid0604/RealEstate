@@ -43,6 +43,19 @@ class DescriptionTest {
         Assertions.assertThat(instance.value()).isEqualTo(description);
     }
 
+    @Test
+    @DisplayName("Should create instance successfully and strip value")
+    void shouldCreateInstanceSuccessfullyAndStripValue() {
+        // Given
+        final String description = RandomStringUtils.secure().nextAlphanumeric(50);
+
+        // When
+        final Description instance = new Description("  " + description + "   ");
+
+        // Then
+        Assertions.assertThat(instance.value()).isEqualTo(description);
+    }
+
     @ParameterizedTest
     @DisplayName("Should throw exception when description is too long")
     @MethodSource("shouldThrowExceptionWhenDescriptionIsTooLongDataProvider")

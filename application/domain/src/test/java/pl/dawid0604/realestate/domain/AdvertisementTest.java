@@ -1,6 +1,10 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
+import static pl.dawid0604.realestate.domain.AdvertisementStatus.ACTIVE;
+import static pl.dawid0604.realestate.domain.AdvertisementStatus.INACTIVE;
+import static pl.dawid0604.realestate.domain.AdvertisementStatus.SOLD;
+
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.stream.Collectors.toMap;
 
@@ -8,6 +12,8 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import pl.dawid0604.realestate.domain.shared.event.AdvertisementPriceChangedEvent;
 import pl.dawid0604.realestate.domain.shared.event.AdvertisementStatusChangedEvent;
@@ -17,6 +23,7 @@ import pl.dawid0604.realestate.domain.shared.exception.MaxPhotosExceededExceptio
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -146,7 +153,7 @@ class AdvertisementTest {
             void shouldGenerateId() {
                 // Given
                 // When
-                final Advertisement<?> instance =
+                final Advertisement instance =
                         Advertisement.create()
                                 .title(getValidTitle())
                                 .description(getValidDescription())
@@ -168,7 +175,7 @@ class AdvertisementTest {
                 final Identifier id = Identifier.generate();
 
                 // When
-                final Advertisement<?> instance =
+                final Advertisement instance =
                         Advertisement.create()
                                 .id(id)
                                 .title(getValidTitle())
@@ -189,7 +196,7 @@ class AdvertisementTest {
             void shouldSetCreatedAt() {
                 // Given
                 // When
-                final Advertisement<?> instance =
+                final Advertisement instance =
                         Advertisement.create()
                                 .title(getValidTitle())
                                 .description(getValidDescription())
@@ -212,7 +219,7 @@ class AdvertisementTest {
                 final Instant createdAt = Instant.now().minusSeconds(3_600_000);
 
                 // When
-                final Advertisement<?> instance =
+                final Advertisement instance =
                         Advertisement.create()
                                 .title(getValidTitle())
                                 .description(getValidDescription())
@@ -234,7 +241,7 @@ class AdvertisementTest {
             void shouldGenerateSlug() {
                 // Given
                 // When
-                final Advertisement<?> instance =
+                final Advertisement instance =
                         Advertisement.create()
                                 .title(getValidTitle())
                                 .description(getValidDescription())
@@ -257,7 +264,7 @@ class AdvertisementTest {
                 final Slug slug = Slug.create(new Title("abc abc adbc"));
 
                 // When
-                final Advertisement<?> instance =
+                final Advertisement instance =
                         Advertisement.create()
                                 .title(title)
                                 .slug(slug)
@@ -523,7 +530,7 @@ class AdvertisementTest {
                                 AdvertisementPhoto.create(new Url("http://xyzeu"), 1));
 
                 // When
-                final Advertisement<?> instance =
+                final Advertisement instance =
                         Advertisement.reconstitute()
                                 .id(getValidIdentifier())
                                 .slug(getValidSlug())
@@ -549,7 +556,7 @@ class AdvertisementTest {
             void shouldSetPhotosAsEmptyCollectionWhenGivenValueIsNull() {
                 // Given
                 // When
-                final Advertisement<?> instance =
+                final Advertisement instance =
                         Advertisement.reconstitute()
                                 .id(getValidIdentifier())
                                 .slug(getValidSlug())
@@ -578,7 +585,7 @@ class AdvertisementTest {
                 }
 
                 // When
-                final Advertisement<?> instance =
+                final Advertisement instance =
                         Advertisement.reconstitute()
                                 .id(getValidIdentifier())
                                 .slug(getValidSlug())
@@ -609,7 +616,7 @@ class AdvertisementTest {
                                 AdvertisementPhoto.create(new Url("http://xyzeu"), 1));
 
                 // When
-                final Advertisement<?> instance =
+                final Advertisement instance =
                         Advertisement.reconstitute()
                                 .id(getValidIdentifier())
                                 .slug(getValidSlug())
@@ -640,7 +647,7 @@ class AdvertisementTest {
             final PlotDetails plotDetails =
                     new PlotDetails(new Area(null), PlotBuildingType.CONSTRUCTION, null);
 
-            final Advertisement<PlotDetails> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -663,19 +670,23 @@ class AdvertisementTest {
         }
 
         @Test
-        @DisplayName("Should update details successfully")
-        void shouldUpdateDetailsSuccessfully() {
+        @DisplayName("Should throw exception when details has different type")
+        void shouldThrowExceptionWhenDetailsHasDifferentType() {
             // Given
             final PlotDetails plotDetails =
                     new PlotDetails(new Area(null), PlotBuildingType.CONSTRUCTION, null);
 
-            final PlotDetails incomingPlotDetails =
-                    new PlotDetails(
-                            new Area(BigDecimal.valueOf(2_500_000)),
-                            PlotBuildingType.CONSTRUCTION,
-                            null);
+            final HouseDetails houseDetails =
+                    new HouseDetails(
+                            new Area(null),
+                            HouseBuildingType.DETACHED,
+                            null,
+                            new NumberOfRooms(null),
+                            new Floor(null),
+                            new BuiltYear(null),
+                            TypeOfMarket.PRIMARY);
 
-            final Advertisement<PlotDetails> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -691,8 +702,42 @@ class AdvertisementTest {
                             .build();
 
             // When
-            final Advertisement<PlotDetails> updatedInstance =
-                    instance.updateDetails(incomingPlotDetails);
+            // Then
+            Assertions.assertThatThrownBy(() -> instance.updateDetails(houseDetails))
+                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
+                    .hasMessage("Details must be of the same type");
+        }
+
+        @Test
+        @DisplayName("Should update details successfully")
+        void shouldUpdateDetailsSuccessfully() {
+            // Given
+            final PlotDetails plotDetails =
+                    new PlotDetails(new Area(null), PlotBuildingType.CONSTRUCTION, null);
+
+            final PlotDetails incomingPlotDetails =
+                    new PlotDetails(
+                            new Area(BigDecimal.valueOf(2_500_000)),
+                            PlotBuildingType.CONSTRUCTION,
+                            null);
+
+            final Advertisement instance =
+                    Advertisement.reconstitute()
+                            .id(getValidIdentifier())
+                            .slug(getValidSlug())
+                            .title(getValidTitle())
+                            .description(getValidDescription())
+                            .price(getValidPrice())
+                            .locality(getValidLocality())
+                            .details(plotDetails)
+                            .status(getValidStatus())
+                            .userId(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .photos(null)
+                            .build();
+
+            // When
+            final Advertisement updatedInstance = instance.updateDetails(incomingPlotDetails);
 
             // Then
             Assertions.assertThat(instance).isEqualTo(updatedInstance);
@@ -707,7 +752,7 @@ class AdvertisementTest {
         @DisplayName("Should throw exception when title is null")
         void shouldThrowExceptionWhenTitleIsNull() {
             // Given
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -736,7 +781,7 @@ class AdvertisementTest {
             final Title title = new Title("abc abc abc");
             final Title incomingTitle = new Title("cde cde cde");
 
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -752,7 +797,7 @@ class AdvertisementTest {
                             .build();
 
             // When
-            final Advertisement<?> updatedInstance = instance.updateTitle(incomingTitle);
+            final Advertisement updatedInstance = instance.updateTitle(incomingTitle);
 
             // Then
             Assertions.assertThat(instance).isEqualTo(updatedInstance);
@@ -766,7 +811,7 @@ class AdvertisementTest {
             final Title title = new Title("abc abc abc");
             final Title incomingTitle = new Title("abc abc abc");
 
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -796,7 +841,7 @@ class AdvertisementTest {
             final Title incomingTitle = new Title("cde cde cde");
             final Slug slug = Slug.create(title);
 
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(slug)
@@ -812,7 +857,7 @@ class AdvertisementTest {
                             .build();
 
             // When
-            final Advertisement<?> updatedInstance = instance.updateTitle(incomingTitle);
+            final Advertisement updatedInstance = instance.updateTitle(incomingTitle);
 
             // Then
             Assertions.assertThat(instance).isEqualTo(updatedInstance);
@@ -827,7 +872,7 @@ class AdvertisementTest {
         @DisplayName("Should throw exception when description is null")
         void shouldThrowExceptionWhenDescriptionIsNull() {
             // Given
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -856,7 +901,7 @@ class AdvertisementTest {
             final Description description = new Description("abc abc abc");
             final Description incomingDescription = new Description("cde cde cde");
 
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -872,8 +917,7 @@ class AdvertisementTest {
                             .build();
 
             // When
-            final Advertisement<?> updatedInstance =
-                    instance.updateDescription(incomingDescription);
+            final Advertisement updatedInstance = instance.updateDescription(incomingDescription);
 
             // Then
             Assertions.assertThat(instance).isEqualTo(updatedInstance);
@@ -888,7 +932,7 @@ class AdvertisementTest {
         @DisplayName("Should throw exception when price is null")
         void shouldThrowExceptionWhenPriceIsNull() {
             // Given
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -917,7 +961,7 @@ class AdvertisementTest {
             final Money price = new Money(BigDecimal.valueOf(2_500_00), MoneyCurrency.PLN);
             final Money incomingPrice = new Money(BigDecimal.valueOf(2_500_00), MoneyCurrency.PLN);
 
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -946,7 +990,7 @@ class AdvertisementTest {
             final Money price = new Money(BigDecimal.valueOf(2_500_00), MoneyCurrency.PLN);
             final Money incomingPrice = new Money(BigDecimal.valueOf(1_500_00), MoneyCurrency.PLN);
 
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -962,7 +1006,7 @@ class AdvertisementTest {
                             .build();
 
             // When
-            final Advertisement<?> updatedInstance = instance.updatePrice(incomingPrice);
+            final Advertisement updatedInstance = instance.updatePrice(incomingPrice);
 
             // Then
             Assertions.assertThat(instance).isEqualTo(updatedInstance);
@@ -976,7 +1020,7 @@ class AdvertisementTest {
             final Money price = new Money(BigDecimal.valueOf(2_500_00), MoneyCurrency.PLN);
             final Money incomingPrice = new Money(BigDecimal.valueOf(1_500_00), MoneyCurrency.PLN);
 
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -992,7 +1036,7 @@ class AdvertisementTest {
                             .build();
 
             // When
-            final Advertisement<?> updatedInstance = instance.updatePrice(incomingPrice);
+            final Advertisement updatedInstance = instance.updatePrice(incomingPrice);
 
             // Then
             final AdvertisementPriceChangedEvent expectedEvent =
@@ -1000,6 +1044,66 @@ class AdvertisementTest {
 
             Assertions.assertThat(instance.getEvents()).isEmpty();
             Assertions.assertThat(updatedInstance.getEvents()).containsExactly(expectedEvent);
+        }
+    }
+
+    @Nested
+    final class UpdateLocalityTests {
+
+        @Test
+        @DisplayName("Should throw exception when locality is null")
+        void shouldThrowExceptionWhenLocalityIsNull() {
+            // Given
+            final Advertisement instance =
+                    Advertisement.reconstitute()
+                            .id(getValidIdentifier())
+                            .slug(getValidSlug())
+                            .title(getValidTitle())
+                            .description(getValidDescription())
+                            .price(getValidPrice())
+                            .locality(getValidLocality())
+                            .details(getValidDetails())
+                            .status(getValidStatus())
+                            .userId(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .photos(null)
+                            .build();
+
+            // When
+            // Then
+            Assertions.assertThatThrownBy(() -> instance.updateLocality(null))
+                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
+                    .hasMessage("Locality cannot be null");
+        }
+
+        @Test
+        @DisplayName("Should update locality successfully")
+        void shouldUpdateLocalitySuccessfully() {
+            // Given
+            final Locality locality = new Locality(Identifier.generate());
+            final Locality incomingLocality = new Locality(Identifier.generate());
+
+            final Advertisement instance =
+                    Advertisement.reconstitute()
+                            .id(getValidIdentifier())
+                            .slug(getValidSlug())
+                            .title(getValidTitle())
+                            .description(getValidDescription())
+                            .price(getValidPrice())
+                            .locality(locality)
+                            .details(getValidDetails())
+                            .status(getValidStatus())
+                            .userId(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .photos(null)
+                            .build();
+
+            // When
+            final Advertisement updatedInstance = instance.updateLocality(incomingLocality);
+
+            // Then
+            Assertions.assertThat(instance).isEqualTo(updatedInstance);
+            Assertions.assertThat(updatedInstance.getLocality()).isEqualTo(incomingLocality);
         }
     }
 
@@ -1012,7 +1116,7 @@ class AdvertisementTest {
             // Given
             final AdvertisementStatus status = AdvertisementStatus.SOLD;
 
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -1038,9 +1142,9 @@ class AdvertisementTest {
         @DisplayName("Should throw exception when advertisement is active")
         void shouldThrowExceptionWhenAdvertisementIsActive() {
             // Given
-            final AdvertisementStatus status = AdvertisementStatus.ACTIVE;
+            final AdvertisementStatus status = ACTIVE;
 
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -1068,7 +1172,7 @@ class AdvertisementTest {
             // Given
             final AdvertisementStatus status = AdvertisementStatus.INACTIVE;
 
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -1084,12 +1188,11 @@ class AdvertisementTest {
                             .build();
 
             // When
-            final Advertisement<?> updatedInstance = instance.activate();
+            final Advertisement updatedInstance = instance.activate();
 
             // Then
             Assertions.assertThat(instance).isEqualTo(updatedInstance);
-            Assertions.assertThat(updatedInstance.getStatus())
-                    .isEqualTo(AdvertisementStatus.ACTIVE);
+            Assertions.assertThat(updatedInstance.isActive()).isTrue();
         }
 
         @Test
@@ -1098,7 +1201,7 @@ class AdvertisementTest {
             // Given
             final AdvertisementStatus status = AdvertisementStatus.INACTIVE;
 
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -1114,12 +1217,11 @@ class AdvertisementTest {
                             .build();
 
             // When
-            final Advertisement<?> updatedInstance = instance.activate();
+            final Advertisement updatedInstance = instance.activate();
 
             // Then
             final AdvertisementStatusChangedEvent expectedEvent =
-                    new AdvertisementStatusChangedEvent(
-                            instance.getId(), status, AdvertisementStatus.ACTIVE);
+                    new AdvertisementStatusChangedEvent(instance.getId(), status, ACTIVE);
 
             Assertions.assertThat(instance.getEvents()).isEmpty();
             Assertions.assertThat(updatedInstance.getEvents()).containsExactly(expectedEvent);
@@ -1135,7 +1237,7 @@ class AdvertisementTest {
             // Given
             final AdvertisementStatus status = AdvertisementStatus.SOLD;
 
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -1163,7 +1265,7 @@ class AdvertisementTest {
             // Given
             final AdvertisementStatus status = AdvertisementStatus.INACTIVE;
 
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -1189,9 +1291,9 @@ class AdvertisementTest {
         @DisplayName("Should update status successfully")
         void shouldUpdateStatusSuccessfully() {
             // Given
-            final AdvertisementStatus status = AdvertisementStatus.ACTIVE;
+            final AdvertisementStatus status = ACTIVE;
 
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -1207,21 +1309,20 @@ class AdvertisementTest {
                             .build();
 
             // When
-            final Advertisement<?> updatedInstance = instance.inactivate();
+            final Advertisement updatedInstance = instance.inactivate();
 
             // Then
             Assertions.assertThat(instance).isEqualTo(updatedInstance);
-            Assertions.assertThat(updatedInstance.getStatus())
-                    .isEqualTo(AdvertisementStatus.INACTIVE);
+            Assertions.assertThat(updatedInstance.isInactive()).isTrue();
         }
 
         @Test
         @DisplayName("Should add event after successful update")
         void shouldAddEventAfterSuccessfulUpdate() {
             // Given
-            final AdvertisementStatus status = AdvertisementStatus.ACTIVE;
+            final AdvertisementStatus status = ACTIVE;
 
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -1237,7 +1338,7 @@ class AdvertisementTest {
                             .build();
 
             // When
-            final Advertisement<?> updatedInstance = instance.inactivate();
+            final Advertisement updatedInstance = instance.inactivate();
 
             // Then
             final AdvertisementStatusChangedEvent expectedEvent =
@@ -1258,7 +1359,7 @@ class AdvertisementTest {
             // Given
             final AdvertisementStatus status = AdvertisementStatus.SOLD;
 
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -1286,7 +1387,7 @@ class AdvertisementTest {
             // Given
             final AdvertisementStatus status = AdvertisementStatus.INACTIVE;
 
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -1312,9 +1413,9 @@ class AdvertisementTest {
         @DisplayName("Should update status successfully")
         void shouldUpdateStatusSuccessfully() {
             // Given
-            final AdvertisementStatus status = AdvertisementStatus.ACTIVE;
+            final AdvertisementStatus status = ACTIVE;
 
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -1330,20 +1431,20 @@ class AdvertisementTest {
                             .build();
 
             // When
-            final Advertisement<?> updatedInstance = instance.setAsSold();
+            final Advertisement updatedInstance = instance.setAsSold();
 
             // Then
             Assertions.assertThat(instance).isEqualTo(updatedInstance);
-            Assertions.assertThat(updatedInstance.getStatus()).isEqualTo(AdvertisementStatus.SOLD);
+            Assertions.assertThat(updatedInstance.isSold()).isTrue();
         }
 
         @Test
         @DisplayName("Should add event after successful update")
         void shouldAddEventAfterSuccessfulUpdate() {
             // Given
-            final AdvertisementStatus status = AdvertisementStatus.ACTIVE;
+            final AdvertisementStatus status = ACTIVE;
 
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -1359,7 +1460,7 @@ class AdvertisementTest {
                             .build();
 
             // When
-            final Advertisement<?> updatedInstance = instance.setAsSold();
+            final Advertisement updatedInstance = instance.setAsSold();
 
             // Then
             final AdvertisementStatusChangedEvent expectedEvent =
@@ -1378,7 +1479,7 @@ class AdvertisementTest {
         @DisplayName("Should throw exception when photo is null")
         void shouldThrowExceptionWhenPhotoIsNull() {
             // Given
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -1409,7 +1510,7 @@ class AdvertisementTest {
 
             final Set<AdvertisementPhoto> photos = Set.of(advertisementPhoto);
 
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -1435,7 +1536,7 @@ class AdvertisementTest {
         @DisplayName("Should add photo when advertisement does not have any photos")
         void shouldAddPhotoWhenAdvertisementDoesNotHaveAnyPhotos() {
             // Given
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -1454,7 +1555,7 @@ class AdvertisementTest {
                     AdvertisementPhoto.create(new Url("https://xyz"), 0);
 
             // When
-            final Advertisement<?> updatedInstance = instance.addPhoto(advertisementPhoto);
+            final Advertisement updatedInstance = instance.addPhoto(advertisementPhoto);
 
             // Then
             Assertions.assertThat(instance).isEqualTo(updatedInstance);
@@ -1468,7 +1569,7 @@ class AdvertisementTest {
             final AdvertisementPhoto existingPhoto =
                     AdvertisementPhoto.create(new Url("https://abc"), 0);
 
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -1487,7 +1588,7 @@ class AdvertisementTest {
                     AdvertisementPhoto.create(new Url("https://xyz"), 0);
 
             // When
-            final Advertisement<?> updatedInstance = instance.addPhoto(advertisementPhoto);
+            final Advertisement updatedInstance = instance.addPhoto(advertisementPhoto);
 
             // Then
             Assertions.assertThat(instance).isEqualTo(updatedInstance);
@@ -1505,7 +1606,7 @@ class AdvertisementTest {
             final AdvertisementPhoto existingPhoto2 =
                     AdvertisementPhoto.create(new Url("https://cde"), 1);
 
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -1524,7 +1625,7 @@ class AdvertisementTest {
                     AdvertisementPhoto.create(new Url("https://xyz"), 0);
 
             // When
-            final Advertisement<?> updatedInstance = instance.addPhoto(advertisementPhoto);
+            final Advertisement updatedInstance = instance.addPhoto(advertisementPhoto);
 
             // Then
             Assertions.assertThat(instance).isEqualTo(updatedInstance);
@@ -1550,7 +1651,7 @@ class AdvertisementTest {
                 photos.add(AdvertisementPhoto.create(new Url("https://" + i), i));
             }
 
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .title(getValidTitle())
                             .description(getValidDescription())
@@ -1584,7 +1685,7 @@ class AdvertisementTest {
                 photos.add(AdvertisementPhoto.create(new Url("https://" + i), i));
             }
 
-            final Advertisement<?> instance =
+            final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
@@ -1603,7 +1704,7 @@ class AdvertisementTest {
                     AdvertisementPhoto.create(new Url("https://11"), 11);
 
             // When
-            final Advertisement<?> updatedInstance = instance.addPhoto(advertisementPhoto);
+            final Advertisement updatedInstance = instance.addPhoto(advertisementPhoto);
 
             // Then
             Assertions.assertThat(updatedInstance.getPhotos())
@@ -1611,6 +1712,495 @@ class AdvertisementTest {
                     .containsAll(photos)
                     .contains(advertisementPhoto);
         }
+    }
+
+    @Nested
+    final class RemovePhotoTests {
+
+        @Test
+        @DisplayName("Should throw exception when photo is null")
+        void shouldThrowExceptionWhenPhotoIsNull() {
+            // Given
+            final Advertisement instance =
+                    Advertisement.reconstitute()
+                            .id(getValidIdentifier())
+                            .slug(getValidSlug())
+                            .title(getValidTitle())
+                            .description(getValidDescription())
+                            .price(getValidPrice())
+                            .locality(getValidLocality())
+                            .details(getValidDetails())
+                            .status(getValidStatus())
+                            .userId(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .photos(null)
+                            .build();
+
+            // When
+            // Then
+            Assertions.assertThatThrownBy(() -> instance.removePhoto(null))
+                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
+                    .hasMessage("AdvertisementPhoto cannot be null");
+        }
+
+        @Test
+        @DisplayName("Should throw exception when photo not exist")
+        void shouldThrowExceptionWhenPhotoNotExist() {
+            // Given
+            final AdvertisementPhoto advertisementPhoto =
+                    AdvertisementPhoto.create(new Url("https://xyz"), 0);
+
+            final Advertisement instance =
+                    Advertisement.reconstitute()
+                            .id(getValidIdentifier())
+                            .slug(getValidSlug())
+                            .title(getValidTitle())
+                            .description(getValidDescription())
+                            .price(getValidPrice())
+                            .locality(getValidLocality())
+                            .details(getValidDetails())
+                            .status(getValidStatus())
+                            .userId(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .photos(null)
+                            .build();
+
+            // When
+            // Then
+            Assertions.assertThatThrownBy(() -> instance.removePhoto(advertisementPhoto))
+                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
+                    .hasMessage("Photo does not exist");
+        }
+
+        @Test
+        @DisplayName("Should remove photo successfully when there is only one")
+        void shouldRemovePhotoSuccessfullyWhenThereIsOnlyOne() {
+            // Given
+            final AdvertisementPhoto advertisementPhoto =
+                    AdvertisementPhoto.create(new Url("https://xyz"), 0);
+
+            final Advertisement instance =
+                    Advertisement.reconstitute()
+                            .id(getValidIdentifier())
+                            .slug(getValidSlug())
+                            .title(getValidTitle())
+                            .description(getValidDescription())
+                            .price(getValidPrice())
+                            .locality(getValidLocality())
+                            .details(getValidDetails())
+                            .status(getValidStatus())
+                            .userId(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .photos(Set.of(advertisementPhoto))
+                            .build();
+
+            // When
+            final Advertisement updatedInstance = instance.removePhoto(advertisementPhoto);
+
+            // Then
+            Assertions.assertThat(instance).isEqualTo(updatedInstance);
+            Assertions.assertThat(updatedInstance.getPhotos()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("Should remove first photo successfully with more photos")
+        void shouldRemoveFirstPhotoSuccessfullyWithMorePhotos() {
+            // Given
+            final AdvertisementPhoto advertisementPhoto =
+                    AdvertisementPhoto.create(new Url("https://xyz"), 0);
+
+            final AdvertisementPhoto advertisementPhoto2 =
+                    AdvertisementPhoto.create(new Url("https://abc"), 1);
+
+            final Advertisement instance =
+                    Advertisement.reconstitute()
+                            .id(getValidIdentifier())
+                            .slug(getValidSlug())
+                            .title(getValidTitle())
+                            .description(getValidDescription())
+                            .price(getValidPrice())
+                            .locality(getValidLocality())
+                            .details(getValidDetails())
+                            .status(getValidStatus())
+                            .userId(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .photos(Set.of(advertisementPhoto, advertisementPhoto2))
+                            .build();
+
+            // When
+            final Advertisement updatedInstance = instance.removePhoto(advertisementPhoto);
+
+            // Then
+            Assertions.assertThat(instance).isEqualTo(updatedInstance);
+
+            final AdvertisementPhoto[] photosAsArray =
+                    updatedInstance.getPhotos().toArray(AdvertisementPhoto[]::new);
+
+            Assertions.assertThat(photosAsArray).doesNotContain(advertisementPhoto);
+            Assertions.assertThat(photosAsArray).hasSize(1);
+            Assertions.assertThat(photosAsArray[0])
+                    .isEqualTo(
+                            AdvertisementPhoto.of(
+                                    advertisementPhoto2.getId(), advertisementPhoto2.getUrl(), 0));
+        }
+
+        @Test
+        @DisplayName("Should remove last photo successfully with more photos")
+        void shouldRemoveLastPhotoSuccessfullyWithMorePhotos() {
+            // Given
+            final AdvertisementPhoto advertisementPhoto =
+                    AdvertisementPhoto.create(new Url("https://xyz"), 0);
+
+            final AdvertisementPhoto advertisementPhoto2 =
+                    AdvertisementPhoto.create(new Url("https://abc"), 1);
+
+            final Advertisement instance =
+                    Advertisement.reconstitute()
+                            .id(getValidIdentifier())
+                            .slug(getValidSlug())
+                            .title(getValidTitle())
+                            .description(getValidDescription())
+                            .price(getValidPrice())
+                            .locality(getValidLocality())
+                            .details(getValidDetails())
+                            .status(getValidStatus())
+                            .userId(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .photos(Set.of(advertisementPhoto, advertisementPhoto2))
+                            .build();
+
+            // When
+            final Advertisement updatedInstance = instance.removePhoto(advertisementPhoto2);
+
+            // Then
+            Assertions.assertThat(instance).isEqualTo(updatedInstance);
+
+            final AdvertisementPhoto[] photosAsArray =
+                    updatedInstance.getPhotos().toArray(AdvertisementPhoto[]::new);
+
+            Assertions.assertThat(photosAsArray).doesNotContain(advertisementPhoto2);
+            Assertions.assertThat(photosAsArray).hasSize(1);
+            Assertions.assertThat(photosAsArray[0])
+                    .isEqualTo(
+                            AdvertisementPhoto.of(
+                                    advertisementPhoto.getId(), advertisementPhoto.getUrl(), 0));
+        }
+
+        @Test
+        @DisplayName("Should remove mid photo successfully with more photos")
+        void shouldRemoveMidPhotoSuccessfullyWithMorePhotos() {
+            // Given
+            final AdvertisementPhoto advertisementPhoto =
+                    AdvertisementPhoto.create(new Url("https://xyz"), 0);
+
+            final AdvertisementPhoto advertisementPhoto2 =
+                    AdvertisementPhoto.create(new Url("https://abc"), 1);
+
+            final AdvertisementPhoto advertisementPhoto3 =
+                    AdvertisementPhoto.create(new Url("https://cde"), 2);
+
+            final Advertisement instance =
+                    Advertisement.reconstitute()
+                            .id(getValidIdentifier())
+                            .slug(getValidSlug())
+                            .title(getValidTitle())
+                            .description(getValidDescription())
+                            .price(getValidPrice())
+                            .locality(getValidLocality())
+                            .details(getValidDetails())
+                            .status(getValidStatus())
+                            .userId(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .photos(
+                                    Set.of(
+                                            advertisementPhoto,
+                                            advertisementPhoto2,
+                                            advertisementPhoto3))
+                            .build();
+
+            // When
+            final Advertisement updatedInstance = instance.removePhoto(advertisementPhoto2);
+
+            // Then
+            Assertions.assertThat(instance).isEqualTo(updatedInstance);
+            Assertions.assertThat(updatedInstance.getPhotos()).doesNotContain(advertisementPhoto2);
+            Assertions.assertThat(updatedInstance.getPhotos()).hasSize(2);
+            final List<AdvertisementPhoto> photos = updatedInstance.getPhotos().stream().toList();
+
+            Assertions.assertThat(photos.get(photos.indexOf(advertisementPhoto)))
+                    .isEqualTo(advertisementPhoto)
+                    .matches(p -> p.getPosition() == 0);
+
+            Assertions.assertThat(photos.get(photos.indexOf(advertisementPhoto3)))
+                    .isEqualTo(advertisementPhoto3)
+                    .matches(p -> p.getPosition() == 1);
+        }
+    }
+
+    @Nested
+    final class SetAsFeaturedTests {
+
+        @ParameterizedTest
+        @EnumSource(AdvertisementStatus.class)
+        @DisplayName("Should throw exception when advertisement is not active")
+        void shouldThrowExceptionWhenAdvertisementIsNotActive(final AdvertisementStatus status) {
+            // Given
+
+            if (status == ACTIVE) {
+                return;
+            }
+
+            final Advertisement instance =
+                    Advertisement.reconstitute()
+                            .id(getValidIdentifier())
+                            .slug(getValidSlug())
+                            .title(getValidTitle())
+                            .description(getValidDescription())
+                            .price(getValidPrice())
+                            .locality(getValidLocality())
+                            .details(getValidDetails())
+                            .status(status)
+                            .userId(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .photos(null)
+                            .build();
+
+            // When
+            // Then
+            Assertions.assertThatThrownBy(instance::setAsFeatured)
+                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
+                    .hasMessage("Advertisement must be active");
+        }
+
+        @Test
+        @DisplayName("Should throw exception when advertisement is already featured")
+        void shouldThrowExceptionWhenAdvertisementIsAlreadyFeatured() {
+            // Given
+            final Advertisement instance =
+                    Advertisement.reconstitute()
+                            .id(getValidIdentifier())
+                            .slug(getValidSlug())
+                            .title(getValidTitle())
+                            .description(getValidDescription())
+                            .price(getValidPrice())
+                            .locality(getValidLocality())
+                            .details(getValidDetails())
+                            .status(ACTIVE)
+                            .featured(true)
+                            .userId(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .photos(null)
+                            .build();
+
+            // When
+            // Then
+            Assertions.assertThatThrownBy(instance::setAsFeatured)
+                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
+                    .hasMessage("Advertisement is already featured");
+        }
+
+        @Test
+        @DisplayName("Should set advertisement as featured successfully")
+        void shouldSetAdvertisementAsFeaturedSuccessfully() {
+            // Given
+            final Advertisement instance =
+                    Advertisement.reconstitute()
+                            .id(getValidIdentifier())
+                            .slug(getValidSlug())
+                            .title(getValidTitle())
+                            .description(getValidDescription())
+                            .price(getValidPrice())
+                            .locality(getValidLocality())
+                            .details(getValidDetails())
+                            .status(ACTIVE)
+                            .featured(false)
+                            .userId(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .photos(null)
+                            .build();
+
+            // When
+            final Advertisement updatedInstance = instance.setAsFeatured();
+
+            // Then
+            Assertions.assertThat(instance).isEqualTo(updatedInstance);
+            Assertions.assertThat(updatedInstance.isFeatured()).isTrue();
+        }
+    }
+
+    @Nested
+    final class DisableFeaturedStateTests {
+
+        @ParameterizedTest
+        @EnumSource(AdvertisementStatus.class)
+        @DisplayName("Should throw exception when advertisement is not active")
+        void shouldThrowExceptionWhenAdvertisementIsNotActive(final AdvertisementStatus status) {
+            // Given
+            if (status == ACTIVE) {
+                return;
+            }
+
+            final Advertisement instance =
+                    Advertisement.reconstitute()
+                            .id(getValidIdentifier())
+                            .slug(getValidSlug())
+                            .title(getValidTitle())
+                            .description(getValidDescription())
+                            .price(getValidPrice())
+                            .locality(getValidLocality())
+                            .details(getValidDetails())
+                            .status(status)
+                            .userId(getValidIdentifier())
+                            .featured(true)
+                            .createdAt(Instant.now())
+                            .photos(null)
+                            .build();
+
+            // When
+            // Then
+            Assertions.assertThatThrownBy(instance::disableFeaturedState)
+                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
+                    .hasMessage("Advertisement must be active");
+        }
+
+        @Test
+        @DisplayName("Should throw exception when advertisement is not featured")
+        void shouldThrowExceptionWhenAdvertisementIsNotFeatured() {
+            // Given
+            final Advertisement instance =
+                    Advertisement.reconstitute()
+                            .id(getValidIdentifier())
+                            .slug(getValidSlug())
+                            .title(getValidTitle())
+                            .description(getValidDescription())
+                            .price(getValidPrice())
+                            .locality(getValidLocality())
+                            .details(getValidDetails())
+                            .status(ACTIVE)
+                            .featured(false)
+                            .userId(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .photos(null)
+                            .build();
+
+            // When
+            // Then
+            Assertions.assertThatThrownBy(instance::disableFeaturedState)
+                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
+                    .hasMessage("Advertisement is not featured");
+        }
+
+        @Test
+        @DisplayName("Should set advertisement as featured successfully")
+        void shouldDisableFeaturedStateSuccessfully() {
+            // Given
+            final Advertisement instance =
+                    Advertisement.reconstitute()
+                            .id(getValidIdentifier())
+                            .slug(getValidSlug())
+                            .title(getValidTitle())
+                            .description(getValidDescription())
+                            .price(getValidPrice())
+                            .locality(getValidLocality())
+                            .details(getValidDetails())
+                            .status(ACTIVE)
+                            .featured(true)
+                            .userId(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .photos(null)
+                            .build();
+
+            // When
+            final Advertisement updatedInstance = instance.disableFeaturedState();
+
+            // Then
+            Assertions.assertThat(instance).isEqualTo(updatedInstance);
+            Assertions.assertThat(updatedInstance.isFeatured()).isFalse();
+        }
+    }
+
+    @ParameterizedTest
+    @EnumSource(AdvertisementStatus.class)
+    @DisplayName("Should return proper status at isActive")
+    void shouldReturnProperStatusAtIsActive(final AdvertisementStatus status) {
+        // Given
+        final boolean expectedValue = status == ACTIVE;
+
+        final Advertisement instance =
+                Advertisement.reconstitute()
+                        .id(getValidIdentifier())
+                        .slug(getValidSlug())
+                        .title(getValidTitle())
+                        .description(getValidDescription())
+                        .price(getValidPrice())
+                        .locality(getValidLocality())
+                        .details(getValidDetails())
+                        .status(status)
+                        .featured(true)
+                        .userId(getValidIdentifier())
+                        .createdAt(Instant.now())
+                        .photos(null)
+                        .build();
+
+        // When
+        // Then
+        Assertions.assertThat(instance.isActive()).isEqualTo(expectedValue);
+    }
+
+    @ParameterizedTest
+    @EnumSource(AdvertisementStatus.class)
+    @DisplayName("Should return proper status at isInactive")
+    void shouldReturnProperStatusAtIsInactive(final AdvertisementStatus status) {
+        // Given
+        final boolean expectedValue = status == INACTIVE;
+
+        final Advertisement instance =
+                Advertisement.reconstitute()
+                        .id(getValidIdentifier())
+                        .slug(getValidSlug())
+                        .title(getValidTitle())
+                        .description(getValidDescription())
+                        .price(getValidPrice())
+                        .locality(getValidLocality())
+                        .details(getValidDetails())
+                        .status(status)
+                        .featured(true)
+                        .userId(getValidIdentifier())
+                        .createdAt(Instant.now())
+                        .photos(null)
+                        .build();
+
+        // When
+        // Then
+        Assertions.assertThat(instance.isInactive()).isEqualTo(expectedValue);
+    }
+
+    @ParameterizedTest
+    @EnumSource(AdvertisementStatus.class)
+    @DisplayName("Should return proper status at isSold")
+    void shouldReturnProperStatusAtIsSold(final AdvertisementStatus status) {
+        // Given
+        final boolean expectedValue = status == SOLD;
+
+        final Advertisement instance =
+                Advertisement.reconstitute()
+                        .id(getValidIdentifier())
+                        .slug(getValidSlug())
+                        .title(getValidTitle())
+                        .description(getValidDescription())
+                        .price(getValidPrice())
+                        .locality(getValidLocality())
+                        .details(getValidDetails())
+                        .status(status)
+                        .featured(true)
+                        .userId(getValidIdentifier())
+                        .createdAt(Instant.now())
+                        .photos(null)
+                        .build();
+
+        // When
+        // Then
+        Assertions.assertThat(instance.isSold()).isEqualTo(expectedValue);
     }
 
     private static Identifier getValidIdentifier() {
@@ -1634,7 +2224,7 @@ class AdvertisementTest {
     }
 
     private static AdvertisementStatus getValidStatus() {
-        return AdvertisementStatus.ACTIVE;
+        return ACTIVE;
     }
 
     private static Slug getValidSlug() {

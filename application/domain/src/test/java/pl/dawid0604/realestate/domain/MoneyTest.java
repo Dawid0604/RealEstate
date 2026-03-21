@@ -39,6 +39,19 @@ class MoneyTest {
     }
 
     @Test
+    @DisplayName("Should create instance successfully and set value scale")
+    void shouldCreateInstanceSuccessfullyAndSetValueScale() {
+        // Given
+        final BigDecimal price = BigDecimal.valueOf(10_000);
+
+        // When
+        final Money money = new Money(price, MoneyCurrency.PLN);
+
+        // Then
+        Assertions.assertThat(money.value()).matches(v -> v.scale() == 2);
+    }
+
+    @Test
     @DisplayName("Should create instance successfully and return same value and currency")
     void shouldCreateInstanceSuccessfullyAndReturnSameValueAndCurrency() {
         // Given

@@ -44,6 +44,7 @@ class AggregateRootTest {
     }
 
     @Test
+    @DisplayName("Should return copied event list at getter")
     void shouldReturnCopiedEventListAtGetter() {
         // Given
         final DomainEvent event = new DomainEvent() {};
@@ -57,5 +58,31 @@ class AggregateRootTest {
         // Then
         final List<DomainEvent> events = instance.getEvents();
         Assertions.assertThat(events).isNotEqualTo(beforeAddEvents);
+    }
+
+    @Test
+    @DisplayName("Should throw exception when value is null")
+    void shouldThrowExceptionWhenValueIsNull() {
+        // Given
+        final String fieldName = "xyz";
+
+        // When
+        // Then
+        Assertions.assertThatThrownBy(() -> AggregateRoot.requireNonNull(null, fieldName))
+                .isExactlyInstanceOf(InvalidArgumentValueException.class)
+                .hasMessage(fieldName + " cannot be null");
+    }
+
+    @Test
+    @DisplayName("Should not throw exception when value is not null")
+    void shouldNotThrowExceptionWhenValueIsNotNull() {
+        // Given
+        final String fieldName = "xyz";
+        final Object value = new Object();
+
+        // When
+        // Then
+        Assertions.assertThatCode(() -> AggregateRoot.requireNonNull(value, fieldName))
+                .doesNotThrowAnyException();
     }
 }
