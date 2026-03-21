@@ -20,4 +20,15 @@ public abstract sealed class AdvertisementEvent extends DomainEvent
     public final Identifier getAdvertisementId() {
         return advertisementId;
     }
+
+    @Override
+    public final boolean equals(final Object o) {
+        return o instanceof final AdvertisementEvent that
+                && advertisementId.equals(that.advertisementId);
+    }
+
+    @Override
+    public final int hashCode() {
+        return advertisementId.hashCode();
+    }
 }
