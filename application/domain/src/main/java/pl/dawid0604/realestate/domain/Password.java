@@ -11,7 +11,8 @@ public final class Password {
     private static final int MIN_LENGTH = 8;
     private static final int MAX_LENGTH = 72;
     private static final Pattern STRENGTH_PATTERN =
-            Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$");
+            Pattern.compile(
+                    "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&,.])[A-Za-z\\d@$!%*?&.,]+$");
 
     private final String value;
     private final boolean hashed;
@@ -21,11 +22,15 @@ public final class Password {
             throw new InvalidArgumentValueException("Value cannot be blank");
         }
 
-        this.value = value.strip();
+        if (!hashed) {
+            verifyPlainPassword(value);
+        }
+
+        this.value = value;
         this.hashed = hashed;
     }
 
-    public static Password ofPlain(final String value) {
+    private static void verifyPlainPassword(final String value) {
         if (value.length() < MIN_LENGTH) {
             throw new InvalidArgumentValueException("Value cannot be less than " + MIN_LENGTH);
         }
@@ -38,7 +43,9 @@ public final class Password {
             throw new InvalidArgumentValueException(
                     "Password must contain uppercase, lowercase, digit and special character");
         }
+    }
 
+    public static Password ofPlain(final String value) {
         return new Password(value, false);
     }
 
