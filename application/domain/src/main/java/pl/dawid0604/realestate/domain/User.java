@@ -1,7 +1,6 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
-import pl.dawid0604.realestate.domain.shared.exception.ForbiddenException;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 
 import java.time.Instant;
@@ -56,11 +55,15 @@ public final class User extends AggregateRoot {
         return this.status == UserStatus.INACTIVE;
     }
 
-    public User ban() {
-        if (this.role != UserRole.ADMIN_ROLE) {
-            throw new ForbiddenException("Only admins can ban users");
-        }
+    public Identifier getId() {
+        return id;
+    }
 
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public User ban() {
         if (this.status == UserStatus.BANNED) {
             throw new InvalidArgumentValueException("User is already banned");
         }
@@ -68,12 +71,24 @@ public final class User extends AggregateRoot {
         return copy().status(UserStatus.BANNED).build();
     }
 
+    public User unban() {
+        if (this.status != UserStatus.BANNED) {
+            throw new InvalidArgumentValueException("User is not banned");
+        }
+
+        return copy().status(UserStatus.ACTIVE).build();
+    }
+
     public User activate() {
         if (this.status == UserStatus.ACTIVE) {
             throw new InvalidArgumentValueException("User is already active");
         }
 
-        return copy().status(UserStatus.ACTIVE).build();
+        if (this.status == UserStatus.INACTIVE) {
+            return copy().status(UserStatus.ACTIVE).build();
+        }
+
+        throw new InvalidArgumentValueException("User must be inactivate");
     }
 
     public User updatePassword(final Password password) {
@@ -168,17 +183,25 @@ public final class User extends AggregateRoot {
                 requireNonNull(this.createdAt, "CreatedAt");
             }
 
+            if (createdAt.isAfter(Instant.now())) {
+                throw new InvalidArgumentValueException("CreatedAt cannot be from the future");
+            }
+
+            if (lastLoginAt != null && lastLoginAt.isAfter(Instant.now())) {
+                throw new InvalidArgumentValueException("LastLoginAt cannot be from the future");
+            }
+
             return new User(
-                    id,
-                    email,
-                    password,
-                    fullName,
-                    contactDetails,
-                    avatar,
-                    role,
-                    status,
-                    createdAt,
-                    lastLoginAt);
+                    this.id,
+                    this.email,
+                    this.password,
+                    this.fullName,
+                    this.contactDetails,
+                    this.avatar,
+                    this.role,
+                    this.status,
+                    this.createdAt,
+                    this.lastLoginAt);
         }
 
         public Builder id(final Identifier id) {
@@ -227,7 +250,10 @@ public final class User extends AggregateRoot {
         }
 
         public Builder lastLoginAt(final Instant lastLoginAt) {
-            this.lastLoginAt = lastLoginAt;
+            if (!createMode) {
+                this.lastLoginAt = lastLoginAt;
+            }
+
             return this;
         }
     }
