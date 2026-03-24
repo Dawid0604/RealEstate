@@ -5,6 +5,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 public final class Password {
@@ -59,5 +60,15 @@ public final class Password {
 
     public boolean isHashed() {
         return hashed;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof final Password other && Objects.equals(value, other.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(value);
     }
 }

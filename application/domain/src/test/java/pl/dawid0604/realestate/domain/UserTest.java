@@ -847,6 +847,333 @@ class UserTest {
         }
     }
 
+    @Nested
+    final class UpdatePasswordTests {
+
+        @Test
+        @DisplayName("Should throw exception when password is null")
+        void shouldThrowExceptionWhenPasswordIsNull() {
+            // Given
+            // When
+            final User instance =
+                    User.reconstitute()
+                            .email(getValidEmail())
+                            .password(getValidPassword())
+                            .fullName(getValidFullName())
+                            .role(UserRole.USER_ROLE)
+                            .contactDetails(getValidContactDetails())
+                            .status(UserStatus.ACTIVE)
+                            .id(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .build();
+
+            // Then
+            Assertions.assertThatThrownBy(() -> instance.updatePassword(null))
+                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
+                    .hasMessage("Password cannot be null");
+        }
+
+        @Test
+        @DisplayName("Should update password successfully")
+        void shouldUpdatePasswordSuccessfully() {
+            // Given
+            final Password newPassword = Password.ofHashed("$abcdyx");
+            final User instance =
+                    User.reconstitute()
+                            .email(getValidEmail())
+                            .password(getValidPassword())
+                            .fullName(getValidFullName())
+                            .role(UserRole.USER_ROLE)
+                            .contactDetails(getValidContactDetails())
+                            .status(UserStatus.ACTIVE)
+                            .id(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .build();
+
+            // When
+            final User updatedInstance = instance.updatePassword(newPassword);
+
+            // Then
+            Assertions.assertThat(updatedInstance).isEqualTo(instance);
+            Assertions.assertThat(updatedInstance.getPassword()).isEqualTo(newPassword);
+        }
+    }
+
+    @Nested
+    final class UpdateEmailTests {
+
+        @Test
+        @DisplayName("Should throw exception when email is null")
+        void shouldThrowExceptionWhenEmailIsNull() {
+            // Given
+            // When
+            final User instance =
+                    User.reconstitute()
+                            .email(getValidEmail())
+                            .password(getValidPassword())
+                            .fullName(getValidFullName())
+                            .role(UserRole.USER_ROLE)
+                            .contactDetails(getValidContactDetails())
+                            .status(UserStatus.ACTIVE)
+                            .id(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .build();
+
+            // Then
+            Assertions.assertThatThrownBy(() -> instance.updateEmail(null))
+                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
+                    .hasMessage("Email cannot be null");
+        }
+
+        @Test
+        @DisplayName("Should update email successfully")
+        void shouldUpdateEmailSuccessfully() {
+            // Given
+            final Email newEmail = new Email("abc@mail.com");
+
+            final User instance =
+                    User.reconstitute()
+                            .email(getValidEmail())
+                            .password(getValidPassword())
+                            .fullName(getValidFullName())
+                            .role(UserRole.USER_ROLE)
+                            .contactDetails(getValidContactDetails())
+                            .status(UserStatus.ACTIVE)
+                            .id(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .build();
+
+            // When
+            final User updatedInstance = instance.updateEmail(newEmail);
+
+            // Then
+            Assertions.assertThat(updatedInstance).isEqualTo(instance);
+            Assertions.assertThat(updatedInstance.getEmail()).isEqualTo(newEmail);
+        }
+    }
+
+    @Nested
+    final class UpdateContactDetailsTests {
+
+        @Test
+        @DisplayName("Should throw exception when contactDetails is null")
+        void shouldThrowExceptionWhenContactDetailsIsNull() {
+            // Given
+            // When
+            final User instance =
+                    User.reconstitute()
+                            .email(getValidEmail())
+                            .password(getValidPassword())
+                            .fullName(getValidFullName())
+                            .role(UserRole.USER_ROLE)
+                            .contactDetails(getValidContactDetails())
+                            .status(UserStatus.ACTIVE)
+                            .id(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .build();
+
+            // Then
+            Assertions.assertThatThrownBy(() -> instance.updateContactDetails(null))
+                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
+                    .hasMessage("ContactDetails cannot be null");
+        }
+
+        @Test
+        @DisplayName("Should update contactDetails successfully")
+        void shouldUpdateContactDetailsSuccessfully() {
+            // Given
+            final ContactDetails newContactDetails =
+                    new ContactDetails(new Email("abc@mail.com"), null);
+
+            final User instance =
+                    User.reconstitute()
+                            .email(getValidEmail())
+                            .password(getValidPassword())
+                            .fullName(getValidFullName())
+                            .role(UserRole.USER_ROLE)
+                            .contactDetails(getValidContactDetails())
+                            .status(UserStatus.ACTIVE)
+                            .id(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .build();
+
+            // When
+            final User updatedInstance = instance.updateContactDetails(newContactDetails);
+
+            // Then
+            Assertions.assertThat(updatedInstance).isEqualTo(instance);
+            Assertions.assertThat(updatedInstance.getContactDetails()).isEqualTo(newContactDetails);
+        }
+    }
+
+    @Nested
+    final class UpdateFullNameTests {
+
+        @Test
+        @DisplayName("Should throw exception when fullName is null")
+        void shouldThrowExceptionWhenFullNameIsNull() {
+            // Given
+            // When
+            final User instance =
+                    User.reconstitute()
+                            .email(getValidEmail())
+                            .password(getValidPassword())
+                            .fullName(getValidFullName())
+                            .role(UserRole.USER_ROLE)
+                            .contactDetails(getValidContactDetails())
+                            .status(UserStatus.ACTIVE)
+                            .id(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .build();
+
+            // Then
+            Assertions.assertThatThrownBy(() -> instance.updateFullName(null))
+                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
+                    .hasMessage("FullName cannot be null");
+        }
+
+        @Test
+        @DisplayName("Should update fullName successfully")
+        void shouldUpdateFullNameSuccessfully() {
+            // Given
+            final FullName newFullName = new FullName("abc", "cde");
+
+            final User instance =
+                    User.reconstitute()
+                            .email(getValidEmail())
+                            .password(getValidPassword())
+                            .fullName(getValidFullName())
+                            .role(UserRole.USER_ROLE)
+                            .contactDetails(getValidContactDetails())
+                            .status(UserStatus.ACTIVE)
+                            .id(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .build();
+
+            // When
+            final User updatedInstance = instance.updateFullName(newFullName);
+
+            // Then
+            Assertions.assertThat(updatedInstance).isEqualTo(instance);
+            Assertions.assertThat(updatedInstance.getFullName()).isEqualTo(newFullName);
+        }
+    }
+
+    @Nested
+    final class UpdateAvatarTests {
+
+        @Test
+        @DisplayName("Should update avatar successfully when value is present")
+        void shouldUpdateFullNameSuccessfullyWhenValueIsPresent() {
+            // Given
+            final Url newAvatar = new Url("https://any");
+
+            final User instance =
+                    User.reconstitute()
+                            .email(getValidEmail())
+                            .password(getValidPassword())
+                            .fullName(getValidFullName())
+                            .role(UserRole.USER_ROLE)
+                            .contactDetails(getValidContactDetails())
+                            .status(UserStatus.ACTIVE)
+                            .id(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .build();
+
+            // When
+            final User updatedInstance = instance.updateAvatar(newAvatar);
+
+            // Then
+            Assertions.assertThat(updatedInstance).isEqualTo(instance);
+            Assertions.assertThat(updatedInstance.getAvatar()).isPresent().hasValue(newAvatar);
+        }
+
+        @Test
+        @DisplayName("Should update avatar successfully when value is null")
+        void shouldUpdateFullNameSuccessfullyWhenValueIsNull() {
+            // Given
+            final User instance =
+                    User.reconstitute()
+                            .email(getValidEmail())
+                            .password(getValidPassword())
+                            .fullName(getValidFullName())
+                            .role(UserRole.USER_ROLE)
+                            .contactDetails(getValidContactDetails())
+                            .status(UserStatus.ACTIVE)
+                            .id(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .build();
+
+            // When
+            final User updatedInstance = instance.updateAvatar(null);
+
+            // Then
+            Assertions.assertThat(updatedInstance).isEqualTo(instance);
+            Assertions.assertThat(updatedInstance.getAvatar()).isEmpty();
+        }
+    }
+
+    @Nested
+    final class HandleLoginTests {
+
+        @Test
+        @DisplayName("Should handle when lastLoginAt is null")
+        void shouldHandleWhenLastLoginAtIsNull() {
+            // Given
+            final User instance =
+                    User.reconstitute()
+                            .email(getValidEmail())
+                            .password(getValidPassword())
+                            .fullName(getValidFullName())
+                            .role(UserRole.USER_ROLE)
+                            .contactDetails(getValidContactDetails())
+                            .status(UserStatus.ACTIVE)
+                            .id(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .build();
+
+            // When
+            final User updatedInstance = instance.handleLogin();
+
+            // Then
+            Assertions.assertThat(updatedInstance).isEqualTo(instance);
+            Assertions.assertThat(updatedInstance.getLastLoginAt())
+                    .isPresent()
+                    .map(v -> v.truncatedTo(SECONDS))
+                    .hasValue(Instant.now().truncatedTo(SECONDS));
+        }
+
+        @Test
+        @DisplayName("Should handle when lastLoginAt is present")
+        void shouldHandleWhenLastLoginAtIsPresent() {
+            // Given
+            final Instant lastLoginAt = Instant.now().minusMillis(15_000);
+
+            final User instance =
+                    User.reconstitute()
+                            .email(getValidEmail())
+                            .password(getValidPassword())
+                            .fullName(getValidFullName())
+                            .role(UserRole.USER_ROLE)
+                            .contactDetails(getValidContactDetails())
+                            .status(UserStatus.ACTIVE)
+                            .id(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .lastLoginAt(lastLoginAt)
+                            .build();
+
+            // When
+            final User updatedInstance = instance.handleLogin();
+
+            // Then
+            Assertions.assertThat(updatedInstance).isEqualTo(instance);
+            Assertions.assertThat(updatedInstance.getLastLoginAt())
+                    .isPresent()
+                    .map(v -> v.truncatedTo(SECONDS))
+                    .hasValue(Instant.now().truncatedTo(SECONDS));
+        }
+    }
+
     private static Identifier getValidIdentifier() {
         return Identifier.generate();
     }

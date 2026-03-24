@@ -127,6 +127,22 @@ public final class User extends AggregateRoot {
         return Optional.ofNullable(avatar);
     }
 
+    public Password getPassword() {
+        return password;
+    }
+
+    public FullName getFullName() {
+        return fullName;
+    }
+
+    public ContactDetails getContactDetails() {
+        return contactDetails;
+    }
+
+    public Email getEmail() {
+        return email;
+    }
+
     public static Builder create() {
         return new Builder(true);
     }
