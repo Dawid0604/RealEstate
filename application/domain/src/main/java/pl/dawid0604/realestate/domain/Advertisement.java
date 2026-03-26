@@ -49,7 +49,6 @@ public final class Advertisement extends AggregateRoot {
     }
 
     public Advertisement updateLocality(final Locality locality) {
-        requireNonNull(locality, "Locality");
         return this.copy().locality(locality).build();
     }
 
@@ -64,9 +63,7 @@ public final class Advertisement extends AggregateRoot {
     }
 
     public Advertisement updateDetails(final AdvertisementDetails<?> newDetails) {
-        requireNonNull(newDetails, "Details");
-
-        if (!Objects.equals(this.details.getClass(), newDetails.getClass())) {
+        if (newDetails != null && !Objects.equals(this.details.getClass(), newDetails.getClass())) {
             throw new InvalidArgumentValueException("Details must be of the same type");
         }
 
@@ -74,8 +71,6 @@ public final class Advertisement extends AggregateRoot {
     }
 
     public Advertisement updateTitle(final Title newTitle) {
-        requireNonNull(title, "Title");
-
         if (Objects.equals(this.title, newTitle)) {
             throw new InvalidArgumentValueException(
                     "Incoming title cannot be the same as old title");
@@ -89,8 +84,6 @@ public final class Advertisement extends AggregateRoot {
     }
 
     public Advertisement updatePrice(final Money newPrice) {
-        requireNonNull(newPrice, "Price");
-
         if (Objects.equals(this.price, newPrice)) {
             throw new InvalidArgumentValueException("Price cannot be the same as old price");
         }

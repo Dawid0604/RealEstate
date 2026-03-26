@@ -25,11 +25,13 @@ public record Email(String value) {
         }
 
         if (value.length() < MIN_LENGTH) {
-            throw new InvalidArgumentValueException("Value cannot be less than " + MIN_LENGTH);
+            throw new InvalidArgumentValueException(
+                    "Value cannot be less than " + MIN_LENGTH + " characters");
         }
 
         if (value.length() > MAX_LENGTH) {
-            throw new InvalidArgumentValueException("Value cannot be longer than " + MAX_LENGTH);
+            throw new InvalidArgumentValueException(
+                    "Value cannot be longer than " + MAX_LENGTH + " characters");
         }
 
         if (!EMAIL_PATTERN.matcher(value).matches()) {

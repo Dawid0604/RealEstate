@@ -32,12 +32,12 @@ public record FullName(String firstName, String lastName) {
 
         if (name.length() < MIN_LENGTH) {
             throw new InvalidArgumentValueException(
-                    fieldName + " cannot be less than " + MIN_LENGTH);
+                    fieldName + " cannot be less than " + MIN_LENGTH + " characters");
         }
 
         if (name.length() > MAX_LENGTH) {
             throw new InvalidArgumentValueException(
-                    fieldName + " cannot be longer than " + MAX_LENGTH);
+                    fieldName + " cannot be longer than " + MAX_LENGTH + " characters");
         }
 
         if (!VALID_VALUE_PATTERN.matcher(name).matches()) {

@@ -200,11 +200,11 @@ public final class User extends AggregateRoot {
             }
 
             if (createdAt.isAfter(Instant.now())) {
-                throw new InvalidArgumentValueException("CreatedAt cannot be from the future");
+                throwDateFromTheFutureException("CreatedAt");
             }
 
             if (lastLoginAt != null && lastLoginAt.isAfter(Instant.now())) {
-                throw new InvalidArgumentValueException("LastLoginAt cannot be from the future");
+                throwDateFromTheFutureException("LastLoginAt");
             }
 
             return new User(
@@ -218,6 +218,10 @@ public final class User extends AggregateRoot {
                     this.status,
                     this.createdAt,
                     this.lastLoginAt);
+        }
+
+        private static void throwDateFromTheFutureException(final String fieldName) {
+            throw new InvalidArgumentValueException(fieldName + " cannot be from the future");
         }
 
         public Builder id(final Identifier id) {
