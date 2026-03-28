@@ -9,24 +9,30 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
     <groupId>pl.dawid0604.real-estate</groupId>
-    <artifactId>domain</artifactId>
-
-    <properties>
-        <uuid-creator.version>6.1.1</uuid-creator.version>
-        <slugify.version>3.0.7</slugify.version>
-    </properties>
+    <artifactId>application</artifactId>
 
     <dependencies>
+
         <dependency>
-            <groupId>com.github.f4b6a3</groupId>
-            <artifactId>uuid-creator</artifactId>
-            <version>${uuid-creator.version}</version>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
-            <groupId>com.github.slugify</groupId>
-            <artifactId>slugify</artifactId>
-            <version>${slugify.version}</version>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>pl.dawid0604.real-estate</groupId>
+            <artifactId>domain</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -44,6 +50,12 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
