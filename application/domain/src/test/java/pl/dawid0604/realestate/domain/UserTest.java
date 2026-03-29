@@ -819,7 +819,7 @@ class UserTest {
             // Then
             Assertions.assertThatThrownBy(instance::activate)
                     .isExactlyInstanceOf(InvalidArgumentValueException.class)
-                    .hasMessage("User must be inactivate");
+                    .hasMessage("User must be deactivated");
         }
 
         @Test

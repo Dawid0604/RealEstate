@@ -2,6 +2,7 @@
 package pl.dawid0604.realestate.domain;
 
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
+import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
 
 import java.time.Instant;
 import java.util.Objects;
@@ -41,6 +42,13 @@ public final class User extends AggregateRoot {
         this.status = status;
         this.createdAt = createdAt;
         this.lastLoginAt = lastLoginAt;
+    }
+
+    public void verifyUser() {
+        if (this.status != UserStatus.ACTIVE) {
+            throw new UnauthorizedAccessException(
+                    "User account has no permissions to perform this action");
+        }
     }
 
     public boolean canLogin() {
@@ -88,7 +96,7 @@ public final class User extends AggregateRoot {
             return copy().status(UserStatus.ACTIVE).build();
         }
 
-        throw new InvalidArgumentValueException("User must be inactivate");
+        throw new InvalidArgumentValueException("User must be deactivated");
     }
 
     public User updatePassword(final Password password) {
@@ -109,6 +117,10 @@ public final class User extends AggregateRoot {
     public User updateFullName(final FullName fullName) {
         requireNonNull(fullName, "FullName");
         return copy().fullName(fullName).build();
+    }
+
+    public boolean isAdmin() {
+        return this.role == UserRole.ADMIN_ROLE;
     }
 
     public User updateAvatar(final Url avatar) {

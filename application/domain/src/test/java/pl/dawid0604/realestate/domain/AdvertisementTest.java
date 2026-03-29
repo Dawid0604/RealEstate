@@ -1229,7 +1229,7 @@ class AdvertisementTest {
     }
 
     @Nested
-    final class InactivateStatusTests {
+    final class DeactivateStatusTests {
 
         @Test
         @DisplayName("Should throw exception when advertisement is sold")
@@ -1254,7 +1254,7 @@ class AdvertisementTest {
 
             // When
             // Then
-            Assertions.assertThatThrownBy(instance::inactivate)
+            Assertions.assertThatThrownBy(instance::deactivate)
                     .isExactlyInstanceOf(InvalidArgumentValueException.class)
                     .hasMessage("Advertisement is already sold");
         }
@@ -1282,7 +1282,7 @@ class AdvertisementTest {
 
             // When
             // Then
-            Assertions.assertThatThrownBy(instance::inactivate)
+            Assertions.assertThatThrownBy(instance::deactivate)
                     .isExactlyInstanceOf(InvalidArgumentValueException.class)
                     .hasMessage("Advertisement is already inactive");
         }
@@ -1309,7 +1309,7 @@ class AdvertisementTest {
                             .build();
 
             // When
-            final Advertisement updatedInstance = instance.inactivate();
+            final Advertisement updatedInstance = instance.deactivate();
 
             // Then
             Assertions.assertThat(instance).isEqualTo(updatedInstance);
@@ -1338,7 +1338,7 @@ class AdvertisementTest {
                             .build();
 
             // When
-            final Advertisement updatedInstance = instance.inactivate();
+            final Advertisement updatedInstance = instance.deactivate();
 
             // Then
             final AdvertisementStatusChangedEvent expectedEvent =

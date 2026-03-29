@@ -4,5 +4,6 @@ package pl.dawid0604.realestate.domain;
 public enum AdvertisementStatus {
     ACTIVE,
     INACTIVE,
-    SOLD
+    SOLD,
+    DELETED // TODO: test it
 }

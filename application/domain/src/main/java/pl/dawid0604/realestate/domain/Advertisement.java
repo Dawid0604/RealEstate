@@ -10,6 +10,7 @@ import pl.dawid0604.realestate.domain.shared.event.AdvertisementPriceChangedEven
 import pl.dawid0604.realestate.domain.shared.event.AdvertisementStatusChangedEvent;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 import pl.dawid0604.realestate.domain.shared.exception.MaxPhotosExceededException;
+import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -113,7 +114,7 @@ public final class Advertisement extends AggregateRoot {
         throw new InvalidArgumentValueException("Advertisement is already active");
     }
 
-    public Advertisement inactivate() {
+    public Advertisement deactivate() {
         if (this.status == AdvertisementStatus.SOLD) {
             throw new InvalidArgumentValueException("Advertisement is already sold");
         }
@@ -150,6 +151,15 @@ public final class Advertisement extends AggregateRoot {
         throw new InvalidArgumentValueException("Advertisement is already sold");
     }
 
+    // TODO: test it
+    public Advertisement delete() {
+        if (this.status == AdvertisementStatus.DELETED) {
+            throw new InvalidArgumentValueException("Advertisement is already deleted");
+        }
+
+        return this.copy().status(AdvertisementStatus.DELETED).build();
+    }
+
     public Advertisement setAsFeatured() {
         if (this.status != AdvertisementStatus.ACTIVE) {
             throw new InvalidArgumentValueException("Advertisement must be active");
@@ -172,6 +182,15 @@ public final class Advertisement extends AggregateRoot {
         }
 
         return this.copy().featured(false).build();
+    }
+
+    // TODO: test it
+    public void verifyOwner(final User user) {
+        requireNonNull(user, "User cannot be null");
+
+        if (!Objects.equals(userId, user.getId()) && !user.isAdmin()) {
+            throw new UnauthorizedAccessException("No permissions to modify this advertisement");
+        }
     }
 
     public Identifier getId() {
@@ -309,6 +328,7 @@ public final class Advertisement extends AggregateRoot {
                 this.id = Identifier.generate();
                 this.createdAt = Instant.now();
                 this.slug = Slug.create(title);
+                this.status = AdvertisementStatus.ACTIVE; // TODO: test this line
 
             } else {
                 requireNonNull(this.id, "Id");
