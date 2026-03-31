@@ -1767,7 +1767,7 @@ class AdvertisementTest {
 
             // When
             // Then
-            Assertions.assertThatThrownBy(() -> instance.removePhoto(advertisementPhoto))
+            Assertions.assertThatThrownBy(() -> instance.removePhoto(advertisementPhoto.getId()))
                     .isExactlyInstanceOf(InvalidArgumentValueException.class)
                     .hasMessage("Photo does not exist");
         }
@@ -1795,7 +1795,7 @@ class AdvertisementTest {
                             .build();
 
             // When
-            final Advertisement updatedInstance = instance.removePhoto(advertisementPhoto);
+            final Advertisement updatedInstance = instance.removePhoto(advertisementPhoto.getId());
 
             // Then
             Assertions.assertThat(instance).isEqualTo(updatedInstance);
@@ -1828,7 +1828,7 @@ class AdvertisementTest {
                             .build();
 
             // When
-            final Advertisement updatedInstance = instance.removePhoto(advertisementPhoto);
+            final Advertisement updatedInstance = instance.removePhoto(advertisementPhoto.getId());
 
             // Then
             Assertions.assertThat(instance).isEqualTo(updatedInstance);
@@ -1870,7 +1870,7 @@ class AdvertisementTest {
                             .build();
 
             // When
-            final Advertisement updatedInstance = instance.removePhoto(advertisementPhoto2);
+            final Advertisement updatedInstance = instance.removePhoto(advertisementPhoto2.getId());
 
             // Then
             Assertions.assertThat(instance).isEqualTo(updatedInstance);
@@ -1919,7 +1919,7 @@ class AdvertisementTest {
                             .build();
 
             // When
-            final Advertisement updatedInstance = instance.removePhoto(advertisementPhoto2);
+            final Advertisement updatedInstance = instance.removePhoto(advertisementPhoto2.getId());
 
             // Then
             Assertions.assertThat(instance).isEqualTo(updatedInstance);

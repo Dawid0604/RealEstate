@@ -4,6 +4,7 @@ import static lombok.AccessLevel.PACKAGE;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import pl.dawid0604.realestate.application.command.DeactivateAdvertisementCommand;
@@ -22,6 +23,7 @@ class DeactivateAdvertisementHandler
 
     private final AdvertisementRepository advertisementRepository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public Void handle(final DeactivateAdvertisementCommand command) {
@@ -38,6 +40,7 @@ class DeactivateAdvertisementHandler
 
         advertisement = advertisement.deactivate();
         advertisementRepository.save(advertisement);
+        advertisement.getEvents().forEach(eventPublisher::publishEvent);
         return null;
     }
 

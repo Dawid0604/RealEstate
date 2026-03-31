@@ -2,4 +2,4 @@
 package pl.dawid0604.realestate.application.command;
 
 public sealed interface Command
-        permits ActivateAdvertisementCommand, CreateAdvertisementCommand, DeactivateAdvertisementCommand, DeleteAdvertisementCommand, DisableFeaturedStateAdvertisementCommand, SetAsFeaturedAdvertisementCommand, SetAsSoldAdvertisementCommand {}
+        permits ActivateAdvertisementCommand, AddAdvertisementPhotoCommand, CreateAdvertisementCommand, DeactivateAdvertisementCommand, DeleteAdvertisementCommand, DisableFeaturedStateAdvertisementCommand, RemoveAdvertisementPhotoCommand, SetAsFeaturedAdvertisementCommand, SetAsSoldAdvertisementCommand, UpdateAdvertisementDescriptionCommand, UpdateAdvertisementLocalityCommand, UpdateAdvertisementPriceCommand, UpdateAdvertisementTitleCommand {}

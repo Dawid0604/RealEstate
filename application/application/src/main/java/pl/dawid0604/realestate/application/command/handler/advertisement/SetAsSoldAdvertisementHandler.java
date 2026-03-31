@@ -4,6 +4,7 @@ import static lombok.AccessLevel.PACKAGE;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import pl.dawid0604.realestate.application.command.SetAsSoldAdvertisementCommand;
@@ -20,6 +21,7 @@ import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 class SetAsSoldAdvertisementHandler implements CommandHandler<SetAsSoldAdvertisementCommand, Void> {
     private final AdvertisementRepository advertisementRepository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public Void handle(final SetAsSoldAdvertisementCommand command) {
@@ -36,6 +38,7 @@ class SetAsSoldAdvertisementHandler implements CommandHandler<SetAsSoldAdvertise
 
         advertisement = advertisement.setAsSold();
         advertisementRepository.save(advertisement);
+        advertisement.getEvents().forEach(eventPublisher::publishEvent);
         return null;
     }
 

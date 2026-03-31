@@ -53,12 +53,15 @@ public final class Advertisement extends AggregateRoot {
         return this.copy().locality(locality).build();
     }
 
-    public Advertisement removePhoto(final AdvertisementPhoto advertisementPhoto) {
-        requireNonNull(advertisementPhoto, "AdvertisementPhoto");
+    public Advertisement removePhoto(final Identifier photoId) {
+        requireNonNull(photoId, "PhotoId");
 
-        if (!this.photos.contains(advertisementPhoto)) {
-            throw new InvalidArgumentValueException("Photo does not exist");
-        }
+        final AdvertisementPhoto advertisementPhoto =
+                photos.stream()
+                        .filter(p -> Objects.equals(p.getId(), photoId))
+                        .findFirst()
+                        .orElseThrow(
+                                () -> new InvalidArgumentValueException("Photo does not exist"));
 
         return this.copy().photos(removeFromPhotos(advertisementPhoto)).build();
     }
