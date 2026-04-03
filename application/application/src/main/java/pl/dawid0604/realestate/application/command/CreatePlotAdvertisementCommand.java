@@ -3,10 +3,10 @@ package pl.dawid0604.realestate.application.command;
 import pl.dawid0604.realestate.application.validation.ValidArea;
 import pl.dawid0604.realestate.application.validation.ValidBuildingType;
 import pl.dawid0604.realestate.application.validation.ValidDescription;
+import pl.dawid0604.realestate.application.validation.ValidEmail;
 import pl.dawid0604.realestate.application.validation.ValidLocalityId;
 import pl.dawid0604.realestate.application.validation.ValidPrice;
 import pl.dawid0604.realestate.application.validation.ValidTitle;
-import pl.dawid0604.realestate.application.validation.ValidUserId;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -18,7 +18,7 @@ public record CreatePlotAdvertisementCommand(
         @ValidDescription String description,
         @ValidPrice BigDecimal price,
         @ValidLocalityId UUID localityId,
-        @ValidUserId UUID userId,
+        @ValidEmail String userEmail,
         List<AdvertisementPhoto> photos,
         @ValidBuildingType String buildingType,
         @ValidArea BigDecimal area,

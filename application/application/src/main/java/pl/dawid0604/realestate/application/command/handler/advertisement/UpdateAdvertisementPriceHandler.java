@@ -30,8 +30,8 @@ class UpdateAdvertisementPriceHandler
     public Void handle(final UpdateAdvertisementPriceCommand command) {
         final User user =
                 userRepository
-                        .findById(command.userId())
-                        .orElseThrow(() -> new UserNotFoundException(command.userId()));
+                        .findByEmail(command.userEmail())
+                        .orElseThrow(() -> new UserNotFoundException(command.userEmail()));
 
         user.verifyUser();
         Advertisement advertisement =

@@ -1,6 +1,8 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
+import org.apache.commons.lang3.NotImplementedException;
+
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
 
@@ -100,22 +102,22 @@ public final class User extends AggregateRoot {
     }
 
     public User updatePassword(final Password password) {
-        requireNonNull(password, "Password");
         return copy().password(password).build();
     }
 
     public User updateEmail(final Email email) {
-        requireNonNull(email, "Email");
         return copy().email(email).build();
     }
 
     public User updateContactDetails(final ContactDetails contactDetails) {
-        requireNonNull(contactDetails, "ContactDetails");
         return copy().contactDetails(contactDetails).build();
     }
 
+    public User register() {
+        throw new NotImplementedException();
+    }
+
     public User updateFullName(final FullName fullName) {
-        requireNonNull(fullName, "FullName");
         return copy().fullName(fullName).build();
     }
 
@@ -200,15 +202,16 @@ public final class User extends AggregateRoot {
             requireNonNull(this.fullName, "FullName");
             requireNonNull(this.role, "Role");
             requireNonNull(this.contactDetails, "ContactDetails");
-            requireNonNull(this.status, "Status");
 
             if (createMode) {
                 this.id = Identifier.generate();
                 this.createdAt = Instant.now();
+                this.status = UserStatus.INACTIVE; // TODO: test it
 
             } else {
                 requireNonNull(this.id, "Id");
                 requireNonNull(this.createdAt, "CreatedAt");
+                requireNonNull(this.status, "Status");
             }
 
             if (createdAt.isAfter(Instant.now())) {

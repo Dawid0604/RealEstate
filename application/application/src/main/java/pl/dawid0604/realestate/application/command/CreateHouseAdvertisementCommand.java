@@ -4,13 +4,13 @@ import pl.dawid0604.realestate.application.validation.ValidArea;
 import pl.dawid0604.realestate.application.validation.ValidBuildingType;
 import pl.dawid0604.realestate.application.validation.ValidBuiltYear;
 import pl.dawid0604.realestate.application.validation.ValidDescription;
+import pl.dawid0604.realestate.application.validation.ValidEmail;
 import pl.dawid0604.realestate.application.validation.ValidFloors;
 import pl.dawid0604.realestate.application.validation.ValidLocalityId;
 import pl.dawid0604.realestate.application.validation.ValidNumberOfRooms;
 import pl.dawid0604.realestate.application.validation.ValidPrice;
 import pl.dawid0604.realestate.application.validation.ValidTitle;
 import pl.dawid0604.realestate.application.validation.ValidTypeOfMarket;
-import pl.dawid0604.realestate.application.validation.ValidUserId;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -22,7 +22,7 @@ public record CreateHouseAdvertisementCommand(
         @ValidDescription String description,
         @ValidPrice BigDecimal price,
         @ValidLocalityId UUID localityId,
-        @ValidUserId UUID userId,
+        @ValidEmail String userEmail,
         @ValidNumberOfRooms Integer numberOfRooms,
         @ValidFloors Integer floors,
         @ValidBuiltYear Integer builtYear,

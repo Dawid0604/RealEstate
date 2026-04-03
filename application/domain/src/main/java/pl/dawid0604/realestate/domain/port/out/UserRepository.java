@@ -5,10 +5,15 @@ import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.shared.projection.user.UserProfileProjection;
 
 import java.util.Optional;
-import java.util.UUID;
 
 public interface UserRepository {
-    Optional<UserProfileProjection> findUserProfile(UUID userId);
+    Optional<UserProfileProjection> findUserProfile(String email);
 
-    Optional<User> findById(UUID userId);
+    Optional<User> findByEmail(String email);
+
+    void save(User user);
+
+    boolean existsByEmail(String email);
+
+    void deleteByEmail(String email);
 }

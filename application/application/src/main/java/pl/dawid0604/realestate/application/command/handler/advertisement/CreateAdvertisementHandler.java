@@ -59,8 +59,8 @@ class CreateAdvertisementHandler implements CommandHandler<CreateAdvertisementCo
     public UUID handle(final CreateAdvertisementCommand command) {
         final User user =
                 userRepository
-                        .findById(command.userId())
-                        .orElseThrow(() -> new UserNotFoundException(command.userId()));
+                        .findByEmail(command.userEmail())
+                        .orElseThrow(() -> new UserNotFoundException(command.userEmail()));
 
         user.verifyUser();
         final var builder = Advertisement.create();
@@ -69,7 +69,7 @@ class CreateAdvertisementHandler implements CommandHandler<CreateAdvertisementCo
         builder.description(new Description(command.description()));
         builder.price(new Money(command.price(), MoneyCurrency.PLN));
         builder.locality(new Locality(Identifier.of(command.localityId())));
-        builder.userId(Identifier.of(command.userId()));
+        builder.userId(user.getId());
         builder.photos(getPhotos(command.photosOrEmpty()));
         builder.featured(command.featured());
         builder.details(getDetails(command));

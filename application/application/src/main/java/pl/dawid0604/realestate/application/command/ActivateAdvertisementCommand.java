@@ -1,9 +1,7 @@
 package pl.dawid0604.realestate.application.command;
 
+import pl.dawid0604.realestate.application.validation.ValidEmail;
 import pl.dawid0604.realestate.application.validation.ValidSlug;
-import pl.dawid0604.realestate.application.validation.ValidUserId;
 
-import java.util.UUID;
-
-public record ActivateAdvertisementCommand(@ValidSlug String slug, @ValidUserId UUID userId)
+public record ActivateAdvertisementCommand(@ValidSlug String slug, @ValidEmail String userEmail)
         implements Command {}

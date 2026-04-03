@@ -32,7 +32,7 @@ public sealed interface CreateAdvertisementCommand extends Command
         return claims() == null ? emptyMap() : claims();
     }
 
-    UUID userId();
+    String userEmail();
 
     List<AdvertisementPhoto> photos();
 
