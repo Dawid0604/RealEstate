@@ -23,9 +23,9 @@ class GetUserProfileQueryHandler implements QueryHandler<GetUserProfileQuery, Us
     @Override
     public UserProfileDto handle(final GetUserProfileQuery query) {
         return userRepository
-                .findUserProfile(query.userId())
+                .findUserProfile(query.email())
                 .map(userMapper::toUserProfileDto)
-                .orElseThrow(() -> new UserNotFoundException(query.userId()));
+                .orElseThrow(() -> new UserNotFoundException(query.email()));
     }
 
     @Override
