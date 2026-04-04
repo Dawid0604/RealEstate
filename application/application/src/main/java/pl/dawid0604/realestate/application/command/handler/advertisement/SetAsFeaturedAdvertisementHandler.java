@@ -30,12 +30,13 @@ class SetAsFeaturedAdvertisementHandler
                         .findByEmail(command.userEmail())
                         .orElseThrow(() -> new UserNotFoundException(command.userEmail()));
 
-        user.verifyUser(); 
+        user.verifyUser();
         Advertisement advertisement =
                 advertisementRepository
                         .findBySlug(command.slug())
                         .orElseThrow(() -> new AdvertisementNotFoundException(command.slug()));
 
+        advertisement.verifyOwner(user);
         advertisement = advertisement.setAsFeatured();
         advertisementRepository.save(advertisement);
         return null;

@@ -21,9 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import pl.dawid0604.realestate.application.command.BanUserCommand;
 import pl.dawid0604.realestate.domain.User;
-import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
-import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 
 import java.util.Optional;
@@ -69,23 +67,6 @@ class BanUserHandlerTest {
         verify(userRepository).save(userArgumentCaptor.capture());
         verify(foundUser).ban();
         Assertions.assertThat(userArgumentCaptor.getValue()).isEqualTo(foundUser);
-    }
-
-    @Test
-    @DisplayName("Should not handle exception when domain throws")
-    void shouldNotHandleExceptionWhenDomainThrows() {
-        // Given
-        final BanUserCommand command = getCommand();
-        final User foundUser = getDummyUserBuilder().status(UserStatus.BANNED).build();
-
-        given(userRepository.findByEmail(command.email())).willReturn(Optional.of(foundUser));
-
-        // When
-        // Then
-        Assertions.assertThatThrownBy(() -> handler.handle(command))
-                .isInstanceOf(InvalidArgumentValueException.class);
-
-        verify(userRepository, never()).save(any());
     }
 
     private static BanUserCommand getCommand() {

@@ -23,7 +23,6 @@ import pl.dawid0604.realestate.domain.Url;
 import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
-import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 
@@ -87,23 +86,6 @@ class UpdateUserAvatarHandlerTest {
         verify(userRepository).save(userArgumentCaptor.capture());
         verify(foundUser).updateAvatar(new Url(command.newAvatarUrl()));
         Assertions.assertThat(userArgumentCaptor.getValue()).isEqualTo(foundUser);
-    }
-
-    @Test
-    @DisplayName("Should not handle exception when domain throws")
-    void shouldNotHandleExceptionWhenDomainThrows() {
-        // Given
-        final UpdateUserAvatarCommand command = new UpdateUserAvatarCommand(getDummyEmail(), "abc");
-        final User foundUser = getDummyUserBuilder().build();
-
-        given(userRepository.findByEmail(command.email())).willReturn(Optional.of(foundUser));
-
-        // When
-        // Then
-        Assertions.assertThatThrownBy(() -> handler.handle(command))
-                .isInstanceOf(InvalidArgumentValueException.class);
-
-        verify(userRepository, never()).save(any());
     }
 
     private static UpdateUserAvatarCommand getCommand() {

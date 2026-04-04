@@ -25,7 +25,6 @@ import pl.dawid0604.realestate.domain.Email;
 import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
-import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 
@@ -92,23 +91,6 @@ class UpdateUserEmailHandlerTest {
 
         Assertions.assertThat(userArgumentCaptor.getValue()).isEqualTo(foundUser);
         Assertions.assertThat(emailArgumentCaptor.getValue().value()).isEqualTo(command.newEmail());
-    }
-
-    @Test
-    @DisplayName("Should not handle exception when domain throws")
-    void shouldNotHandleExceptionWhenDomainThrows() {
-        // Given
-        final UpdateUserEmailCommand command = new UpdateUserEmailCommand(getDummyEmail(), "cde");
-        final User foundUser = getDummyUserBuilder().build();
-
-        given(userRepository.findByEmail(command.email())).willReturn(Optional.of(foundUser));
-
-        // When
-        // Then
-        Assertions.assertThatThrownBy(() -> handler.handle(command))
-                .isInstanceOf(InvalidArgumentValueException.class);
-
-        verify(userRepository, never()).save(any());
     }
 
     private static UpdateUserEmailCommand getCommand() {

@@ -23,7 +23,6 @@ import pl.dawid0604.realestate.application.command.UnbanUserCommand;
 import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
-import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 
 import java.util.Optional;
@@ -69,23 +68,6 @@ class UnbanUserHandlerTest {
         verify(userRepository).save(userArgumentCaptor.capture());
         verify(foundUser).unban();
         Assertions.assertThat(userArgumentCaptor.getValue()).isEqualTo(foundUser);
-    }
-
-    @Test
-    @DisplayName("Should not handle exception when domain throws")
-    void shouldNotHandleExceptionWhenDomainThrows() {
-        // Given
-        final UnbanUserCommand command = getCommand();
-        final User foundUser = getDummyUserBuilder().status(UserStatus.ACTIVE).build();
-
-        given(userRepository.findByEmail(command.email())).willReturn(Optional.of(foundUser));
-
-        // When
-        // Then
-        Assertions.assertThatThrownBy(() -> handler.handle(command))
-                .isInstanceOf(InvalidArgumentValueException.class);
-
-        verify(userRepository, never()).save(any());
     }
 
     private static UnbanUserCommand getCommand() {

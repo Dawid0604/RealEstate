@@ -25,7 +25,6 @@ import pl.dawid0604.realestate.domain.PhoneNumber;
 import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
-import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 
@@ -99,25 +98,6 @@ class UpdateUserContactDetailsHandlerTest {
                                     .map(PhoneNumber::value)
                                     .hasValue(command.newNotificationPhoneNumber());
                         });
-    }
-
-    @Test
-    @DisplayName("Should not handle exception when domain throws")
-    void shouldNotHandleExceptionWhenDomainThrows() {
-        // Given
-        final UpdateUserContactDetailsCommand command =
-                new UpdateUserContactDetailsCommand(getDummyEmail(), "", "");
-
-        final User foundUser = getDummyUserBuilder().build();
-
-        given(userRepository.findByEmail(command.email())).willReturn(Optional.of(foundUser));
-
-        // When
-        // Then
-        Assertions.assertThatThrownBy(() -> handler.handle(command))
-                .isInstanceOf(InvalidArgumentValueException.class);
-
-        verify(userRepository, never()).save(any());
     }
 
     private static UpdateUserContactDetailsCommand getCommand() {

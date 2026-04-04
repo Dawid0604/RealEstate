@@ -36,8 +36,10 @@ class SetAsSoldAdvertisementHandler implements CommandHandler<SetAsSoldAdvertise
                         .findBySlug(command.slug())
                         .orElseThrow(() -> new AdvertisementNotFoundException(command.slug()));
 
+        advertisement.verifyOwner(user);
         advertisement = advertisement.setAsSold();
         advertisementRepository.save(advertisement);
+
         advertisement.getEvents().forEach(eventPublisher::publishEvent);
         return null;
     }
