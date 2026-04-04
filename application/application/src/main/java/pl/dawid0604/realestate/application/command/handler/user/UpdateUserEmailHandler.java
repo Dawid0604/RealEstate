@@ -25,6 +25,7 @@ class UpdateUserEmailHandler implements CommandHandler<UpdateUserEmailCommand, V
                         .findByEmail(command.email())
                         .orElseThrow(() -> new UserNotFoundException(command.email()));
 
+        user.verifyUser();
         user = user.updateEmail(new Email(command.newEmail()));
         userRepository.save(user);
         return null;

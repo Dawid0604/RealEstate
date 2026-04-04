@@ -28,6 +28,8 @@ class UpdateUserPasswordHandler implements CommandHandler<UpdateUserPasswordComm
                         .findByEmail(command.email())
                         .orElseThrow(() -> new UserNotFoundException(command.email()));
 
+        user.verifyUser();
+
         if (!passwordEncoder.matches(command.currentPassword(), user.getPassword().getValue())) {
             throw new DifferentPasswordException();
         }

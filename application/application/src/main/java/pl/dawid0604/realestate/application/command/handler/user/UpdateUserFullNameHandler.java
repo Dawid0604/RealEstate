@@ -25,6 +25,7 @@ class UpdateUserFullNameHandler implements CommandHandler<UpdateUserFullNameComm
                         .findByEmail(command.email())
                         .orElseThrow(() -> new UserNotFoundException(command.email()));
 
+        user.verifyUser();
         user = user.updateFullName(new FullName(command.newFirstName(), command.newLastName()));
         userRepository.save(user);
         return null;

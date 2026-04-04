@@ -25,6 +25,7 @@ class UpdateUserAvatarHandler implements CommandHandler<UpdateUserAvatarCommand,
                         .findByEmail(command.email())
                         .orElseThrow(() -> new UserNotFoundException(command.email()));
 
+        user.verifyUser();
         user = user.updateAvatar(new Url(command.newAvatarUrl()));
         userRepository.save(user);
         return null;

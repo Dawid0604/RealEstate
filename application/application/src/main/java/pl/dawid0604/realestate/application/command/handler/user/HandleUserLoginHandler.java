@@ -24,6 +24,7 @@ class HandleUserLoginHandler implements CommandHandler<HandleUserLoginCommand, V
                         .findByEmail(command.email())
                         .orElseThrow(() -> new UserNotFoundException(command.email()));
 
+        user.verifyUser();
         user = user.handleLogin();
         userRepository.save(user);
         return null;

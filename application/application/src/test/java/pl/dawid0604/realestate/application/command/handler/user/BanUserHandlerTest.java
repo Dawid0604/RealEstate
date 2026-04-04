@@ -2,7 +2,9 @@ package pl.dawid0604.realestate.application.command.handler.user;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 import static pl.dawid0604.realestate.application.fixture.UserFixture.getDummyEmail;
 import static pl.dawid0604.realestate.application.fixture.UserFixture.getDummyUserBuilder;
@@ -17,7 +19,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import pl.dawid0604.realestate.application.command.ActivateUserCommand;
+import pl.dawid0604.realestate.application.command.BanUserCommand;
 import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
@@ -27,21 +29,21 @@ import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
-class ActivateUserHandlerTest {
+class BanUserHandlerTest {
     @Mock private UserRepository userRepository;
     @Captor private ArgumentCaptor<User> userArgumentCaptor;
-    private ActivateUserHandler handler;
+    private BanUserHandler handler;
 
     @BeforeEach
     void setUp() {
-        handler = new ActivateUserHandler(userRepository);
+        handler = new BanUserHandler(userRepository);
     }
 
     @Test
     @DisplayName("Should throw exception when user not found")
     void shouldThrowExceptionWhenUserNotFound() {
         // Given
-        final ActivateUserCommand command = getCommand();
+        final BanUserCommand command = getCommand();
 
         // When
         // Then
@@ -52,11 +54,11 @@ class ActivateUserHandlerTest {
     }
 
     @Test
-    @DisplayName("Should activate user")
-    void shouldActivateUser() {
+    @DisplayName("Should ban user")
+    void shouldBanUser() {
         // Given
-        final ActivateUserCommand command = getCommand();
-        final User foundUser = spy(getDummyUserBuilder().status(UserStatus.INACTIVE).build());
+        final BanUserCommand command = getCommand();
+        final User foundUser = spy(getDummyUserBuilder().build());
 
         given(userRepository.findByEmail(command.email())).willReturn(Optional.of(foundUser));
 
@@ -64,8 +66,8 @@ class ActivateUserHandlerTest {
         handler.handle(command);
 
         // Then
-        verify(foundUser).activate();
         verify(userRepository).save(userArgumentCaptor.capture());
+        verify(foundUser).ban();
         Assertions.assertThat(userArgumentCaptor.getValue()).isEqualTo(foundUser);
     }
 
@@ -73,8 +75,8 @@ class ActivateUserHandlerTest {
     @DisplayName("Should not handle exception when domain throws")
     void shouldNotHandleExceptionWhenDomainThrows() {
         // Given
-        final ActivateUserCommand command = getCommand();
-        final User foundUser = getDummyUserBuilder().status(UserStatus.ACTIVE).build();
+        final BanUserCommand command = getCommand();
+        final User foundUser = getDummyUserBuilder().status(UserStatus.BANNED).build();
 
         given(userRepository.findByEmail(command.email())).willReturn(Optional.of(foundUser));
 
@@ -86,7 +88,7 @@ class ActivateUserHandlerTest {
         verify(userRepository, never()).save(any());
     }
 
-    private static ActivateUserCommand getCommand() {
-        return new ActivateUserCommand(getDummyEmail());
+    private static BanUserCommand getCommand() {
+        return new BanUserCommand(getDummyEmail());
     }
 }

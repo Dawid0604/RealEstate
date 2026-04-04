@@ -1,8 +1,8 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
-import org.apache.commons.lang3.NotImplementedException;
 
+import pl.dawid0604.realestate.domain.shared.event.UserRegisteredEvent;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
 
@@ -114,7 +114,10 @@ public final class User extends AggregateRoot {
     }
 
     public User register() {
-        throw new NotImplementedException();
+        final User currentObj = copy().build();
+        currentObj.addEvent(new UserRegisteredEvent(id));
+
+        return currentObj;
     }
 
     public User updateFullName(final FullName fullName) {

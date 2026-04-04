@@ -1,8 +1,11 @@
 package pl.dawid0604.realestate.application.command.handler.user;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 import static pl.dawid0604.realestate.application.fixture.UserFixture.getDummyEmail;
 import static pl.dawid0604.realestate.application.fixture.UserFixture.getDummyUserBuilder;
@@ -17,31 +20,34 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import pl.dawid0604.realestate.application.command.ActivateUserCommand;
+import pl.dawid0604.realestate.application.command.UpdateUserEmailCommand;
+import pl.dawid0604.realestate.domain.Email;
 import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
+import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
-class ActivateUserHandlerTest {
+class UpdateUserEmailHandlerTest {
     @Mock private UserRepository userRepository;
     @Captor private ArgumentCaptor<User> userArgumentCaptor;
-    private ActivateUserHandler handler;
+    @Captor private ArgumentCaptor<Email> emailArgumentCaptor;
+    private UpdateUserEmailHandler handler;
 
     @BeforeEach
     void setUp() {
-        handler = new ActivateUserHandler(userRepository);
+        handler = new UpdateUserEmailHandler(userRepository);
     }
 
     @Test
     @DisplayName("Should throw exception when user not found")
     void shouldThrowExceptionWhenUserNotFound() {
         // Given
-        final ActivateUserCommand command = getCommand();
+        final UpdateUserEmailCommand command = getCommand();
 
         // When
         // Then
@@ -52,11 +58,28 @@ class ActivateUserHandlerTest {
     }
 
     @Test
-    @DisplayName("Should activate user")
-    void shouldActivateUser() {
+    @DisplayName("Should throw exception when user is inactive")
+    void shouldThrowExceptionWhenUserIsInactive() {
         // Given
-        final ActivateUserCommand command = getCommand();
-        final User foundUser = spy(getDummyUserBuilder().status(UserStatus.INACTIVE).build());
+        final UpdateUserEmailCommand command = getCommand();
+        final User foundUser = getDummyUserBuilder().status(UserStatus.INACTIVE).build();
+
+        given(userRepository.findByEmail(command.email())).willReturn(Optional.of(foundUser));
+
+        // When
+        // Then
+        Assertions.assertThatThrownBy(() -> handler.handle(command))
+                .isExactlyInstanceOf(UnauthorizedAccessException.class);
+
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should update email")
+    void shouldUpdateEmail() {
+        // Given
+        final UpdateUserEmailCommand command = getCommand();
+        final User foundUser = spy(getDummyUserBuilder().build());
 
         given(userRepository.findByEmail(command.email())).willReturn(Optional.of(foundUser));
 
@@ -64,17 +87,19 @@ class ActivateUserHandlerTest {
         handler.handle(command);
 
         // Then
-        verify(foundUser).activate();
         verify(userRepository).save(userArgumentCaptor.capture());
+        verify(foundUser).updateEmail(emailArgumentCaptor.capture());
+
         Assertions.assertThat(userArgumentCaptor.getValue()).isEqualTo(foundUser);
+        Assertions.assertThat(emailArgumentCaptor.getValue().value()).isEqualTo(command.newEmail());
     }
 
     @Test
     @DisplayName("Should not handle exception when domain throws")
     void shouldNotHandleExceptionWhenDomainThrows() {
         // Given
-        final ActivateUserCommand command = getCommand();
-        final User foundUser = getDummyUserBuilder().status(UserStatus.ACTIVE).build();
+        final UpdateUserEmailCommand command = new UpdateUserEmailCommand(getDummyEmail(), "cde");
+        final User foundUser = getDummyUserBuilder().build();
 
         given(userRepository.findByEmail(command.email())).willReturn(Optional.of(foundUser));
 
@@ -86,7 +111,7 @@ class ActivateUserHandlerTest {
         verify(userRepository, never()).save(any());
     }
 
-    private static ActivateUserCommand getCommand() {
-        return new ActivateUserCommand(getDummyEmail());
+    private static UpdateUserEmailCommand getCommand() {
+        return new UpdateUserEmailCommand(getDummyEmail(), "cde@mail.com");
     }
 }

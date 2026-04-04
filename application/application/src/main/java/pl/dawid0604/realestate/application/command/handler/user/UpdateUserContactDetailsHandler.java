@@ -19,6 +19,7 @@ import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 @RequiredArgsConstructor(access = PACKAGE)
 class UpdateUserContactDetailsHandler
         implements CommandHandler<UpdateUserContactDetailsCommand, Void> {
+
     private final UserRepository userRepository;
 
     @Override
@@ -28,6 +29,7 @@ class UpdateUserContactDetailsHandler
                         .findByEmail(command.email())
                         .orElseThrow(() -> new UserNotFoundException(command.email()));
 
+        user.verifyUser();
         user =
                 user.updateContactDetails(
                         new ContactDetails(
