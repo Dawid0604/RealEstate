@@ -6,7 +6,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 import java.lang.annotation.Retention;
@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Constraint(validatedBy = {})
 @Target({FIELD, RECORD_COMPONENT})
-@NotNull(message = "Slug cannot be null")
+@NotBlank(message = "Slug cannot be blank")
 @Size(min = 10, max = 100, message = "Slug must be between 10 and 100 characters")
 public @interface ValidSlug {
 

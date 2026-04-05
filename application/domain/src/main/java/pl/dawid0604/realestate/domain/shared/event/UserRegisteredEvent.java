@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain.shared.event;
 
 import pl.dawid0604.realestate.domain.Identifier;

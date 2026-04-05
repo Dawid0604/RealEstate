@@ -10,7 +10,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
+import pl.dawid0604.realestate.domain.shared.event.UserRegisteredEvent;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
+import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
 
 import java.time.Instant;
 
@@ -96,25 +98,6 @@ class UserTest {
             }
 
             @Test
-            @DisplayName("Should throw exception when status is null")
-            void shouldThrowExceptionWhenStatusIsNull() {
-                // Given
-                // When
-                // Then
-                Assertions.assertThatThrownBy(
-                                () ->
-                                        User.create()
-                                                .email(getValidEmail())
-                                                .password(getValidPassword())
-                                                .fullName(getValidFullName())
-                                                .role(UserRole.USER_ROLE)
-                                                .contactDetails(getValidContactDetails())
-                                                .build())
-                        .isExactlyInstanceOf(InvalidArgumentValueException.class)
-                        .hasMessage("Status cannot be null");
-            }
-
-            @Test
             @DisplayName("Should create instance successfully with nullable avatar")
             void shouldCreateInstanceSuccessfullyWithNullableAvatar() {
                 // Given
@@ -127,7 +110,6 @@ class UserTest {
                                                 .fullName(getValidFullName())
                                                 .role(UserRole.USER_ROLE)
                                                 .contactDetails(getValidContactDetails())
-                                                .status(UserStatus.ACTIVE)
                                                 .build())
                         .doesNotThrowAnyException();
             }
@@ -145,7 +127,6 @@ class UserTest {
                                                 .fullName(getValidFullName())
                                                 .role(UserRole.USER_ROLE)
                                                 .contactDetails(getValidContactDetails())
-                                                .status(UserStatus.ACTIVE)
                                                 .avatar(getValidAvatar())
                                                 .build())
                         .doesNotThrowAnyException();
@@ -163,7 +144,6 @@ class UserTest {
                                 .fullName(getValidFullName())
                                 .role(UserRole.USER_ROLE)
                                 .contactDetails(getValidContactDetails())
-                                .status(UserStatus.ACTIVE)
                                 .build();
 
                 // Then
@@ -185,7 +165,6 @@ class UserTest {
                                 .fullName(getValidFullName())
                                 .role(UserRole.USER_ROLE)
                                 .contactDetails(getValidContactDetails())
-                                .status(UserStatus.ACTIVE)
                                 .build();
 
                 // Then
@@ -204,7 +183,6 @@ class UserTest {
                                 .fullName(getValidFullName())
                                 .role(UserRole.USER_ROLE)
                                 .contactDetails(getValidContactDetails())
-                                .status(UserStatus.ACTIVE)
                                 .build();
 
                 // Then
@@ -214,6 +192,24 @@ class UserTest {
                                 d ->
                                         d.truncatedTo(SECONDS)
                                                 .equals(Instant.now().truncatedTo(SECONDS)));
+            }
+
+            @Test
+            @DisplayName("Should set status")
+            void shouldSetStatus() {
+                // Given
+                // When
+                final User instance =
+                        User.create()
+                                .email(getValidEmail())
+                                .password(getValidPassword())
+                                .fullName(getValidFullName())
+                                .role(UserRole.USER_ROLE)
+                                .contactDetails(getValidContactDetails())
+                                .build();
+
+                // Then
+                Assertions.assertThat(instance.isInactive()).isTrue();
             }
 
             @Test
@@ -230,7 +226,6 @@ class UserTest {
                                 .fullName(getValidFullName())
                                 .role(UserRole.USER_ROLE)
                                 .contactDetails(getValidContactDetails())
-                                .status(UserStatus.ACTIVE)
                                 .createdAt(createdAt)
                                 .build();
 
@@ -257,7 +252,6 @@ class UserTest {
                                                 .fullName(getValidFullName())
                                                 .role(UserRole.USER_ROLE)
                                                 .contactDetails(getValidContactDetails())
-                                                .status(UserStatus.ACTIVE)
                                                 .createdAt(createdAt)
                                                 .build())
                         .doesNotThrowAnyException();
@@ -275,7 +269,6 @@ class UserTest {
                                 .fullName(getValidFullName())
                                 .role(UserRole.USER_ROLE)
                                 .contactDetails(getValidContactDetails())
-                                .status(UserStatus.ACTIVE)
                                 .build();
 
                 // Then
@@ -296,12 +289,33 @@ class UserTest {
                                 .fullName(getValidFullName())
                                 .role(UserRole.USER_ROLE)
                                 .contactDetails(getValidContactDetails())
-                                .status(UserStatus.ACTIVE)
                                 .lastLoginAt(lastLoginAt)
                                 .build();
 
                 // Then
                 Assertions.assertThat(instance.getLastLoginAt()).isEmpty();
+            }
+
+            @Test
+            @DisplayName("Should not substitute status")
+            void shouldNotSubstituteStatus() {
+                // Given
+                final UserStatus status = UserStatus.BANNED;
+
+                // When
+                final User instance =
+                        User.create()
+                                .email(getValidEmail())
+                                .password(getValidPassword())
+                                .fullName(getValidFullName())
+                                .role(UserRole.USER_ROLE)
+                                .contactDetails(getValidContactDetails())
+                                .status(status)
+                                .build();
+
+                // Then
+                Assertions.assertThat(instance.isInactive()).isTrue();
+                Assertions.assertThat(instance.isBanned()).isFalse();
             }
 
             @Test
@@ -320,7 +334,6 @@ class UserTest {
                                                 .fullName(getValidFullName())
                                                 .role(UserRole.USER_ROLE)
                                                 .contactDetails(getValidContactDetails())
-                                                .status(UserStatus.ACTIVE)
                                                 .lastLoginAt(lastLoginAt)
                                                 .build())
                         .doesNotThrowAnyException();
@@ -417,6 +430,8 @@ class UserTest {
                 Assertions.assertThatThrownBy(
                                 () ->
                                         User.reconstitute()
+                                                .id(Identifier.generate())
+                                                .createdAt(Instant.now())
                                                 .email(getValidEmail())
                                                 .password(getValidPassword())
                                                 .fullName(getValidFullName())
@@ -1171,6 +1186,56 @@ class UserTest {
                     .isPresent()
                     .map(v -> v.truncatedTo(SECONDS))
                     .hasValue(Instant.now().truncatedTo(SECONDS));
+        }
+    }
+
+    @Nested
+    final class RegisterTests {
+
+        @Test
+        @DisplayName("Should register successfully")
+        void shouldRegisterSuccessfully() {
+            // Given
+            final User instance =
+                    User.create()
+                            .email(getValidEmail())
+                            .password(getValidPassword())
+                            .fullName(getValidFullName())
+                            .role(UserRole.USER_ROLE)
+                            .contactDetails(getValidContactDetails())
+                            .build();
+
+            // When
+            final User updatedInstance = instance.register();
+
+            // Then
+            Assertions.assertThat(updatedInstance).isEqualTo(instance);
+            Assertions.assertThat(updatedInstance.getEvents())
+                    .anyMatch(UserRegisteredEvent.class::isInstance)
+                    .hasSize(1);
+        }
+
+        @Test
+        @DisplayName("Should throw exception when user is already registered")
+        void shouldThrowExceptionWhenUserIsAlreadyRegistered() {
+            // Given
+            final User instance =
+                    User.reconstitute()
+                            .id(Identifier.generate())
+                            .createdAt(Instant.now())
+                            .status(UserStatus.ACTIVE)
+                            .email(getValidEmail())
+                            .password(getValidPassword())
+                            .fullName(getValidFullName())
+                            .role(UserRole.USER_ROLE)
+                            .contactDetails(getValidContactDetails())
+                            .build();
+
+            // When
+            // Then
+            Assertions.assertThatThrownBy(instance::register)
+                    .isExactlyInstanceOf(UnauthorizedAccessException.class)
+                    .hasMessage("User is already registered");
         }
     }
 

@@ -5,5 +5,5 @@ public enum AdvertisementStatus {
     ACTIVE,
     INACTIVE,
     SOLD,
-    DELETED // TODO: test it
+    DELETED
 }

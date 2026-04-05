@@ -67,4 +67,8 @@ public class AdvertisementFixture {
         return new PlotDetails(
                 new Area(BigDecimal.valueOf(50.25)), PlotBuildingType.AGRICULTURAL, null);
     }
+
+    public static Slug getDummySlug() {
+        return Slug.of("abcdefghijklmn");
+    }
 }

@@ -1,7 +1,6 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
-
 import pl.dawid0604.realestate.domain.shared.event.UserRegisteredEvent;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
@@ -21,6 +20,7 @@ public final class User extends AggregateRoot {
     private final UserStatus status;
     private final Instant createdAt;
     private final Instant lastLoginAt;
+    private final boolean createMode;
 
     private User(
             final Identifier id,
@@ -32,7 +32,8 @@ public final class User extends AggregateRoot {
             final UserRole role,
             final UserStatus status,
             final Instant createdAt,
-            final Instant lastLoginAt) {
+            final Instant lastLoginAt,
+            final boolean createMode) {
 
         this.id = id;
         this.email = email;
@@ -44,6 +45,7 @@ public final class User extends AggregateRoot {
         this.status = status;
         this.createdAt = createdAt;
         this.lastLoginAt = lastLoginAt;
+        this.createMode = createMode;
     }
 
     public void verifyUser() {
@@ -114,6 +116,10 @@ public final class User extends AggregateRoot {
     }
 
     public User register() {
+        if (!createMode) {
+            throw new UnauthorizedAccessException("User is already registered");
+        }
+
         final User currentObj = copy().build();
         currentObj.addEvent(new UserRegisteredEvent(id));
 
@@ -209,7 +215,7 @@ public final class User extends AggregateRoot {
             if (createMode) {
                 this.id = Identifier.generate();
                 this.createdAt = Instant.now();
-                this.status = UserStatus.INACTIVE; // TODO: test it
+                this.status = UserStatus.INACTIVE;
 
             } else {
                 requireNonNull(this.id, "Id");
@@ -235,7 +241,8 @@ public final class User extends AggregateRoot {
                     this.role,
                     this.status,
                     this.createdAt,
-                    this.lastLoginAt);
+                    this.lastLoginAt,
+                    this.createMode);
         }
 
         private static void throwDateFromTheFutureException(final String fieldName) {

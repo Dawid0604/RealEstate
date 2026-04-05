@@ -2,6 +2,7 @@
 package pl.dawid0604.realestate.domain;
 
 import static pl.dawid0604.realestate.domain.AdvertisementStatus.ACTIVE;
+import static pl.dawid0604.realestate.domain.AdvertisementStatus.DELETED;
 import static pl.dawid0604.realestate.domain.AdvertisementStatus.INACTIVE;
 import static pl.dawid0604.realestate.domain.AdvertisementStatus.SOLD;
 
@@ -19,6 +20,7 @@ import pl.dawid0604.realestate.domain.shared.event.AdvertisementPriceChangedEven
 import pl.dawid0604.realestate.domain.shared.event.AdvertisementStatusChangedEvent;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 import pl.dawid0604.realestate.domain.shared.exception.MaxPhotosExceededException;
+import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -110,25 +112,6 @@ class AdvertisementTest {
             }
 
             @Test
-            @DisplayName("Should throw exception when status is null")
-            void shouldThrowWhenStatusIsNull() {
-                // Given
-                // When
-                // Then
-                Assertions.assertThatThrownBy(
-                                () ->
-                                        Advertisement.create()
-                                                .title(getValidTitle())
-                                                .description(getValidDescription())
-                                                .price(getValidPrice())
-                                                .locality(getValidLocality())
-                                                .details(getValidDetails())
-                                                .build())
-                        .isExactlyInstanceOf(InvalidArgumentValueException.class)
-                        .hasMessage("Status cannot be null");
-            }
-
-            @Test
             @DisplayName("Should throw exception when userId is null")
             void shouldThrowWhenUserIdIsNull() {
                 // Given
@@ -142,7 +125,6 @@ class AdvertisementTest {
                                                 .price(getValidPrice())
                                                 .locality(getValidLocality())
                                                 .details(getValidDetails())
-                                                .status(getValidStatus())
                                                 .build())
                         .isExactlyInstanceOf(InvalidArgumentValueException.class)
                         .hasMessage("UserId cannot be null");
@@ -160,7 +142,6 @@ class AdvertisementTest {
                                 .price(getValidPrice())
                                 .locality(getValidLocality())
                                 .details(getValidDetails())
-                                .status(getValidStatus())
                                 .userId(getValidIdentifier())
                                 .build();
 
@@ -183,7 +164,6 @@ class AdvertisementTest {
                                 .price(getValidPrice())
                                 .locality(getValidLocality())
                                 .details(getValidDetails())
-                                .status(getValidStatus())
                                 .userId(getValidIdentifier())
                                 .build();
 
@@ -203,13 +183,31 @@ class AdvertisementTest {
                                 .price(getValidPrice())
                                 .locality(getValidLocality())
                                 .details(getValidDetails())
-                                .status(getValidStatus())
                                 .userId(getValidIdentifier())
                                 .build();
 
                 // Then
                 Assertions.assertThat(instance.getCreatedAt().truncatedTo(SECONDS))
                         .isEqualTo(Instant.now().truncatedTo(SECONDS));
+            }
+
+            @Test
+            @DisplayName("Should set status")
+            void shouldSetStatus() {
+                // Given
+                // When
+                final Advertisement instance =
+                        Advertisement.create()
+                                .title(getValidTitle())
+                                .description(getValidDescription())
+                                .price(getValidPrice())
+                                .locality(getValidLocality())
+                                .details(getValidDetails())
+                                .userId(getValidIdentifier())
+                                .build();
+
+                // Then
+                Assertions.assertThat(instance.isActive()).isTrue();
             }
 
             @Test
@@ -234,6 +232,28 @@ class AdvertisementTest {
                 // Then
                 Assertions.assertThat(instance.getCreatedAt().truncatedTo(SECONDS))
                         .isNotEqualTo(createdAt.truncatedTo(SECONDS));
+            }
+
+            @Test
+            @DisplayName("Should not substitute status")
+            void shouldNotSubstituteStatus() {
+                // Given
+                // When
+                final Advertisement instance =
+                        Advertisement.create()
+                                .title(getValidTitle())
+                                .description(getValidDescription())
+                                .price(getValidPrice())
+                                .locality(getValidLocality())
+                                .details(getValidDetails())
+                                .status(AdvertisementStatus.SOLD)
+                                .userId(getValidIdentifier())
+                                .createdAt(Instant.now())
+                                .build();
+
+                // Then
+                Assertions.assertThat(instance.isActive()).isTrue();
+                Assertions.assertThat(instance.isSold()).isFalse();
             }
 
             @Test
@@ -371,6 +391,10 @@ class AdvertisementTest {
                                                 .description(getValidDescription())
                                                 .price(getValidPrice())
                                                 .locality(getValidLocality())
+                                                .userId(getValidIdentifier())
+                                                .id(getValidIdentifier())
+                                                .createdAt(Instant.now())
+                                                .slug(getValidSlug())
                                                 .details(getValidDetails())
                                                 .build())
                         .isExactlyInstanceOf(InvalidArgumentValueException.class)
@@ -1740,7 +1764,7 @@ class AdvertisementTest {
             // Then
             Assertions.assertThatThrownBy(() -> instance.removePhoto(null))
                     .isExactlyInstanceOf(InvalidArgumentValueException.class)
-                    .hasMessage("AdvertisementPhoto cannot be null");
+                    .hasMessage("PhotoId cannot be null");
         }
 
         @Test
@@ -2116,6 +2140,183 @@ class AdvertisementTest {
             // Then
             Assertions.assertThat(instance).isEqualTo(updatedInstance);
             Assertions.assertThat(updatedInstance.isFeatured()).isFalse();
+        }
+    }
+
+    @Nested
+    final class DeleteTests {
+
+        @Test
+        @DisplayName("Should throw exception when advertisement is already deleted")
+        void shouldThrowExceptionWhenAdvertisementIsAlreadyDeleted() {
+            // Given
+            final Advertisement instance =
+                    Advertisement.reconstitute()
+                            .id(getValidIdentifier())
+                            .slug(getValidSlug())
+                            .title(getValidTitle())
+                            .description(getValidDescription())
+                            .price(getValidPrice())
+                            .locality(getValidLocality())
+                            .details(getValidDetails())
+                            .status(AdvertisementStatus.DELETED)
+                            .userId(getValidIdentifier())
+                            .featured(true)
+                            .createdAt(Instant.now())
+                            .photos(null)
+                            .build();
+
+            // When
+            // Then
+            Assertions.assertThatThrownBy(instance::delete)
+                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
+                    .hasMessage("Advertisement is already deleted");
+        }
+
+        @ParameterizedTest
+        @EnumSource(AdvertisementStatus.class)
+        @DisplayName("Should delete successfully")
+        void shouldDeleteSuccessfully(final AdvertisementStatus status) {
+            // Given
+            if (status == DELETED) {
+                return;
+            }
+
+            final Advertisement instance =
+                    Advertisement.reconstitute()
+                            .id(getValidIdentifier())
+                            .slug(getValidSlug())
+                            .title(getValidTitle())
+                            .description(getValidDescription())
+                            .price(getValidPrice())
+                            .locality(getValidLocality())
+                            .details(getValidDetails())
+                            .status(status)
+                            .userId(getValidIdentifier())
+                            .featured(true)
+                            .createdAt(Instant.now())
+                            .photos(null)
+                            .build();
+
+            // When
+            final Advertisement updatedInstance = instance.delete();
+
+            // Then
+            Assertions.assertThat(updatedInstance).isEqualTo(instance);
+            Assertions.assertThat(updatedInstance.isDeleted()).isTrue();
+        }
+    }
+
+    @Nested
+    final class VerifyOwnerTests {
+
+        @Test
+        @DisplayName("Should throw exception when user is null")
+        void shouldThrowExceptionWhenUserIsNull() {
+            // Given
+            final Advertisement instance =
+                    Advertisement.reconstitute()
+                            .id(getValidIdentifier())
+                            .slug(getValidSlug())
+                            .title(getValidTitle())
+                            .description(getValidDescription())
+                            .price(getValidPrice())
+                            .locality(getValidLocality())
+                            .details(getValidDetails())
+                            .status(AdvertisementStatus.DELETED)
+                            .userId(getValidIdentifier())
+                            .featured(true)
+                            .createdAt(Instant.now())
+                            .photos(null)
+                            .build();
+
+            // When
+            // Then
+            Assertions.assertThatThrownBy(() -> instance.verifyOwner(null))
+                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
+                    .hasMessage("User cannot be null");
+        }
+
+        @Test
+        @DisplayName("Should throw exception when user is different")
+        void shouldThrowExceptionWhenUserIsDifferent() {
+            // Given
+            final User user =
+                    User.reconstitute()
+                            .email(new Email("abc@mail.com"))
+                            .password(Password.ofHashed("$abc"))
+                            .fullName(new FullName("abc", "cde"))
+                            .role(UserRole.USER_ROLE)
+                            .contactDetails(
+                                    new ContactDetails(
+                                            new Email("abc@mail.com"),
+                                            new PhoneNumber("123456789")))
+                            .status(UserStatus.ACTIVE)
+                            .id(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .build();
+
+            final Advertisement instance =
+                    Advertisement.reconstitute()
+                            .id(getValidIdentifier())
+                            .slug(getValidSlug())
+                            .title(getValidTitle())
+                            .description(getValidDescription())
+                            .price(getValidPrice())
+                            .locality(getValidLocality())
+                            .details(getValidDetails())
+                            .status(AdvertisementStatus.DELETED)
+                            .userId(getValidIdentifier())
+                            .featured(true)
+                            .createdAt(Instant.now())
+                            .photos(null)
+                            .build();
+
+            // When
+            // Then
+            Assertions.assertThatThrownBy(() -> instance.verifyOwner(user))
+                    .isExactlyInstanceOf(UnauthorizedAccessException.class)
+                    .hasMessage("No permissions to modify this advertisement");
+        }
+
+        @Test
+        @DisplayName("Should verify when user is same")
+        void shouldVerifyWhenUserIsSame() {
+            // Given
+            final User user =
+                    User.reconstitute()
+                            .email(new Email("abc@mail.com"))
+                            .password(Password.ofHashed("$abc"))
+                            .fullName(new FullName("abc", "cde"))
+                            .role(UserRole.USER_ROLE)
+                            .contactDetails(
+                                    new ContactDetails(
+                                            new Email("abc@mail.com"),
+                                            new PhoneNumber("123456789")))
+                            .status(UserStatus.ACTIVE)
+                            .id(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .build();
+
+            final Advertisement instance =
+                    Advertisement.reconstitute()
+                            .id(getValidIdentifier())
+                            .slug(getValidSlug())
+                            .title(getValidTitle())
+                            .description(getValidDescription())
+                            .price(getValidPrice())
+                            .locality(getValidLocality())
+                            .details(getValidDetails())
+                            .status(AdvertisementStatus.DELETED)
+                            .userId(user.getId())
+                            .featured(true)
+                            .createdAt(Instant.now())
+                            .photos(null)
+                            .build();
+
+            // When
+            // Then
+            Assertions.assertThatCode(() -> instance.verifyOwner(user)).doesNotThrowAnyException();
         }
     }
 

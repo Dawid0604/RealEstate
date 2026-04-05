@@ -11,8 +11,11 @@
     <groupId>pl.dawid0604.real-estate</groupId>
     <artifactId>application</artifactId>
 
-    <dependencies>
+    <properties>
+        <org.glassfish.expressly.version>5.0.0</org.glassfish.expressly.version>
+    </properties>
 
+    <dependencies>
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
@@ -43,6 +46,19 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.glassfish.expressly</groupId>
+            <artifactId>expressly</artifactId>
+            <version>${org.glassfish.expressly.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
             <scope>test</scope>
         </dependency>
 

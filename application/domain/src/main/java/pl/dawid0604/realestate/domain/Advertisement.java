@@ -154,7 +154,6 @@ public final class Advertisement extends AggregateRoot {
         throw new InvalidArgumentValueException("Advertisement is already sold");
     }
 
-    // TODO: test it
     public Advertisement delete() {
         if (this.status == AdvertisementStatus.DELETED) {
             throw new InvalidArgumentValueException("Advertisement is already deleted");
@@ -187,9 +186,8 @@ public final class Advertisement extends AggregateRoot {
         return this.copy().featured(false).build();
     }
 
-    // TODO: test it
     public void verifyOwner(final User user) {
-        requireNonNull(user, "User cannot be null");
+        requireNonNull(user, "User");
 
         if (!Objects.equals(userId, user.getId()) && !user.isAdmin()) {
             throw new UnauthorizedAccessException("No permissions to modify this advertisement");
@@ -246,6 +244,10 @@ public final class Advertisement extends AggregateRoot {
 
     public boolean isSold() {
         return status == AdvertisementStatus.SOLD;
+    }
+
+    public boolean isDeleted() {
+        return status == AdvertisementStatus.DELETED;
     }
 
     private Advertisement(
@@ -324,19 +326,19 @@ public final class Advertisement extends AggregateRoot {
             requireNonNull(this.price, "Price");
             requireNonNull(this.locality, "Locality");
             requireNonNull(this.details, "Details");
-            requireNonNull(this.status, "Status");
             requireNonNull(this.userId, "UserId");
 
             if (createMode) {
                 this.id = Identifier.generate();
                 this.createdAt = Instant.now();
                 this.slug = Slug.create(title);
-                this.status = AdvertisementStatus.ACTIVE; // TODO: test this line
+                this.status = AdvertisementStatus.ACTIVE;
 
             } else {
                 requireNonNull(this.id, "Id");
                 requireNonNull(this.createdAt, "CreatedAt");
                 requireNonNull(this.slug, "Slug");
+                requireNonNull(this.status, "Status");
             }
 
             if (createdAt.isAfter(Instant.now())) {
