@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.command.handler.advertisement;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -123,7 +124,9 @@ class RemoveAdvertisementPhotoHandlerTest {
                                 .photos(
                                         Set.of(
                                                 AdvertisementPhoto.of(
-                                                        Identifier.of(command.photoId()), new Url("https://xyz"), 0)))
+                                                        Identifier.of(command.photoId()),
+                                                        new Url("https://xyz"),
+                                                        0)))
                                 .build());
 
         given(userRepository.findByEmail(command.userEmail())).willReturn(Optional.of(foundUser));

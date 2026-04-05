@@ -1,46 +1,54 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.dto;
+
+import lombok.Getter;
 
 import java.util.List;
 import java.util.Objects;
 
 public final class PagedResult<T> {
     private final List<T> items;
-    private final int page;
-    private final int pageSize;
-    private final long totalElements;
-    private final int totalPages;
+    @Getter private final int page;
+    @Getter private final int pageSize;
+    @Getter private final long totalElements;
+    @Getter private final int totalPages;
 
     private PagedResult(
-            final List<T> items,
-            final int page,
-            final int pageSize,
-            final long totalElements,
-            final int totalPages) {
+            final List<T> incomingItems,
+            final int incomingPage,
+            final int incomingPageSize,
+            final long incomingTotalElements,
+            final int incomingTotalPages) {
 
-        requireNonNegative(page, "page");
-        requireNonNegative(pageSize, "pageSize");
-        requireNonNegative(totalPages, "totalPages");
-        requireNonNegativeTotalElements(totalElements);
+        requireNonNegative(incomingPage, "incomingPage");
+        requireNonNegative(incomingPageSize, "incomingPageSize");
+        requireNonNegative(incomingTotalPages, "incomingTotalPages");
+        requireNonNegativeTotalElements(incomingTotalElements);
 
-        this.items = Objects.requireNonNullElse(items, List.of());
-        this.page = page;
-        this.pageSize = pageSize;
-        this.totalElements = totalElements;
-        this.totalPages = totalPages;
+        this.items = Objects.requireNonNullElse(incomingItems, List.of());
+        this.page = incomingPage;
+        this.pageSize = incomingPageSize;
+        this.totalElements = incomingTotalElements;
+        this.totalPages = incomingTotalPages;
     }
 
     public static <T> PagedResult<T> of(
-            final List<T> items,
-            final int page,
-            final int pageSize,
-            final long totalElements,
-            final int totalPages) {
+            final List<T> incomingItems,
+            final int incomingPage,
+            final int incomingPageSize,
+            final long incomingTotalElements,
+            final int incomingTotalPages) {
 
-        return new PagedResult<>(items, page, pageSize, totalElements, totalPages);
+        return new PagedResult<>(
+                incomingItems,
+                incomingPage,
+                incomingPageSize,
+                incomingTotalElements,
+                incomingTotalPages);
     }
 
-    public static <T> PagedResult<T> empty(final int page, final int pageSize) {
-        return new PagedResult<>(null, page, pageSize, 0, 0);
+    public static <T> PagedResult<T> empty(final int incomingPage, final int incomingPageSize) {
+        return new PagedResult<>(null, incomingPage, incomingPageSize, 0, 0);
     }
 
     private static void requireNonNegative(final int value, final String name) {
@@ -55,24 +63,8 @@ public final class PagedResult<T> {
         }
     }
 
-    public List<T> items() {
+    public List<T> getItems() {
         return List.copyOf(items);
-    }
-
-    public int page() {
-        return page;
-    }
-
-    public int pageSize() {
-        return pageSize;
-    }
-
-    public long totalElements() {
-        return totalElements;
-    }
-
-    public int totalPages() {
-        return totalPages;
     }
 
     public boolean hasNext() {

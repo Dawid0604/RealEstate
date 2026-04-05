@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.validation;
 
 import static java.lang.annotation.ElementType.FIELD;
@@ -15,8 +16,7 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Constraint(validatedBy = {})
 @Target({FIELD, RECORD_COMPONENT})
-@NotNull(message = "Title cannot be null")
-@Size(min = 10, max = 100, message = "Title must be between 10 and 100 characters")
+@NotNull(message = "Title cannot be null") @Size(min = 10, max = 100, message = "Title must be between 10 and 100 characters")
 public @interface ValidTitle {
 
     String message() default "";

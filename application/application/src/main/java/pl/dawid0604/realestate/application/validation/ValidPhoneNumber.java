@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.validation;
 
 import static java.lang.annotation.ElementType.FIELD;

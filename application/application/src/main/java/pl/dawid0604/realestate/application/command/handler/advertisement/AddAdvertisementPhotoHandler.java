@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.command.handler.advertisement;
 
 import static lombok.AccessLevel.PACKAGE;
@@ -37,8 +38,9 @@ class AddAdvertisementPhotoHandler implements CommandHandler<AddAdvertisementPho
                         .orElseThrow(() -> new AdvertisementNotFoundException(command.slug()));
 
         advertisement.verifyOwner(user);
-        advertisement.addPhoto(
-                AdvertisementPhoto.create(new Url(command.photoUrl()), command.position()));
+        advertisement =
+                advertisement.addPhoto(
+                        AdvertisementPhoto.create(new Url(command.photoUrl()), command.position()));
 
         advertisementRepository.save(advertisement);
         return null;

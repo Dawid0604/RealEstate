@@ -3,6 +3,8 @@ package pl.dawid0604.realestate.domain;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+import java.util.Locale;
+
 public sealed interface BuildingType
         permits CommercialBuildingType, FlatBuildingType, HouseBuildingType, PlotBuildingType {
 
@@ -11,12 +13,6 @@ public sealed interface BuildingType
             throw new IllegalArgumentException("Value cannot be blank");
         }
 
-        try {
-            return Enum.valueOf(type, value.toUpperCase());
-
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(
-                    "Invalid value '" + value + "' for " + type.getSimpleName());
-        }
+        return Enum.valueOf(type, value.toUpperCase(Locale.forLanguageTag("pl-PL")));
     }
 }

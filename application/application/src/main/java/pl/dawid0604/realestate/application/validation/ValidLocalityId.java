@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.validation;
 
 import static java.lang.annotation.ElementType.FIELD;
@@ -14,8 +15,7 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Constraint(validatedBy = {})
 @Target({FIELD, RECORD_COMPONENT})
-@NotNull(message = "LocalityId cannot be null")
-public @interface ValidLocalityId {
+@NotNull(message = "LocalityId cannot be null") public @interface ValidLocalityId {
 
     String message() default "";
 

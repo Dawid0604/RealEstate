@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.command.handler.advertisement;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -48,7 +49,6 @@ class AddAdvertisementPhotoHandlerTest {
     @Mock private AdvertisementRepository advertisementRepository;
     @Mock private UserRepository userRepository;
     @Captor private ArgumentCaptor<Advertisement> advertisementArgumentCaptor;
-    @Captor private ArgumentCaptor<AdvertisementPhoto> photoArgumentCaptor;
     private AddAdvertisementPhotoHandler handler;
 
     @BeforeEach
@@ -130,12 +130,16 @@ class AddAdvertisementPhotoHandlerTest {
 
         // Then
         verify(advertisementRepository).save(advertisementArgumentCaptor.capture());
-        verify(foundAdvertisement).addPhoto(photoArgumentCaptor.capture());
+        verify(foundAdvertisement).addPhoto(any());
 
         Assertions.assertThat(advertisementArgumentCaptor.getValue()).isEqualTo(foundAdvertisement);
-        Assertions.assertThat(photoArgumentCaptor.getValue())
+        Assertions.assertThat(advertisementArgumentCaptor.getValue().getPhotos())
+                .hasSize(1)
                 .satisfies(
-                        photo -> {
+                        photos -> {
+                            final AdvertisementPhoto photo =
+                                    photos.toArray(AdvertisementPhoto[]::new)[0];
+
                             Assertions.assertThat(photo.getUrl().value())
                                     .isEqualTo(command.photoUrl());
 

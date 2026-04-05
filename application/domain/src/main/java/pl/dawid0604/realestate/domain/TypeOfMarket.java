@@ -3,6 +3,8 @@ package pl.dawid0604.realestate.domain;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+import java.util.Locale;
+
 public enum TypeOfMarket {
     SECONDARY,
     PRIMARY;
@@ -12,6 +14,6 @@ public enum TypeOfMarket {
             throw new IllegalArgumentException("Value cannot be blank");
         }
 
-        return TypeOfMarket.valueOf(value.toUpperCase());
+        return TypeOfMarket.valueOf(value.toUpperCase(Locale.forLanguageTag("pl-PL")));
     }
 }

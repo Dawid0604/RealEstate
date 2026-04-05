@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.validation;
 
 import static java.lang.annotation.ElementType.FIELD;
@@ -16,8 +17,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = {})
 @Target({FIELD, RECORD_COMPONENT})
 @DecimalMin(value = "0.01", message = "Price must be greater than 0")
-@NotNull(message = "Price cannot be null")
-public @interface ValidPrice {
+@NotNull(message = "Price cannot be null") public @interface ValidPrice {
 
     String message() default "";
 

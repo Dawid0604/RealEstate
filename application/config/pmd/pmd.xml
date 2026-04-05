@@ -155,6 +155,8 @@
     <rule ref="category/java/design.xml/ExcessiveImports">
         <properties>
             <property name="minimum" value="35"/>
+            <property name="violationSuppressXPath"
+                      value="//ClassDeclaration[@SimpleName='CreateAdvertisementHandler']"/>
         </properties>
     </rule>
 

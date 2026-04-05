@@ -4,15 +4,15 @@ package pl.dawid0604.realestate.domain;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
-
-import java.math.BigDecimal;
-import java.time.Instant;
 
 class ListingPriceHistoryEntryTest {
 

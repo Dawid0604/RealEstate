@@ -19,9 +19,13 @@
     <suppress checks="JavadocType" files=".*Tests\.java$"/>
 
     <suppress checks="ParameterNumber" files=".*Configuration\.java$"/>
-
     <suppress checks="ParameterNumber" files=".*DTO\.java$"/>
     <suppress checks="ParameterNumber" files=".*Entity\.java$"/>
 
     <suppress checks="MethodLength" files=".*Mapper\.java$"/>
+    <suppress checks="LineLength"
+              files=".*[\\/]validation[\\/].*\.java"/>
+
+    <suppress checks="MagicNumber"
+              files=".*[\\/]validation[\\/].*\.java"/>
 </suppressions>

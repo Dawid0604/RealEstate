@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.command.handler.user;
 
 import static org.mockito.ArgumentMatchers.any;
