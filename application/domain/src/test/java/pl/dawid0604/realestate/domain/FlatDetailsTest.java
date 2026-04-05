@@ -1,14 +1,14 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
+
+import java.util.HashSet;
+import java.util.Set;
 
 class FlatDetailsTest {
 
@@ -233,7 +233,7 @@ class FlatDetailsTest {
 
         // Then
         Assertions.assertThat(instance.getArea()).isEqualTo(getValidArea());
-        Assertions.assertThat(instance.getType()).isEqualTo(getValidFlatBuildingType());
+        Assertions.assertThat(instance.getBuildingType()).isEqualTo(getValidFlatBuildingType());
         Assertions.assertThat(instance.getClaims()).isEqualTo(claims);
         Assertions.assertThat(instance.getNumberOfRooms()).isEqualTo(getValidNumberOfRooms());
         Assertions.assertThat(instance.getFloor()).isEqualTo(getValidFloor());
@@ -264,7 +264,7 @@ class FlatDetailsTest {
 
         // Then
         Assertions.assertThat(instance.getArea()).isEqualTo(getValidArea());
-        Assertions.assertThat(instance.getType()).isEqualTo(getValidFlatBuildingType());
+        Assertions.assertThat(instance.getBuildingType()).isEqualTo(getValidFlatBuildingType());
         Assertions.assertThat(instance.getClaims()).isEqualTo(claims);
         Assertions.assertThat(instance.getNumberOfRooms()).isEqualTo(getValidNumberOfRooms());
         Assertions.assertThat(instance.getFloor()).isEqualTo(floor);
@@ -295,7 +295,7 @@ class FlatDetailsTest {
 
         // Then
         Assertions.assertThat(instance.getArea()).isEqualTo(getValidArea());
-        Assertions.assertThat(instance.getType()).isEqualTo(getValidFlatBuildingType());
+        Assertions.assertThat(instance.getBuildingType()).isEqualTo(getValidFlatBuildingType());
         Assertions.assertThat(instance.getClaims()).isEqualTo(claims);
         Assertions.assertThat(instance.getNumberOfRooms()).isEqualTo(getValidNumberOfRooms());
         Assertions.assertThat(instance.getFloor()).isEqualTo(floor);
@@ -326,7 +326,7 @@ class FlatDetailsTest {
 
         // Then
         Assertions.assertThat(instance.getArea()).isEqualTo(getValidArea());
-        Assertions.assertThat(instance.getType()).isEqualTo(getValidFlatBuildingType());
+        Assertions.assertThat(instance.getBuildingType()).isEqualTo(getValidFlatBuildingType());
         Assertions.assertThat(instance.getClaims()).isEqualTo(claims);
         Assertions.assertThat(instance.getNumberOfRooms()).isEqualTo(getValidNumberOfRooms());
         Assertions.assertThat(instance.getFloor()).isEqualTo(floor);

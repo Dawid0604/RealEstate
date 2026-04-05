@@ -10,7 +10,7 @@ public abstract sealed class AdvertisementDetails<B extends BuildingType>
         permits FlooredDetails, HouseDetails, PlotDetails {
 
     private final Area area;
-    private final B type;
+    private final B buildingType;
     private final Set<AdvertisementClaim> claims;
 
     protected AdvertisementDetails(
@@ -20,7 +20,7 @@ public abstract sealed class AdvertisementDetails<B extends BuildingType>
         requireNonNull(buildingType, "BuildingType");
 
         this.area = area;
-        this.type = buildingType;
+        this.buildingType = buildingType;
         this.claims = claims == null ? new HashSet<>() : new HashSet<>(claims);
     }
 
@@ -32,8 +32,8 @@ public abstract sealed class AdvertisementDetails<B extends BuildingType>
         return area;
     }
 
-    public final B getType() {
-        return type;
+    public final B getBuildingType() {
+        return buildingType;
     }
 
     protected final void requireNonNull(final Object field, final String name) {

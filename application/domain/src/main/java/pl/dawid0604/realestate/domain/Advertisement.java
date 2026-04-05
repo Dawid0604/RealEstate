@@ -250,6 +250,10 @@ public final class Advertisement extends AggregateRoot {
         return status == AdvertisementStatus.DELETED;
     }
 
+    public Identifier getOwner() {
+        return userId;
+    }
+
     private Advertisement(
             final Identifier id,
             final Slug slug,
