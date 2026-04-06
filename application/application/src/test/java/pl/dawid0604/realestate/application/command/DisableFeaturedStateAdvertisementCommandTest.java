@@ -11,7 +11,7 @@ import pl.dawid0604.realestate.application.validation.ValidSlug;
 import java.lang.annotation.Annotation;
 import java.util.List;
 
-class ActivateAdvertisementCommandTest {
+class DisableFeaturedStateAdvertisementCommandTest {
 
     @Test
     @DisplayName("Should implement Command interface")
@@ -19,7 +19,8 @@ class ActivateAdvertisementCommandTest {
         // Given
         // When
         // Then
-        AnnotationAssertions.assertImplementsCommandInterface(ActivateAdvertisementCommand.class);
+        AnnotationAssertions.assertImplementsCommandInterface(
+                DisableFeaturedStateAdvertisementCommand.class);
     }
 
     @Test
@@ -44,6 +45,6 @@ class ActivateAdvertisementCommandTest {
             final String fieldName, final List<Class<? extends Annotation>> requiredAnnotations) {
 
         AnnotationAssertions.assertFieldAnnotations(
-                ActivateAdvertisementCommand.class, fieldName, requiredAnnotations);
+                DisableFeaturedStateAdvertisementCommand.class, fieldName, requiredAnnotations);
     }
 }

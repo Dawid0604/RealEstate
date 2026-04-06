@@ -1,6 +1,8 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain.shared.event;
 
+import java.math.BigDecimal;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,8 +11,6 @@ import pl.dawid0604.realestate.domain.Identifier;
 import pl.dawid0604.realestate.domain.Money;
 import pl.dawid0604.realestate.domain.MoneyCurrency;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
-
-import java.math.BigDecimal;
 
 class AdvertisementPriceChangedEventTest {
 

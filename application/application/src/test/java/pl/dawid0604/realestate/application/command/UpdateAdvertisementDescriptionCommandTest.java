@@ -5,13 +5,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import pl.dawid0604.realestate.application.fixture.AnnotationAssertions;
+import pl.dawid0604.realestate.application.validation.ValidDescription;
 import pl.dawid0604.realestate.application.validation.ValidEmail;
 import pl.dawid0604.realestate.application.validation.ValidSlug;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
 
-class ActivateAdvertisementCommandTest {
+class UpdateAdvertisementDescriptionCommandTest {
 
     @Test
     @DisplayName("Should implement Command interface")
@@ -19,7 +20,8 @@ class ActivateAdvertisementCommandTest {
         // Given
         // When
         // Then
-        AnnotationAssertions.assertImplementsCommandInterface(ActivateAdvertisementCommand.class);
+        AnnotationAssertions.assertImplementsCommandInterface(
+                UpdateAdvertisementDescriptionCommand.class);
     }
 
     @Test
@@ -29,6 +31,15 @@ class ActivateAdvertisementCommandTest {
         // When
         // Then
         assertFieldAnnotations("slug", List.of(ValidSlug.class));
+    }
+
+    @Test
+    @DisplayName("Should have newDescription field with required annotations")
+    void shouldHaveNewDescriptionFieldWithRequiredAnnotations() {
+        // Given
+        // When
+        // Then
+        assertFieldAnnotations("newDescription", List.of(ValidDescription.class));
     }
 
     @Test
@@ -44,6 +55,6 @@ class ActivateAdvertisementCommandTest {
             final String fieldName, final List<Class<? extends Annotation>> requiredAnnotations) {
 
         AnnotationAssertions.assertFieldAnnotations(
-                ActivateAdvertisementCommand.class, fieldName, requiredAnnotations);
+                UpdateAdvertisementDescriptionCommand.class, fieldName, requiredAnnotations);
     }
 }

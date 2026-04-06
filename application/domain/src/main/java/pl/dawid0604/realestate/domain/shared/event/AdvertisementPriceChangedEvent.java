@@ -1,11 +1,11 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain.shared.event;
 
+import java.util.Objects;
+
 import pl.dawid0604.realestate.domain.Identifier;
 import pl.dawid0604.realestate.domain.Money;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
-
-import java.util.Objects;
 
 public final class AdvertisementPriceChangedEvent extends AdvertisementEvent {
     private final Money oldPrice;

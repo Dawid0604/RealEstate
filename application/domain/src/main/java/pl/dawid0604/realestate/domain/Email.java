@@ -3,10 +3,10 @@ package pl.dawid0604.realestate.domain;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
-
 import java.util.Locale;
 import java.util.regex.Pattern;
+
+import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 
 public record Email(String value) {
     private static final int MIN_LENGTH = 6;

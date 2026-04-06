@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Constraint(validatedBy = {})
 @Target({FIELD, RECORD_COMPONENT})
-@DecimalMin(value = "0.01", message = "Area must be greater than 0")
+@DecimalMin(value = "0.01", message = "Area must be greater than 0.01")
 @NotNull(message = "Area cannot be null") public @interface ValidArea {
 
     String message() default "";

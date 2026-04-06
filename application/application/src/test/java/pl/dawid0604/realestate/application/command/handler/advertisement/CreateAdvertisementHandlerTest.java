@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.command.handler.advertisement;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -8,7 +9,6 @@ import static org.mockito.Mockito.verify;
 import static pl.dawid0604.realestate.application.fixture.UserFixture.getDummyEmail;
 import static pl.dawid0604.realestate.application.fixture.UserFixture.getDummyUserBuilder;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 
 import org.assertj.core.api.Assertions;
@@ -30,6 +30,7 @@ import pl.dawid0604.realestate.application.command.CreateHouseAdvertisementComma
 import pl.dawid0604.realestate.application.command.CreatePlotAdvertisementCommand;
 import pl.dawid0604.realestate.domain.Advertisement;
 import pl.dawid0604.realestate.domain.AdvertisementClaim;
+import pl.dawid0604.realestate.domain.AdvertisementPhoto;
 import pl.dawid0604.realestate.domain.CommercialBuildingType;
 import pl.dawid0604.realestate.domain.CommercialDetails;
 import pl.dawid0604.realestate.domain.FlatBuildingType;
@@ -41,6 +42,7 @@ import pl.dawid0604.realestate.domain.MoneyCurrency;
 import pl.dawid0604.realestate.domain.PlotBuildingType;
 import pl.dawid0604.realestate.domain.PlotDetails;
 import pl.dawid0604.realestate.domain.TypeOfMarket;
+import pl.dawid0604.realestate.domain.Url;
 import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
@@ -49,6 +51,8 @@ import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessExcepti
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -187,6 +191,52 @@ class CreateAdvertisementHandlerTest {
                         });
     }
 
+    @ParameterizedTest
+    @DisplayName("Should assign claims properly")
+    @MethodSource("commandsWithCustomClaimsDataProvider")
+    void shouldAssignClaimsProperly(
+            final CreateAdvertisementCommand command,
+            final Set<AdvertisementClaim> expectedClaims) {
+
+        // Given
+        final User foundUser = getDummyUserBuilder().build();
+
+        given(userRepository.findByEmail(command.userEmail())).willReturn(Optional.of(foundUser));
+
+        // When
+        handler.handle(command);
+
+        // Then
+        verify(advertisementRepository).save(advertisementArgumentCaptor.capture());
+        Assertions.assertThat(advertisementArgumentCaptor.getValue().getDetails())
+                .satisfies(
+                        details ->
+                                Assertions.assertThat(details.getClaims())
+                                        .isEqualTo(expectedClaims));
+    }
+
+    @ParameterizedTest
+    @DisplayName("Should assign photos properly")
+    @MethodSource("commandsWithCustomPhotosDataProvider")
+    void shouldAssignPhotosProperly(
+            final CreateAdvertisementCommand command,
+            final Set<AdvertisementPhoto> expectedPhotos) {
+
+        // Given
+        final User foundUser = getDummyUserBuilder().build();
+
+        given(userRepository.findByEmail(command.userEmail())).willReturn(Optional.of(foundUser));
+
+        // When
+        handler.handle(command);
+
+        // Then
+        verify(advertisementRepository).save(advertisementArgumentCaptor.capture());
+        Assertions.assertThat(advertisementArgumentCaptor.getValue().getPhotos())
+                .usingRecursiveFieldByFieldElementComparatorIgnoringFields("id")
+                .containsExactlyInAnyOrderElementsOf(expectedPhotos);
+    }
+
     private static void assertCommercialDetails(
             final CommercialDetails details,
             final CreateCommercialAdvertisementCommand command,
@@ -296,13 +346,59 @@ class CreateAdvertisementHandlerTest {
 
     private static Stream<Arguments> commandsDataProvider() {
         return Stream.of(
-                Arguments.of(getFlatCommand()),
-                Arguments.of(getHouseCommand()),
-                Arguments.of(getCommercialCommand()),
-                Arguments.of(getPlotCommand()));
+                Arguments.of(getFlatCommand(null, null)),
+                Arguments.of(getHouseCommand(null, null)),
+                Arguments.of(getCommercialCommand(null, null)),
+                Arguments.of(getPlotCommand(null, null)));
     }
 
-    private static CreateFlatAdvertisementCommand getFlatCommand() {
+    private static Stream<Arguments> commandsWithCustomClaimsDataProvider() {
+        final Map<String, String> claims = Map.of("abc", "cde");
+        final Set<AdvertisementClaim> expectedClaims = Set.of(new AdvertisementClaim("abc", "cde"));
+
+        return Stream.of(
+                Arguments.of(getFlatCommand(null, null), emptySet()),
+                Arguments.of(getFlatCommand(Map.of(), null), emptySet()),
+                Arguments.of(getFlatCommand(claims, null), expectedClaims),
+                Arguments.of(getHouseCommand(null, null), emptySet()),
+                Arguments.of(getHouseCommand(Map.of(), null), emptySet()),
+                Arguments.of(getHouseCommand(claims, null), expectedClaims),
+                Arguments.of(getCommercialCommand(null, null), emptySet()),
+                Arguments.of(getCommercialCommand(Map.of(), null), emptySet()),
+                Arguments.of(getCommercialCommand(claims, null), expectedClaims),
+                Arguments.of(getPlotCommand(null, null), emptySet()),
+                Arguments.of(getPlotCommand(Map.of(), null), emptySet()),
+                Arguments.of(getPlotCommand(claims, null), expectedClaims));
+    }
+
+    private static Stream<Arguments> commandsWithCustomPhotosDataProvider() {
+        final List<CreateAdvertisementCommand.AdvertisementPhoto> photos =
+                List.of(new CreateAdvertisementCommand.AdvertisementPhoto("https://abc", 0));
+
+        final Set<AdvertisementPhoto> expectedPhotos =
+                Set.of(
+                        AdvertisementPhoto.create(
+                                new Url(photos.getFirst().url()), photos.getFirst().position()));
+
+        return Stream.of(
+                Arguments.of(getFlatCommand(null, null), emptySet()),
+                Arguments.of(getFlatCommand(null, List.of()), emptySet()),
+                Arguments.of(getFlatCommand(null, photos), expectedPhotos),
+                Arguments.of(getHouseCommand(null, null), emptySet()),
+                Arguments.of(getHouseCommand(null, List.of()), emptySet()),
+                Arguments.of(getHouseCommand(null, photos), expectedPhotos),
+                Arguments.of(getCommercialCommand(null, null), emptySet()),
+                Arguments.of(getCommercialCommand(null, List.of()), emptySet()),
+                Arguments.of(getCommercialCommand(null, photos), expectedPhotos),
+                Arguments.of(getPlotCommand(null, null), emptySet()),
+                Arguments.of(getPlotCommand(null, List.of()), emptySet()),
+                Arguments.of(getPlotCommand(null, photos), expectedPhotos));
+    }
+
+    private static CreateFlatAdvertisementCommand getFlatCommand(
+            final Map<String, String> claims,
+            final List<CreateAdvertisementCommand.AdvertisementPhoto> photos) {
+
         return new CreateFlatAdvertisementCommand(
                 "any title content",
                 "any description content",
@@ -314,14 +410,17 @@ class CreateAdvertisementHandlerTest {
                 4,
                 2011,
                 TypeOfMarket.PRIMARY.toString(),
-                emptyList(),
+                photos,
                 FlatBuildingType.APARTMENT.toString(),
                 BigDecimal.valueOf(45.25d),
-                null,
+                claims,
                 false);
     }
 
-    private static CreateHouseAdvertisementCommand getHouseCommand() {
+    private static CreateHouseAdvertisementCommand getHouseCommand(
+            final Map<String, String> claims,
+            final List<CreateAdvertisementCommand.AdvertisementPhoto> photos) {
+
         return new CreateHouseAdvertisementCommand(
                 "any title content",
                 "any description content",
@@ -332,14 +431,17 @@ class CreateAdvertisementHandlerTest {
                 4,
                 2011,
                 TypeOfMarket.PRIMARY.toString(),
-                emptyList(),
+                photos,
                 HouseBuildingType.DETACHED.toString(),
                 BigDecimal.valueOf(45.25d),
-                null,
+                claims,
                 false);
     }
 
-    private static CreateCommercialAdvertisementCommand getCommercialCommand() {
+    private static CreateCommercialAdvertisementCommand getCommercialCommand(
+            final Map<String, String> claims,
+            final List<CreateAdvertisementCommand.AdvertisementPhoto> photos) {
+
         return new CreateCommercialAdvertisementCommand(
                 "any title content",
                 "any description content",
@@ -351,24 +453,27 @@ class CreateAdvertisementHandlerTest {
                 4,
                 2011,
                 TypeOfMarket.PRIMARY.toString(),
-                emptyList(),
+                photos,
                 CommercialBuildingType.HALL.toString(),
                 BigDecimal.valueOf(45.25d),
-                null,
+                claims,
                 false);
     }
 
-    private static CreatePlotAdvertisementCommand getPlotCommand() {
+    private static CreatePlotAdvertisementCommand getPlotCommand(
+            final Map<String, String> claims,
+            final List<CreateAdvertisementCommand.AdvertisementPhoto> photos) {
+
         return new CreatePlotAdvertisementCommand(
                 "any title content",
                 "any description content",
                 BigDecimal.valueOf(1_950_000d),
                 Identifier.generate().getValue(),
                 getDummyEmail(),
-                emptyList(),
+                photos,
                 PlotBuildingType.FOREST.toString(),
                 BigDecimal.valueOf(1_450.25d),
-                null,
+                claims,
                 false);
     }
 }

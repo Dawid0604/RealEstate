@@ -6,12 +6,14 @@ import org.junit.jupiter.api.Test;
 
 import pl.dawid0604.realestate.application.fixture.AnnotationAssertions;
 import pl.dawid0604.realestate.application.validation.ValidEmail;
+import pl.dawid0604.realestate.application.validation.ValidPhoto;
+import pl.dawid0604.realestate.application.validation.ValidPhotoPosition;
 import pl.dawid0604.realestate.application.validation.ValidSlug;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
 
-class ActivateAdvertisementCommandTest {
+class AddAdvertisementPhotoCommandTest {
 
     @Test
     @DisplayName("Should implement Command interface")
@@ -19,7 +21,7 @@ class ActivateAdvertisementCommandTest {
         // Given
         // When
         // Then
-        AnnotationAssertions.assertImplementsCommandInterface(ActivateAdvertisementCommand.class);
+        AnnotationAssertions.assertImplementsCommandInterface(AddAdvertisementPhotoCommand.class);
     }
 
     @Test
@@ -29,6 +31,24 @@ class ActivateAdvertisementCommandTest {
         // When
         // Then
         assertFieldAnnotations("slug", List.of(ValidSlug.class));
+    }
+
+    @Test
+    @DisplayName("Should have photoUrl field with required annotations")
+    void shouldHavePhotoUrlFieldWithRequiredAnnotations() {
+        // Given
+        // When
+        // Then
+        assertFieldAnnotations("photoUrl", List.of(ValidPhoto.class));
+    }
+
+    @Test
+    @DisplayName("Should have position field with required annotations")
+    void shouldHavePositionFieldWithRequiredAnnotations() {
+        // Given
+        // When
+        // Then
+        assertFieldAnnotations("position", List.of(ValidPhotoPosition.class));
     }
 
     @Test
@@ -44,6 +64,6 @@ class ActivateAdvertisementCommandTest {
             final String fieldName, final List<Class<? extends Annotation>> requiredAnnotations) {
 
         AnnotationAssertions.assertFieldAnnotations(
-                ActivateAdvertisementCommand.class, fieldName, requiredAnnotations);
+                AddAdvertisementPhotoCommand.class, fieldName, requiredAnnotations);
     }
 }

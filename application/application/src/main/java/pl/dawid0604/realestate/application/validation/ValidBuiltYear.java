@@ -7,15 +7,13 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
-import jakarta.validation.constraints.Min;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 @Retention(RUNTIME)
-@Constraint(validatedBy = {})
 @Target({FIELD, RECORD_COMPONENT})
-@Min(value = 1800, message = "BuiltYear cannot be before 1800")
+@Constraint(validatedBy = ValidBuiltYearValidatorImpl.class)
 public @interface ValidBuiltYear {
 
     String message() default "";

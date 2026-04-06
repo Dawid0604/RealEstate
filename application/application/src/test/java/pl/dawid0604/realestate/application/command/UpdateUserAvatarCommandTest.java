@@ -6,12 +6,12 @@ import org.junit.jupiter.api.Test;
 
 import pl.dawid0604.realestate.application.fixture.AnnotationAssertions;
 import pl.dawid0604.realestate.application.validation.ValidEmail;
-import pl.dawid0604.realestate.application.validation.ValidSlug;
+import pl.dawid0604.realestate.application.validation.ValidUserAvatar;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
 
-class ActivateAdvertisementCommandTest {
+class UpdateUserAvatarCommandTest {
 
     @Test
     @DisplayName("Should implement Command interface")
@@ -19,31 +19,31 @@ class ActivateAdvertisementCommandTest {
         // Given
         // When
         // Then
-        AnnotationAssertions.assertImplementsCommandInterface(ActivateAdvertisementCommand.class);
+        AnnotationAssertions.assertImplementsCommandInterface(UpdateUserAvatarCommand.class);
     }
 
     @Test
-    @DisplayName("Should have slug field with required annotations")
-    void shouldHaveSlugFieldWithRequiredAnnotations() {
+    @DisplayName("Should have email field with required annotations")
+    void shouldHaveEmailFieldWithRequiredAnnotations() {
         // Given
         // When
         // Then
-        assertFieldAnnotations("slug", List.of(ValidSlug.class));
+        assertFieldAnnotations("email", List.of(ValidEmail.class));
     }
 
     @Test
-    @DisplayName("Should have userEmail field with required annotations")
-    void shouldHaveUserEmailFieldWithRequiredAnnotations() {
+    @DisplayName("Should have newAvatarUrl field with required annotations")
+    void shouldHaveNewAvatarUrlFieldWithRequiredAnnotations() {
         // Given
         // When
         // Then
-        assertFieldAnnotations("userEmail", List.of(ValidEmail.class));
+        assertFieldAnnotations("newAvatarUrl", List.of(ValidUserAvatar.class));
     }
 
     private static void assertFieldAnnotations(
             final String fieldName, final List<Class<? extends Annotation>> requiredAnnotations) {
 
         AnnotationAssertions.assertFieldAnnotations(
-                ActivateAdvertisementCommand.class, fieldName, requiredAnnotations);
+                UpdateUserAvatarCommand.class, fieldName, requiredAnnotations);
     }
 }

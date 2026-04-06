@@ -6,12 +6,13 @@ import org.junit.jupiter.api.Test;
 
 import pl.dawid0604.realestate.application.fixture.AnnotationAssertions;
 import pl.dawid0604.realestate.application.validation.ValidEmail;
+import pl.dawid0604.realestate.application.validation.ValidLocalityId;
 import pl.dawid0604.realestate.application.validation.ValidSlug;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
 
-class ActivateAdvertisementCommandTest {
+class UpdateAdvertisementLocalityCommandTest {
 
     @Test
     @DisplayName("Should implement Command interface")
@@ -19,7 +20,8 @@ class ActivateAdvertisementCommandTest {
         // Given
         // When
         // Then
-        AnnotationAssertions.assertImplementsCommandInterface(ActivateAdvertisementCommand.class);
+        AnnotationAssertions.assertImplementsCommandInterface(
+                UpdateAdvertisementLocalityCommand.class);
     }
 
     @Test
@@ -29,6 +31,15 @@ class ActivateAdvertisementCommandTest {
         // When
         // Then
         assertFieldAnnotations("slug", List.of(ValidSlug.class));
+    }
+
+    @Test
+    @DisplayName("Should have newLocalityId field with required annotations")
+    void shouldHaveNewLocalityIdFieldWithRequiredAnnotations() {
+        // Given
+        // When
+        // Then
+        assertFieldAnnotations("newLocalityId", List.of(ValidLocalityId.class));
     }
 
     @Test
@@ -44,6 +55,6 @@ class ActivateAdvertisementCommandTest {
             final String fieldName, final List<Class<? extends Annotation>> requiredAnnotations) {
 
         AnnotationAssertions.assertFieldAnnotations(
-                ActivateAdvertisementCommand.class, fieldName, requiredAnnotations);
+                UpdateAdvertisementLocalityCommand.class, fieldName, requiredAnnotations);
     }
 }

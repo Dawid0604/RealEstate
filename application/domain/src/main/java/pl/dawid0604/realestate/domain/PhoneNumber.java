@@ -3,9 +3,9 @@ package pl.dawid0604.realestate.domain;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
-
 import java.util.regex.Pattern;
+
+import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 
 public record PhoneNumber(String value) {
     private static final Pattern VALID_VALUE_PATTERN = Pattern.compile("^\\+?[0-9\\s\\-()]{7,15}$");

@@ -3,9 +3,9 @@ package pl.dawid0604.realestate.domain;
 
 import static java.math.RoundingMode.HALF_UP;
 
-import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
-
 import java.math.BigDecimal;
+
+import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 
 public record Money(BigDecimal value, MoneyCurrency currency) {
     private static final BigDecimal MINIMUM_PRICE = BigDecimal.valueOf(10_000);

@@ -9,7 +9,7 @@ import pl.dawid0604.realestate.application.validation.ValidEmail;
 
 import java.util.List;
 
-class ActivateUserCommandTest {
+class BanUserCommandTest {
 
     @Test
     @DisplayName("Should implement Command interface")
@@ -17,7 +17,7 @@ class ActivateUserCommandTest {
         // Given
         // When
         // Then
-        AnnotationAssertions.assertImplementsCommandInterface(ActivateUserCommand.class);
+        AnnotationAssertions.assertImplementsCommandInterface(BanUserCommand.class);
     }
 
     @Test
@@ -27,6 +27,6 @@ class ActivateUserCommandTest {
         // When
         // Then
         AnnotationAssertions.assertFieldAnnotations(
-                ActivateUserCommand.class, "email", List.of(ValidEmail.class));
+                BanUserCommand.class, "email", List.of(ValidEmail.class));
     }
 }
