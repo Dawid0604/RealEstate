@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 
 public final class PagedResult<T> {
+    private static final int MIN_PAGE_SIZE = 1;
     private static final int MAX_PAGE_SIZE = 100;
 
     private final List<T> items;
@@ -19,53 +20,53 @@ public final class PagedResult<T> {
             final List<T> incomingItems,
             final int incomingPage,
             final int incomingPageSize,
-            final long incomingTotalElements,
-            final int incomingTotalPages) {
+            final long incomingTotalElements) {
 
-        requireNonNegative(incomingPage, "incomingPage");
-        requireNonNegative(incomingPageSize, "incomingPageSize");
-        requireNonNegative(incomingTotalPages, "incomingTotalPages");
-        requireNonNegativeTotalElements(incomingTotalElements);
-
-        if (incomingPageSize > MAX_PAGE_SIZE) {
-            throw new IllegalArgumentException("Page size cannot be greater than " + MAX_PAGE_SIZE);
-        }
+        requirePositivePage(incomingPage);
+        requireValidPageSize(incomingPageSize);
+        requirePositiveTotalElements(incomingTotalElements);
 
         this.items = Objects.requireNonNullElse(incomingItems, List.of());
         this.page = incomingPage;
         this.pageSize = incomingPageSize;
         this.totalElements = incomingTotalElements;
-        this.totalPages = incomingTotalPages;
+        this.totalPages = calculateTotalPages(incomingTotalElements, incomingPageSize);
     }
 
     public static <T> PagedResult<T> of(
             final List<T> incomingItems,
             final int incomingPage,
             final int incomingPageSize,
-            final long incomingTotalElements,
-            final int incomingTotalPages) {
+            final long incomingTotalElements) {
 
         return new PagedResult<>(
-                incomingItems,
-                incomingPage,
-                incomingPageSize,
-                incomingTotalElements,
-                incomingTotalPages);
+                incomingItems, incomingPage, incomingPageSize, incomingTotalElements);
     }
 
     public static <T> PagedResult<T> empty(final int incomingPage, final int incomingPageSize) {
-        return new PagedResult<>(null, incomingPage, incomingPageSize, 0, 0);
+        return new PagedResult<>(null, incomingPage, incomingPageSize, 0);
     }
 
-    private static void requireNonNegative(final int value, final String name) {
+    private static int calculateTotalPages(final long totalElements, final int pageSize) {
+        return (int) Math.ceil((double) totalElements / pageSize);
+    }
+
+    private static void requirePositivePage(final int value) {
         if (value < 0) {
-            throw new IllegalArgumentException(name + " cannot be negative");
+            throw new IllegalArgumentException("Page cannot be negative");
         }
     }
 
-    private static void requireNonNegativeTotalElements(final long value) {
+    private static void requirePositiveTotalElements(final long value) {
         if (value < 0) {
             throw new IllegalArgumentException("Total elements cannot be negative");
+        }
+    }
+
+    private static void requireValidPageSize(final int pageSize) {
+        if (pageSize < MIN_PAGE_SIZE || pageSize > MAX_PAGE_SIZE) {
+            throw new IllegalArgumentException(
+                    "Page size must be between " + MIN_PAGE_SIZE + " and " + MAX_PAGE_SIZE);
         }
     }
 
@@ -74,7 +75,7 @@ public final class PagedResult<T> {
     }
 
     public boolean hasNext() {
-        return page < totalPages - 1;
+        return page < totalPages;
     }
 
     public boolean hasPrevious() {
