@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Constraint(validatedBy = {})
 @Target({FIELD, RECORD_COMPONENT})
-@PositiveOrZero(message = "Position cannot be negative")
+@PositiveOrZero(message = "Position cannot be lower than 0")
 public @interface ValidPhotoPosition {
 
     String message() default "";

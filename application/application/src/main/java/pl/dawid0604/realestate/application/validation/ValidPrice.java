@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Constraint(validatedBy = {})
 @Target({FIELD, RECORD_COMPONENT})
-@DecimalMin(value = "0.01", message = "Price must be greater than 0")
+@DecimalMin(value = "0.01", message = "Price must be greater than 0.01")
 @NotNull(message = "Price cannot be null") public @interface ValidPrice {
 
     String message() default "";

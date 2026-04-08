@@ -1,9 +1,6 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.command;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -29,17 +26,9 @@ public sealed interface CreateAdvertisementCommand extends Command
 
     Map<String, String> claims();
 
-    default Map<String, String> claimsOrEmpty() {
-        return claims() == null ? emptyMap() : claims();
-    }
-
     String userEmail();
 
     List<AdvertisementPhoto> photos();
-
-    default List<AdvertisementPhoto> photosOrEmpty() {
-        return photos() == null ? emptyList() : photos();
-    }
 
     Boolean featured();
 

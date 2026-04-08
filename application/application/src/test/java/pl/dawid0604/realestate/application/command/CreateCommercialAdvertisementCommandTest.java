@@ -8,7 +8,6 @@ import pl.dawid0604.realestate.application.fixture.AnnotationAssertions;
 import pl.dawid0604.realestate.application.validation.ValidArea;
 import pl.dawid0604.realestate.application.validation.ValidBuildingType;
 import pl.dawid0604.realestate.application.validation.ValidBuiltYear;
-import pl.dawid0604.realestate.application.validation.ValidDescription;
 import pl.dawid0604.realestate.application.validation.ValidEmail;
 import pl.dawid0604.realestate.application.validation.ValidFloor;
 import pl.dawid0604.realestate.application.validation.ValidFloors;
@@ -40,15 +39,6 @@ class CreateCommercialAdvertisementCommandTest {
         // When
         // Then
         assertFieldAnnotations("title", List.of(ValidTitle.class));
-    }
-
-    @Test
-    @DisplayName("Should have description field with required annotations")
-    void shouldHaveDescriptionFieldWithRequiredAnnotations() {
-        // Given
-        // When
-        // Then
-        assertFieldAnnotations("description", List.of(ValidDescription.class));
     }
 
     @Test

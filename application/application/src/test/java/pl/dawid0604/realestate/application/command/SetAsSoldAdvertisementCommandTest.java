@@ -1,15 +1,15 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.command;
 
+import java.lang.annotation.Annotation;
+import java.util.List;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import pl.dawid0604.realestate.application.fixture.AnnotationAssertions;
 import pl.dawid0604.realestate.application.validation.ValidEmail;
 import pl.dawid0604.realestate.application.validation.ValidSlug;
-
-import java.lang.annotation.Annotation;
-import java.util.List;
 
 class SetAsSoldAdvertisementCommandTest {
 

@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Constraint(validatedBy = {})
 @Target({FIELD, RECORD_COMPONENT})
-@PositiveOrZero(message = "Floors cannot be negative")
+@PositiveOrZero(message = "Floors cannot be lower than 0")
 public @interface ValidFloors {
 
     String message() default "";

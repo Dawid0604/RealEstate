@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Constraint(validatedBy = {})
 @Target({FIELD, RECORD_COMPONENT})
-@NotBlank(message = "First name cannot be blank")
+@NotBlank(message = "FirstName cannot be blank")
 public @interface ValidFirstName {
 
     String message() default "";

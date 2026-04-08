@@ -1,16 +1,15 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.command;
 
+import java.lang.annotation.Annotation;
+import java.util.List;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import pl.dawid0604.realestate.application.fixture.AnnotationAssertions;
-import pl.dawid0604.realestate.application.validation.ValidDescription;
 import pl.dawid0604.realestate.application.validation.ValidEmail;
 import pl.dawid0604.realestate.application.validation.ValidSlug;
-
-import java.lang.annotation.Annotation;
-import java.util.List;
 
 class UpdateAdvertisementDescriptionCommandTest {
 
@@ -31,15 +30,6 @@ class UpdateAdvertisementDescriptionCommandTest {
         // When
         // Then
         assertFieldAnnotations("slug", List.of(ValidSlug.class));
-    }
-
-    @Test
-    @DisplayName("Should have newDescription field with required annotations")
-    void shouldHaveNewDescriptionFieldWithRequiredAnnotations() {
-        // Given
-        // When
-        // Then
-        assertFieldAnnotations("newDescription", List.of(ValidDescription.class));
     }
 
     @Test

@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Test;
 
 import pl.dawid0604.realestate.application.fixture.AnnotationAssertions;
 import pl.dawid0604.realestate.application.validation.ValidEmail;
-import pl.dawid0604.realestate.application.validation.ValidPhoto;
 import pl.dawid0604.realestate.application.validation.ValidPhotoPosition;
 import pl.dawid0604.realestate.application.validation.ValidSlug;
+import pl.dawid0604.realestate.application.validation.ValidUrl;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
@@ -39,7 +39,7 @@ class AddAdvertisementPhotoCommandTest {
         // Given
         // When
         // Then
-        assertFieldAnnotations("photoUrl", List.of(ValidPhoto.class));
+        assertFieldAnnotations("photoUrl", List.of(ValidUrl.class));
     }
 
     @Test

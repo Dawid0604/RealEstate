@@ -71,7 +71,7 @@ class CreateAdvertisementHandler implements CommandHandler<CreateAdvertisementCo
         builder.price(new Money(command.price(), MoneyCurrency.PLN));
         builder.locality(new Locality(Identifier.of(command.localityId())));
         builder.userId(user.getId());
-        builder.photos(getPhotos(command.photosOrEmpty()));
+        builder.photos(getPhotos(command.photos()));
         builder.featured(command.featured());
         builder.details(getDetails(command));
 
@@ -100,7 +100,7 @@ class CreateAdvertisementHandler implements CommandHandler<CreateAdvertisementCo
                     new FlatDetails(
                             new Area(cmd.area()),
                             BuildingType.of(FlatBuildingType.class, cmd.buildingType()),
-                            mapClaims(cmd.claimsOrEmpty()),
+                            mapClaims(cmd.claims()),
                             new NumberOfRooms(cmd.numberOfRooms()),
                             new Floor(cmd.floor()),
                             new Floor(cmd.floors()),
@@ -111,7 +111,7 @@ class CreateAdvertisementHandler implements CommandHandler<CreateAdvertisementCo
                     new HouseDetails(
                             new Area(cmd.area()),
                             BuildingType.of(HouseBuildingType.class, cmd.buildingType()),
-                            mapClaims(cmd.claimsOrEmpty()),
+                            mapClaims(cmd.claims()),
                             new NumberOfRooms(cmd.numberOfRooms()),
                             new Floor(cmd.floors()),
                             new BuiltYear(cmd.builtYear()),
@@ -121,7 +121,7 @@ class CreateAdvertisementHandler implements CommandHandler<CreateAdvertisementCo
                     new CommercialDetails(
                             new Area(cmd.area()),
                             BuildingType.of(CommercialBuildingType.class, cmd.buildingType()),
-                            mapClaims(cmd.claimsOrEmpty()),
+                            mapClaims(cmd.claims()),
                             new NumberOfRooms(cmd.numberOfRooms()),
                             new Floor(cmd.floor()),
                             new Floor(cmd.floors()),
@@ -132,7 +132,7 @@ class CreateAdvertisementHandler implements CommandHandler<CreateAdvertisementCo
                     new PlotDetails(
                             new Area(cmd.area()),
                             BuildingType.of(PlotBuildingType.class, cmd.buildingType()),
-                            mapClaims(cmd.claimsOrEmpty()));
+                            mapClaims(cmd.claims()));
         };
     }
 

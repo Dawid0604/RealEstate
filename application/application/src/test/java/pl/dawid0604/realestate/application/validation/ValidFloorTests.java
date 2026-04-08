@@ -10,10 +10,10 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-public class ValidBuildingTypeTests {
+public class ValidFloorTests {
     private static Validator validator;
     private static ValidatorFactory validatorFactory;
 
@@ -28,38 +28,38 @@ public class ValidBuildingTypeTests {
         validatorFactory.close();
     }
 
-    record BuildingTypeWrapper(@ValidBuildingType String buildingType) {}
+    record FloorWrapper(@ValidFloor Integer floor) {}
 
+    @NullSource
     @ParameterizedTest
-    @ValueSource(strings = {"abc", "c", "xyz"})
-    @DisplayName("Should pass for valid buildingType")
-    void shouldPassForValidBuildingType(final String value) {
+    @ValueSource(ints = {0, 1, 2, 3})
+    @DisplayName("Should pass for valid floor")
+    void shouldPassForValidFloor(final Integer value) {
         // Given
-        final BuildingTypeWrapper buildingTypeWrapper = new BuildingTypeWrapper(value);
+        final FloorWrapper floorWrapper = new FloorWrapper(value);
 
         // When
-        final var violations = validator.validate(buildingTypeWrapper);
+        final var violations = validator.validate(floorWrapper);
 
         // Then
         Assertions.assertThat(violations).isEmpty();
     }
 
     @ParameterizedTest
-    @NullAndEmptySource
-    @ValueSource(strings = {"\t", "\n", "\r"})
-    @DisplayName("Should fail for invalid buildingType")
-    void shouldFailForInvalidBuildingType(final String value) {
+    @ValueSource(ints = {-1, -2, -3, -100})
+    @DisplayName("Should fail for invalid floors")
+    void shouldFailForInvalidFloor(final Integer value) {
         // Given
-        final BuildingTypeWrapper buildingTypeWrapper = new BuildingTypeWrapper(value);
+        final FloorWrapper floorWrapper = new FloorWrapper(value);
 
         // When
-        final var violations = validator.validate(buildingTypeWrapper);
+        final var violations = validator.validate(floorWrapper);
 
         // Then
         Assertions.assertThat(violations)
                 .anyMatch(
                         v ->
-                                v.getPropertyPath().toString().equals("buildingType")
-                                        && v.getMessage().equals("BuildingType cannot be blank"));
+                                v.getPropertyPath().toString().equals("floor")
+                                        && v.getMessage().equals("Floor cannot be lower than 0"));
     }
 }

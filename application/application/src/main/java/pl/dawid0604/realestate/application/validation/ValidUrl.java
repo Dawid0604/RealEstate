@@ -15,8 +15,8 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Constraint(validatedBy = {})
 @Target({FIELD, RECORD_COMPONENT})
-@NotBlank(message = "User avatar cannot be null")
-public @interface ValidUserAvatar {
+@NotBlank(message = "Url cannot be blank")
+public @interface ValidUrl {
 
     String message() default "";
 

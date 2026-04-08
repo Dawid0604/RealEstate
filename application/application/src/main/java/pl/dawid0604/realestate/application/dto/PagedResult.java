@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Objects;
 
 public final class PagedResult<T> {
+    private static final int MAX_PAGE_SIZE = 100;
+
     private final List<T> items;
     @Getter private final int page;
     @Getter private final int pageSize;
@@ -24,6 +26,10 @@ public final class PagedResult<T> {
         requireNonNegative(incomingPageSize, "incomingPageSize");
         requireNonNegative(incomingTotalPages, "incomingTotalPages");
         requireNonNegativeTotalElements(incomingTotalElements);
+
+        if (incomingPageSize > MAX_PAGE_SIZE) {
+            throw new IllegalArgumentException("Page size cannot be greater than " + MAX_PAGE_SIZE);
+        }
 
         this.items = Objects.requireNonNullElse(incomingItems, List.of());
         this.page = incomingPage;

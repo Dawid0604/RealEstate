@@ -13,7 +13,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-public class ValidBuildingTypeTests {
+public class ValidLastNameTests {
     private static Validator validator;
     private static ValidatorFactory validatorFactory;
 
@@ -28,17 +28,17 @@ public class ValidBuildingTypeTests {
         validatorFactory.close();
     }
 
-    record BuildingTypeWrapper(@ValidBuildingType String buildingType) {}
+    record LastNameWrapper(@ValidLastName String lastName) {}
 
     @ParameterizedTest
     @ValueSource(strings = {"abc", "c", "xyz"})
-    @DisplayName("Should pass for valid buildingType")
-    void shouldPassForValidBuildingType(final String value) {
+    @DisplayName("Should pass for valid lastName")
+    void shouldPassForValidLastName(final String value) {
         // Given
-        final BuildingTypeWrapper buildingTypeWrapper = new BuildingTypeWrapper(value);
+        final LastNameWrapper lastNameWrapper = new LastNameWrapper(value);
 
         // When
-        final var violations = validator.validate(buildingTypeWrapper);
+        final var violations = validator.validate(lastNameWrapper);
 
         // Then
         Assertions.assertThat(violations).isEmpty();
@@ -47,19 +47,19 @@ public class ValidBuildingTypeTests {
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {"\t", "\n", "\r"})
-    @DisplayName("Should fail for invalid buildingType")
-    void shouldFailForInvalidBuildingType(final String value) {
+    @DisplayName("Should fail for invalid lastName")
+    void shouldFailForInvalidLastName(final String value) {
         // Given
-        final BuildingTypeWrapper buildingTypeWrapper = new BuildingTypeWrapper(value);
+        final LastNameWrapper lastNameWrapper = new LastNameWrapper(value);
 
         // When
-        final var violations = validator.validate(buildingTypeWrapper);
+        final var violations = validator.validate(lastNameWrapper);
 
         // Then
         Assertions.assertThat(violations)
                 .anyMatch(
                         v ->
-                                v.getPropertyPath().toString().equals("buildingType")
-                                        && v.getMessage().equals("BuildingType cannot be blank"));
+                                v.getPropertyPath().toString().equals("lastName")
+                                        && v.getMessage().equals("LastName cannot be blank"));
     }
 }

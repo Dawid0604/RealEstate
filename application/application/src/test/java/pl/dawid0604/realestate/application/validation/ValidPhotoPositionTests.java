@@ -10,10 +10,10 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-public class ValidBuildingTypeTests {
+public class ValidPhotoPositionTests {
     private static Validator validator;
     private static ValidatorFactory validatorFactory;
 
@@ -28,38 +28,39 @@ public class ValidBuildingTypeTests {
         validatorFactory.close();
     }
 
-    record BuildingTypeWrapper(@ValidBuildingType String buildingType) {}
+    record PhotoPositionWrapper(@ValidPhotoPosition Integer photoPosition) {}
 
+    @NullSource
     @ParameterizedTest
-    @ValueSource(strings = {"abc", "c", "xyz"})
-    @DisplayName("Should pass for valid buildingType")
-    void shouldPassForValidBuildingType(final String value) {
+    @ValueSource(ints = {0, 1, 2, 3})
+    @DisplayName("Should pass for valid photoPosition")
+    void shouldPassForValidPhotoPosition(final Integer value) {
         // Given
-        final BuildingTypeWrapper buildingTypeWrapper = new BuildingTypeWrapper(value);
+        final PhotoPositionWrapper photoPositionWrapper = new PhotoPositionWrapper(value);
 
         // When
-        final var violations = validator.validate(buildingTypeWrapper);
+        final var violations = validator.validate(photoPositionWrapper);
 
         // Then
         Assertions.assertThat(violations).isEmpty();
     }
 
     @ParameterizedTest
-    @NullAndEmptySource
-    @ValueSource(strings = {"\t", "\n", "\r"})
-    @DisplayName("Should fail for invalid buildingType")
-    void shouldFailForInvalidBuildingType(final String value) {
+    @ValueSource(ints = {-1, -2, -3, -100})
+    @DisplayName("Should fail for invalid photoPositions")
+    void shouldFailForInvalidPhotoPosition(final Integer value) {
         // Given
-        final BuildingTypeWrapper buildingTypeWrapper = new BuildingTypeWrapper(value);
+        final PhotoPositionWrapper photoPositionWrapper = new PhotoPositionWrapper(value);
 
         // When
-        final var violations = validator.validate(buildingTypeWrapper);
+        final var violations = validator.validate(photoPositionWrapper);
 
         // Then
         Assertions.assertThat(violations)
                 .anyMatch(
                         v ->
-                                v.getPropertyPath().toString().equals("buildingType")
-                                        && v.getMessage().equals("BuildingType cannot be blank"));
+                                v.getPropertyPath().toString().equals("photoPosition")
+                                        && v.getMessage()
+                                                .equals("Position cannot be lower than 0"));
     }
 }

@@ -7,7 +7,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
-import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Positive;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -15,8 +15,7 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Constraint(validatedBy = {})
 @Target({FIELD, RECORD_COMPONENT})
-@PositiveOrZero(message = "NumberOfRooms cannot be negative")
-public @interface ValidNumberOfRooms {
+@Positive(message = "NumberOfRooms cannot be negative") public @interface ValidNumberOfRooms {
 
     String message() default "";
 
