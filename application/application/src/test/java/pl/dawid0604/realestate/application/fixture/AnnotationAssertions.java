@@ -1,15 +1,14 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.fixture;
 
-import lombok.experimental.UtilityClass;
+import java.lang.annotation.Annotation;
+import java.util.List;
 
 import org.assertj.core.api.Assertions;
 
+import lombok.experimental.UtilityClass;
 import pl.dawid0604.realestate.application.command.Command;
 import pl.dawid0604.realestate.application.query.Query;
-
-import java.lang.annotation.Annotation;
-import java.util.List;
 
 @UtilityClass
 public class AnnotationAssertions {

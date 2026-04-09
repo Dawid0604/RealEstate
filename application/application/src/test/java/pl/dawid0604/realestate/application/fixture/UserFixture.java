@@ -1,8 +1,9 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.fixture;
 
-import lombok.experimental.UtilityClass;
+import java.time.Instant;
 
+import lombok.experimental.UtilityClass;
 import pl.dawid0604.realestate.domain.ContactDetails;
 import pl.dawid0604.realestate.domain.Email;
 import pl.dawid0604.realestate.domain.FullName;
@@ -12,8 +13,6 @@ import pl.dawid0604.realestate.domain.PhoneNumber;
 import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserRole;
 import pl.dawid0604.realestate.domain.UserStatus;
-
-import java.time.Instant;
 
 @UtilityClass
 public class UserFixture {

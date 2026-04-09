@@ -1,6 +1,9 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.validation;
 
+import java.math.BigDecimal;
+import java.util.stream.Stream;
+
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
@@ -12,9 +15,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import java.math.BigDecimal;
-import java.util.stream.Stream;
 
 public class ValidPriceTests {
     private static Validator validator;
