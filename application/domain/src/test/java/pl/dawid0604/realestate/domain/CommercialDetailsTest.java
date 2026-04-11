@@ -13,32 +13,6 @@ import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueExcep
 class CommercialDetailsTest {
 
     @Test
-    @DisplayName("Should throw exception when area is null")
-    void shouldThrowExceptionWhenAreaIsNull() {
-        // Given
-        // When
-        // Then
-        Assertions.assertThatThrownBy(
-                        () -> new CommercialDetails(null, null, null, null, null, null, null, null))
-                .isExactlyInstanceOf(InvalidArgumentValueException.class)
-                .hasMessage("Area cannot be null");
-    }
-
-    @Test
-    @DisplayName("Should throw exception when buildingType is null")
-    void shouldThrowExceptionWhenBuildingTypeIsNull() {
-        // Given
-        // When
-        // Then
-        Assertions.assertThatThrownBy(
-                        () ->
-                                new CommercialDetails(
-                                        getValidArea(), null, null, null, null, null, null, null))
-                .isExactlyInstanceOf(InvalidArgumentValueException.class)
-                .hasMessage("BuildingType cannot be null");
-    }
-
-    @Test
     @DisplayName("Should throw exception when numberOfRooms is null")
     void shouldThrowExceptionWhenNumberOfRoomsIsNull() {
         // Given
@@ -47,7 +21,6 @@ class CommercialDetailsTest {
         Assertions.assertThatThrownBy(
                         () ->
                                 new CommercialDetails(
-                                        getValidArea(),
                                         getValidCommercialBuildingType(),
                                         null,
                                         null,
@@ -68,7 +41,6 @@ class CommercialDetailsTest {
         Assertions.assertThatThrownBy(
                         () ->
                                 new CommercialDetails(
-                                        getValidArea(),
                                         getValidCommercialBuildingType(),
                                         null,
                                         getValidNumberOfRooms(),
@@ -89,7 +61,6 @@ class CommercialDetailsTest {
         Assertions.assertThatThrownBy(
                         () ->
                                 new CommercialDetails(
-                                        getValidArea(),
                                         getValidCommercialBuildingType(),
                                         null,
                                         getValidNumberOfRooms(),
@@ -110,7 +81,6 @@ class CommercialDetailsTest {
         Assertions.assertThatThrownBy(
                         () ->
                                 new CommercialDetails(
-                                        getValidArea(),
                                         getValidCommercialBuildingType(),
                                         null,
                                         getValidNumberOfRooms(),
@@ -131,7 +101,6 @@ class CommercialDetailsTest {
         Assertions.assertThatThrownBy(
                         () ->
                                 new CommercialDetails(
-                                        getValidArea(),
                                         getValidCommercialBuildingType(),
                                         null,
                                         getValidNumberOfRooms(),
@@ -155,7 +124,6 @@ class CommercialDetailsTest {
         Assertions.assertThatThrownBy(
                         () ->
                                 new CommercialDetails(
-                                        getValidArea(),
                                         getValidCommercialBuildingType(),
                                         null,
                                         getValidNumberOfRooms(),
@@ -174,7 +142,6 @@ class CommercialDetailsTest {
         // When
         final CommercialDetails instance =
                 new CommercialDetails(
-                        getValidArea(),
                         getValidCommercialBuildingType(),
                         null,
                         getValidNumberOfRooms(),
@@ -196,7 +163,6 @@ class CommercialDetailsTest {
         // When
         final CommercialDetails instance =
                 new CommercialDetails(
-                        getValidArea(),
                         getValidCommercialBuildingType(),
                         claims,
                         getValidNumberOfRooms(),
@@ -222,7 +188,6 @@ class CommercialDetailsTest {
         // When
         final CommercialDetails instance =
                 new CommercialDetails(
-                        getValidArea(),
                         getValidCommercialBuildingType(),
                         claims,
                         getValidNumberOfRooms(),
@@ -232,7 +197,6 @@ class CommercialDetailsTest {
                         getValidTypeOfMarket());
 
         // Then
-        Assertions.assertThat(instance.getArea()).isEqualTo(getValidArea());
         Assertions.assertThat(instance.getBuildingType())
                 .isEqualTo(getValidCommercialBuildingType());
         Assertions.assertThat(instance.getClaims()).isEqualTo(claims);
@@ -254,7 +218,6 @@ class CommercialDetailsTest {
         // When
         final CommercialDetails instance =
                 new CommercialDetails(
-                        getValidArea(),
                         getValidCommercialBuildingType(),
                         claims,
                         getValidNumberOfRooms(),
@@ -264,7 +227,6 @@ class CommercialDetailsTest {
                         getValidTypeOfMarket());
 
         // Then
-        Assertions.assertThat(instance.getArea()).isEqualTo(getValidArea());
         Assertions.assertThat(instance.getBuildingType())
                 .isEqualTo(getValidCommercialBuildingType());
         Assertions.assertThat(instance.getClaims()).isEqualTo(claims);
@@ -286,7 +248,6 @@ class CommercialDetailsTest {
         // When
         final CommercialDetails instance =
                 new CommercialDetails(
-                        getValidArea(),
                         getValidCommercialBuildingType(),
                         claims,
                         getValidNumberOfRooms(),
@@ -296,7 +257,6 @@ class CommercialDetailsTest {
                         getValidTypeOfMarket());
 
         // Then
-        Assertions.assertThat(instance.getArea()).isEqualTo(getValidArea());
         Assertions.assertThat(instance.getBuildingType())
                 .isEqualTo(getValidCommercialBuildingType());
         Assertions.assertThat(instance.getClaims()).isEqualTo(claims);
@@ -318,7 +278,6 @@ class CommercialDetailsTest {
         // When
         final CommercialDetails instance =
                 new CommercialDetails(
-                        getValidArea(),
                         getValidCommercialBuildingType(),
                         claims,
                         getValidNumberOfRooms(),
@@ -328,7 +287,6 @@ class CommercialDetailsTest {
                         getValidTypeOfMarket());
 
         // Then
-        Assertions.assertThat(instance.getArea()).isEqualTo(getValidArea());
         Assertions.assertThat(instance.getBuildingType())
                 .isEqualTo(getValidCommercialBuildingType());
         Assertions.assertThat(instance.getClaims()).isEqualTo(claims);
@@ -337,10 +295,6 @@ class CommercialDetailsTest {
         Assertions.assertThat(instance.getFloors()).isEqualTo(floors);
         Assertions.assertThat(instance.getBuiltYear()).isEqualTo(getValidBuiltYear());
         Assertions.assertThat(instance.getTypeOfMarket()).isEqualTo(getValidTypeOfMarket());
-    }
-
-    private static Area getValidArea() {
-        return new Area(null);
     }
 
     private static NumberOfRooms getValidNumberOfRooms() {

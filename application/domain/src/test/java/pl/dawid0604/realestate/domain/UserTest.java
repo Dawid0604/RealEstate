@@ -98,6 +98,25 @@ class UserTest {
             }
 
             @Test
+            @DisplayName("Should throw exception when type is null")
+            void shouldThrowExceptionWhenTypeIsNull() {
+                // Given
+                // When
+                // Then
+                Assertions.assertThatThrownBy(
+                                () ->
+                                        User.create()
+                                                .email(getValidEmail())
+                                                .password(getValidPassword())
+                                                .fullName(getValidFullName())
+                                                .role(UserRole.USER_ROLE)
+                                                .contactDetails(getValidContactDetails())
+                                                .build())
+                        .isExactlyInstanceOf(InvalidArgumentValueException.class)
+                        .hasMessage("Type cannot be null");
+            }
+
+            @Test
             @DisplayName("Should create instance successfully with nullable avatar")
             void shouldCreateInstanceSuccessfullyWithNullableAvatar() {
                 // Given
@@ -110,6 +129,7 @@ class UserTest {
                                                 .fullName(getValidFullName())
                                                 .role(UserRole.USER_ROLE)
                                                 .contactDetails(getValidContactDetails())
+                                                .type(UserType.AGENCY)
                                                 .build())
                         .doesNotThrowAnyException();
             }
@@ -128,6 +148,7 @@ class UserTest {
                                                 .role(UserRole.USER_ROLE)
                                                 .contactDetails(getValidContactDetails())
                                                 .avatar(getValidAvatar())
+                                                .type(UserType.AGENCY)
                                                 .build())
                         .doesNotThrowAnyException();
             }
@@ -144,6 +165,7 @@ class UserTest {
                                 .fullName(getValidFullName())
                                 .role(UserRole.USER_ROLE)
                                 .contactDetails(getValidContactDetails())
+                                .type(UserType.AGENCY)
                                 .build();
 
                 // Then
@@ -165,6 +187,7 @@ class UserTest {
                                 .fullName(getValidFullName())
                                 .role(UserRole.USER_ROLE)
                                 .contactDetails(getValidContactDetails())
+                                .type(UserType.AGENCY)
                                 .build();
 
                 // Then
@@ -183,6 +206,7 @@ class UserTest {
                                 .fullName(getValidFullName())
                                 .role(UserRole.USER_ROLE)
                                 .contactDetails(getValidContactDetails())
+                                .type(UserType.AGENCY)
                                 .build();
 
                 // Then
@@ -206,10 +230,32 @@ class UserTest {
                                 .fullName(getValidFullName())
                                 .role(UserRole.USER_ROLE)
                                 .contactDetails(getValidContactDetails())
+                                .type(UserType.AGENCY)
                                 .build();
 
                 // Then
                 Assertions.assertThat(instance.isInactive()).isTrue();
+            }
+
+            @Test
+            @DisplayName("Should set type")
+            void shouldSetType() {
+                // Given
+                final UserType type = UserType.AGENCY;
+
+                // When
+                final User instance =
+                        User.create()
+                                .email(getValidEmail())
+                                .password(getValidPassword())
+                                .fullName(getValidFullName())
+                                .role(UserRole.USER_ROLE)
+                                .contactDetails(getValidContactDetails())
+                                .type(type)
+                                .build();
+
+                // Then
+                Assertions.assertThat(instance.getType()).isEqualTo(type);
             }
 
             @Test
@@ -227,6 +273,7 @@ class UserTest {
                                 .role(UserRole.USER_ROLE)
                                 .contactDetails(getValidContactDetails())
                                 .createdAt(createdAt)
+                                .type(UserType.AGENCY)
                                 .build();
 
                 // Then
@@ -253,6 +300,7 @@ class UserTest {
                                                 .role(UserRole.USER_ROLE)
                                                 .contactDetails(getValidContactDetails())
                                                 .createdAt(createdAt)
+                                                .type(UserType.AGENCY)
                                                 .build())
                         .doesNotThrowAnyException();
             }
@@ -269,6 +317,7 @@ class UserTest {
                                 .fullName(getValidFullName())
                                 .role(UserRole.USER_ROLE)
                                 .contactDetails(getValidContactDetails())
+                                .type(UserType.AGENCY)
                                 .build();
 
                 // Then
@@ -290,6 +339,7 @@ class UserTest {
                                 .role(UserRole.USER_ROLE)
                                 .contactDetails(getValidContactDetails())
                                 .lastLoginAt(lastLoginAt)
+                                .type(UserType.AGENCY)
                                 .build();
 
                 // Then
@@ -311,6 +361,7 @@ class UserTest {
                                 .role(UserRole.USER_ROLE)
                                 .contactDetails(getValidContactDetails())
                                 .status(status)
+                                .type(UserType.AGENCY)
                                 .build();
 
                 // Then
@@ -334,6 +385,7 @@ class UserTest {
                                                 .fullName(getValidFullName())
                                                 .role(UserRole.USER_ROLE)
                                                 .contactDetails(getValidContactDetails())
+                                                .type(UserType.AGENCY)
                                                 .lastLoginAt(lastLoginAt)
                                                 .build())
                         .doesNotThrowAnyException();
@@ -434,12 +486,35 @@ class UserTest {
                                                 .createdAt(Instant.now())
                                                 .email(getValidEmail())
                                                 .password(getValidPassword())
+                                                .type(UserType.AGENCY)
                                                 .fullName(getValidFullName())
                                                 .role(UserRole.USER_ROLE)
                                                 .contactDetails(getValidContactDetails())
                                                 .build())
                         .isExactlyInstanceOf(InvalidArgumentValueException.class)
                         .hasMessage("Status cannot be null");
+            }
+
+            @Test
+            @DisplayName("Should throw exception when type is null")
+            void shouldThrowExceptionWhenTypeIsNull() {
+                // Given
+                // When
+                // Then
+                Assertions.assertThatThrownBy(
+                                () ->
+                                        User.reconstitute()
+                                                .id(Identifier.generate())
+                                                .createdAt(Instant.now())
+                                                .email(getValidEmail())
+                                                .password(getValidPassword())
+                                                .fullName(getValidFullName())
+                                                .role(UserRole.USER_ROLE)
+                                                .contactDetails(getValidContactDetails())
+                                                .status(UserStatus.ACTIVE)
+                                                .build())
+                        .isExactlyInstanceOf(InvalidArgumentValueException.class)
+                        .hasMessage("Type cannot be null");
             }
 
             @Test
@@ -456,6 +531,7 @@ class UserTest {
                                                 .fullName(getValidFullName())
                                                 .role(UserRole.USER_ROLE)
                                                 .contactDetails(getValidContactDetails())
+                                                .type(UserType.AGENCY)
                                                 .status(UserStatus.ACTIVE)
                                                 .build())
                         .isExactlyInstanceOf(InvalidArgumentValueException.class)
@@ -473,6 +549,7 @@ class UserTest {
                                         User.reconstitute()
                                                 .email(getValidEmail())
                                                 .password(getValidPassword())
+                                                .type(UserType.AGENCY)
                                                 .fullName(getValidFullName())
                                                 .role(UserRole.USER_ROLE)
                                                 .contactDetails(getValidContactDetails())
@@ -499,6 +576,7 @@ class UserTest {
                                                 .contactDetails(getValidContactDetails())
                                                 .status(UserStatus.ACTIVE)
                                                 .id(getValidIdentifier())
+                                                .type(UserType.AGENCY)
                                                 .createdAt(Instant.now().plusMillis(2_500_000))
                                                 .build())
                         .isExactlyInstanceOf(InvalidArgumentValueException.class)
@@ -520,6 +598,7 @@ class UserTest {
                                                 .role(UserRole.USER_ROLE)
                                                 .contactDetails(getValidContactDetails())
                                                 .status(UserStatus.ACTIVE)
+                                                .type(UserType.AGENCY)
                                                 .id(getValidIdentifier())
                                                 .createdAt(Instant.now())
                                                 .build())
@@ -544,6 +623,7 @@ class UserTest {
                                 .id(getValidIdentifier())
                                 .createdAt(Instant.now())
                                 .lastLoginAt(lastLoginAt)
+                                .type(UserType.AGENCY)
                                 .build();
 
                 // Then
@@ -567,6 +647,7 @@ class UserTest {
                                                 .role(UserRole.USER_ROLE)
                                                 .contactDetails(getValidContactDetails())
                                                 .status(UserStatus.ACTIVE)
+                                                .type(UserType.AGENCY)
                                                 .id(getValidIdentifier())
                                                 .createdAt(Instant.now())
                                                 .lastLoginAt(lastLoginAt)
@@ -592,6 +673,7 @@ class UserTest {
                                                 .status(UserStatus.ACTIVE)
                                                 .id(getValidIdentifier())
                                                 .createdAt(Instant.now())
+                                                .type(UserType.AGENCY)
                                                 .avatar(getValidAvatar())
                                                 .build())
                         .doesNotThrowAnyException();
@@ -617,6 +699,7 @@ class UserTest {
                         .status(status)
                         .id(getValidIdentifier())
                         .createdAt(Instant.now())
+                        .type(UserType.AGENCY)
                         .build();
 
         // Then
@@ -641,6 +724,7 @@ class UserTest {
                         .status(status)
                         .id(getValidIdentifier())
                         .createdAt(Instant.now())
+                        .type(UserType.AGENCY)
                         .build();
 
         // Then
@@ -665,6 +749,8 @@ class UserTest {
                         .status(status)
                         .id(getValidIdentifier())
                         .createdAt(Instant.now())
+                        .type(UserType.AGENCY)
+                        .type(UserType.AGENCY)
                         .build();
 
         // Then
@@ -689,6 +775,7 @@ class UserTest {
                             .status(UserStatus.BANNED)
                             .id(getValidIdentifier())
                             .createdAt(Instant.now())
+                            .type(UserType.AGENCY)
                             .build();
 
             // Then
@@ -716,6 +803,7 @@ class UserTest {
                             .status(status)
                             .id(getValidIdentifier())
                             .createdAt(Instant.now())
+                            .type(UserType.AGENCY)
                             .build();
 
             // When
@@ -750,6 +838,7 @@ class UserTest {
                             .status(status)
                             .id(getValidIdentifier())
                             .createdAt(Instant.now())
+                            .type(UserType.AGENCY)
                             .build();
 
             // Then
@@ -777,6 +866,7 @@ class UserTest {
                             .status(status)
                             .id(getValidIdentifier())
                             .createdAt(Instant.now())
+                            .type(UserType.AGENCY)
                             .build();
 
             // When
@@ -806,6 +896,7 @@ class UserTest {
                             .status(UserStatus.ACTIVE)
                             .id(getValidIdentifier())
                             .createdAt(Instant.now())
+                            .type(UserType.AGENCY)
                             .build();
 
             // Then
@@ -829,6 +920,7 @@ class UserTest {
                             .status(UserStatus.BANNED)
                             .id(getValidIdentifier())
                             .createdAt(Instant.now())
+                            .type(UserType.AGENCY)
                             .build();
 
             // Then
@@ -851,6 +943,7 @@ class UserTest {
                             .status(UserStatus.INACTIVE)
                             .id(getValidIdentifier())
                             .createdAt(Instant.now())
+                            .type(UserType.AGENCY)
                             .build();
 
             // When
@@ -880,6 +973,7 @@ class UserTest {
                             .status(UserStatus.ACTIVE)
                             .id(getValidIdentifier())
                             .createdAt(Instant.now())
+                            .type(UserType.AGENCY)
                             .build();
 
             // Then
@@ -903,6 +997,7 @@ class UserTest {
                             .status(UserStatus.ACTIVE)
                             .id(getValidIdentifier())
                             .createdAt(Instant.now())
+                            .type(UserType.AGENCY)
                             .build();
 
             // When
@@ -932,6 +1027,7 @@ class UserTest {
                             .status(UserStatus.ACTIVE)
                             .id(getValidIdentifier())
                             .createdAt(Instant.now())
+                            .type(UserType.AGENCY)
                             .build();
 
             // Then
@@ -956,6 +1052,7 @@ class UserTest {
                             .status(UserStatus.ACTIVE)
                             .id(getValidIdentifier())
                             .createdAt(Instant.now())
+                            .type(UserType.AGENCY)
                             .build();
 
             // When
@@ -985,6 +1082,7 @@ class UserTest {
                             .status(UserStatus.ACTIVE)
                             .id(getValidIdentifier())
                             .createdAt(Instant.now())
+                            .type(UserType.AGENCY)
                             .build();
 
             // Then
@@ -1010,6 +1108,7 @@ class UserTest {
                             .status(UserStatus.ACTIVE)
                             .id(getValidIdentifier())
                             .createdAt(Instant.now())
+                            .type(UserType.AGENCY)
                             .build();
 
             // When
@@ -1039,6 +1138,7 @@ class UserTest {
                             .status(UserStatus.ACTIVE)
                             .id(getValidIdentifier())
                             .createdAt(Instant.now())
+                            .type(UserType.AGENCY)
                             .build();
 
             // Then
@@ -1063,6 +1163,7 @@ class UserTest {
                             .status(UserStatus.ACTIVE)
                             .id(getValidIdentifier())
                             .createdAt(Instant.now())
+                            .type(UserType.AGENCY)
                             .build();
 
             // When
@@ -1093,6 +1194,7 @@ class UserTest {
                             .status(UserStatus.ACTIVE)
                             .id(getValidIdentifier())
                             .createdAt(Instant.now())
+                            .type(UserType.AGENCY)
                             .build();
 
             // When
@@ -1117,6 +1219,7 @@ class UserTest {
                             .status(UserStatus.ACTIVE)
                             .id(getValidIdentifier())
                             .createdAt(Instant.now())
+                            .type(UserType.AGENCY)
                             .build();
 
             // When
@@ -1145,6 +1248,7 @@ class UserTest {
                             .status(UserStatus.ACTIVE)
                             .id(getValidIdentifier())
                             .createdAt(Instant.now())
+                            .type(UserType.AGENCY)
                             .build();
 
             // When
@@ -1175,6 +1279,7 @@ class UserTest {
                             .id(getValidIdentifier())
                             .createdAt(Instant.now())
                             .lastLoginAt(lastLoginAt)
+                            .type(UserType.AGENCY)
                             .build();
 
             // When
@@ -1203,6 +1308,7 @@ class UserTest {
                             .fullName(getValidFullName())
                             .role(UserRole.USER_ROLE)
                             .contactDetails(getValidContactDetails())
+                            .type(UserType.AGENCY)
                             .build();
 
             // When
@@ -1229,6 +1335,7 @@ class UserTest {
                             .fullName(getValidFullName())
                             .role(UserRole.USER_ROLE)
                             .contactDetails(getValidContactDetails())
+                            .type(UserType.AGENCY)
                             .build();
 
             // When
@@ -1236,6 +1343,59 @@ class UserTest {
             Assertions.assertThatThrownBy(instance::register)
                     .isExactlyInstanceOf(UnauthorizedAccessException.class)
                     .hasMessage("User is already registered");
+        }
+    }
+
+    @Nested
+    final class VerifyUserTests {
+
+        @ParameterizedTest
+        @EnumSource(UserStatus.class)
+        @DisplayName("Should throw exception when status is invalid")
+        void shouldThrowExceptionWhenStatusIsInvalid(final UserStatus status) {
+            // Given
+            if (status == UserStatus.ACTIVE) {
+                return;
+            }
+
+            final User instance =
+                    User.reconstitute()
+                            .email(getValidEmail())
+                            .id(Identifier.generate())
+                            .createdAt(Instant.now())
+                            .password(getValidPassword())
+                            .fullName(getValidFullName())
+                            .role(UserRole.USER_ROLE)
+                            .contactDetails(getValidContactDetails())
+                            .type(UserType.AGENCY)
+                            .status(status)
+                            .build();
+
+            // When
+            Assertions.assertThatThrownBy(instance::verifyUser)
+                    .isExactlyInstanceOf(UnauthorizedAccessException.class)
+                    .hasMessage("User account has no permissions to perform this action");
+        }
+
+        @Test
+        @DisplayName("Should not throw exception when status is valid")
+        void shouldNotThrowExceptionWhenStatusIsValid() {
+            // Given
+            final User instance =
+                    User.reconstitute()
+                            .email(getValidEmail())
+                            .id(Identifier.generate())
+                            .createdAt(Instant.now())
+                            .password(getValidPassword())
+                            .fullName(getValidFullName())
+                            .role(UserRole.USER_ROLE)
+                            .contactDetails(getValidContactDetails())
+                            .type(UserType.AGENCY)
+                            .status(UserStatus.ACTIVE)
+                            .build();
+
+            // When
+            Assertions.assertThatCode(instance::verifyUser).doesNotThrowAnyException();
         }
     }
 

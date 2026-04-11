@@ -128,6 +128,9 @@ class CreateAdvertisementHandlerTest {
                             Assertions.assertThat(advertisement.getDescription().value())
                                     .isEqualTo(command.description());
 
+                            Assertions.assertThat(advertisement.getArea().value())
+                                    .isEqualByComparingTo(command.area());
+
                             Assertions.assertThat(advertisement.getPrice())
                                     .satisfies(
                                             price -> {
@@ -167,9 +170,6 @@ class CreateAdvertisementHandlerTest {
         Assertions.assertThat(advertisementArgumentCaptor.getValue().getDetails())
                 .satisfies(
                         details -> {
-                            Assertions.assertThat(details.getArea().value())
-                                    .isEqualByComparingTo(command.area());
-
                             switch (command) {
                                 case CreateCommercialAdvertisementCommand commercialCommand ->
                                         assertCommercialDetails(

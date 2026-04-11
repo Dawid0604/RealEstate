@@ -13,28 +13,40 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 
-class MoneyTest {
+class PriceTest {
 
     @Test
     @DisplayName("Should create instance successfully with null price")
     void shouldCreateInstanceSuccessfullyWithNullPrice() {
         // Given
         // When
-        final Money instance = new Money(null, MoneyCurrency.PLN);
+        final Price instance = new Price(null, MoneyCurrency.PLN);
 
         // Then
         Assertions.assertThat(instance.value()).isNull();
     }
 
     @Test
-    @DisplayName("Should create instance successfully with boundary price")
-    void shouldCreateInstanceSuccessfullyWithBoundaryPrice() {
+    @DisplayName("Should create instance successfully with boundary minimum price")
+    void shouldCreateInstanceSuccessfullyWithBoundaryMinimumPrice() {
         // Given
         final BigDecimal price = BigDecimal.valueOf(10_000);
 
         // When
         // Then
-        Assertions.assertThatCode(() -> new Money(price, MoneyCurrency.PLN))
+        Assertions.assertThatCode(() -> new Price(price, MoneyCurrency.PLN))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("Should create instance successfully with boundary maximum price")
+    void shouldCreateInstanceSuccessfullyWithBoundaryMaximumPrice() {
+        // Given
+        final BigDecimal price = BigDecimal.valueOf(1_000_000_000);
+
+        // When
+        // Then
+        Assertions.assertThatCode(() -> new Price(price, MoneyCurrency.PLN))
                 .doesNotThrowAnyException();
     }
 
@@ -45,10 +57,10 @@ class MoneyTest {
         final BigDecimal price = BigDecimal.valueOf(10_000);
 
         // When
-        final Money money = new Money(price, MoneyCurrency.PLN);
+        final Price money = new Price(price, MoneyCurrency.PLN);
 
         // Then
-        Assertions.assertThat(money.value()).matches(v -> v.scale() == 2);
+        Assertions.assertThat(money.value()).hasScaleOf(2);
     }
 
     @Test
@@ -59,7 +71,7 @@ class MoneyTest {
         final MoneyCurrency currency = MoneyCurrency.PLN;
 
         // When
-        final Money instance = new Money(price, currency);
+        final Price instance = new Price(price, currency);
 
         // Then
         Assertions.assertThat(instance.value()).isEqualByComparingTo(price);
@@ -69,13 +81,15 @@ class MoneyTest {
     @ParameterizedTest
     @DisplayName("Should throw exception when price is invalid")
     @MethodSource("shouldThrowExceptionWhenPriceIsInvalidDataProvider")
-    void shouldThrowExceptionWhenPriceIsInvalid(final BigDecimal price) {
+    void shouldThrowExceptionWhenPriceIsInvalid(
+            final BigDecimal price, final String expectedMessage) {
+
         // Given
         // When
         // Then
-        Assertions.assertThatThrownBy(() -> new Money(price, MoneyCurrency.PLN))
+        Assertions.assertThatThrownBy(() -> new Price(price, MoneyCurrency.PLN))
                 .isExactlyInstanceOf(InvalidArgumentValueException.class)
-                .hasMessageStartingWith("Value cannot be less than ");
+                .hasMessageStartingWith(expectedMessage);
     }
 
     @Test
@@ -84,7 +98,7 @@ class MoneyTest {
         // Given
         // When
         // Then
-        Assertions.assertThatThrownBy(() -> new Money(BigDecimal.valueOf(2_500_00), null))
+        Assertions.assertThatThrownBy(() -> new Price(BigDecimal.valueOf(2_500_00), null))
                 .isExactlyInstanceOf(InvalidArgumentValueException.class)
                 .hasMessage("Currency cannot be null");
     }
@@ -92,9 +106,11 @@ class MoneyTest {
     private static Stream<Arguments> shouldThrowExceptionWhenPriceIsInvalidDataProvider() {
 
         return Stream.of(
-                Arguments.of(BigDecimal.valueOf(-999)),
-                Arguments.of(BigDecimal.valueOf(0)),
-                Arguments.of(BigDecimal.valueOf(999)),
-                Arguments.of(BigDecimal.valueOf(9999)));
+                Arguments.of(BigDecimal.valueOf(-999), "Value cannot be less than "),
+                Arguments.of(BigDecimal.valueOf(0), "Value cannot be less than "),
+                Arguments.of(BigDecimal.valueOf(999), "Value cannot be less than "),
+                Arguments.of(BigDecimal.valueOf(9999), "Value cannot be less than "),
+                Arguments.of(BigDecimal.valueOf(1_000_000_001), "Value cannot be greater than "),
+                Arguments.of(BigDecimal.valueOf(9_000_000_000L), "Value cannot be greater than "));
     }
 }

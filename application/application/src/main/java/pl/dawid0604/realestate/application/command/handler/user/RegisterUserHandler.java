@@ -17,6 +17,7 @@ import pl.dawid0604.realestate.domain.Password;
 import pl.dawid0604.realestate.domain.PhoneNumber;
 import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserRole;
+import pl.dawid0604.realestate.domain.UserType;
 import pl.dawid0604.realestate.domain.port.out.PasswordEncoder;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.exception.UserExistsException;
@@ -42,6 +43,7 @@ class RegisterUserHandler implements CommandHandler<RegisterUserCommand, UUID> {
                         .password(Password.ofHashed(passwordEncoder.encode(command.password())))
                         .fullName(new FullName(command.firstName(), command.lastName()))
                         .role(UserRole.USER_ROLE)
+                        .type(UserType.of(command.type()))
                         .contactDetails(
                                 new ContactDetails(
                                         new Email(command.notificationEmail()),

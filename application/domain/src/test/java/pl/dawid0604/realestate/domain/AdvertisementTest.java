@@ -141,11 +141,32 @@ class AdvertisementTest {
                                 .price(getValidPrice())
                                 .locality(getValidLocality())
                                 .details(getValidDetails())
+                                .area(getValidArea())
                                 .userId(getValidIdentifier())
                                 .build();
 
                 // Then
                 Assertions.assertThat(instance.getId()).isNotNull();
+            }
+
+            @Test
+            @DisplayName("Should calculate pricePerSquareMeter")
+            void shouldCalculatePricePerSquareMeter() {
+                // Given
+                // When
+                final Advertisement instance =
+                        Advertisement.create()
+                                .title(getValidTitle())
+                                .description(getValidDescription())
+                                .price(getValidPrice())
+                                .locality(getValidLocality())
+                                .details(getValidDetails())
+                                .area(getValidArea())
+                                .userId(getValidIdentifier())
+                                .build();
+
+                // Then
+                Assertions.assertThat(instance.getPricePerSquareMeter()).isNotNull();
             }
 
             @Test
@@ -162,6 +183,7 @@ class AdvertisementTest {
                                 .description(getValidDescription())
                                 .price(getValidPrice())
                                 .locality(getValidLocality())
+                                .area(getValidArea())
                                 .details(getValidDetails())
                                 .userId(getValidIdentifier())
                                 .build();
@@ -182,6 +204,7 @@ class AdvertisementTest {
                                 .price(getValidPrice())
                                 .locality(getValidLocality())
                                 .details(getValidDetails())
+                                .area(getValidArea())
                                 .userId(getValidIdentifier())
                                 .build();
 
@@ -201,6 +224,7 @@ class AdvertisementTest {
                                 .description(getValidDescription())
                                 .price(getValidPrice())
                                 .locality(getValidLocality())
+                                .area(getValidArea())
                                 .details(getValidDetails())
                                 .userId(getValidIdentifier())
                                 .build();
@@ -223,6 +247,7 @@ class AdvertisementTest {
                                 .price(getValidPrice())
                                 .locality(getValidLocality())
                                 .details(getValidDetails())
+                                .area(getValidArea())
                                 .status(getValidStatus())
                                 .userId(getValidIdentifier())
                                 .createdAt(createdAt)
@@ -244,6 +269,7 @@ class AdvertisementTest {
                                 .description(getValidDescription())
                                 .price(getValidPrice())
                                 .locality(getValidLocality())
+                                .area(getValidArea())
                                 .details(getValidDetails())
                                 .status(AdvertisementStatus.SOLD)
                                 .userId(getValidIdentifier())
@@ -253,6 +279,34 @@ class AdvertisementTest {
                 // Then
                 Assertions.assertThat(instance.isActive()).isTrue();
                 Assertions.assertThat(instance.isSold()).isFalse();
+            }
+
+            @Test
+            @DisplayName("Should not substitute pricePerSquareMeter")
+            void shouldNotSubstitutePricePerSquareMeter() {
+                // Given
+                final PricePerSquareMeter pricePerSquareMeter =
+                        PricePerSquareMeter.reconstitute(
+                                BigDecimal.valueOf(2500), MoneyCurrency.PLN);
+
+                // When
+                final Advertisement instance =
+                        Advertisement.create()
+                                .title(getValidTitle())
+                                .description(getValidDescription())
+                                .price(getValidPrice())
+                                .locality(getValidLocality())
+                                .area(getValidArea())
+                                .details(getValidDetails())
+                                .status(AdvertisementStatus.SOLD)
+                                .userId(getValidIdentifier())
+                                .pricePerSquareMeter(pricePerSquareMeter)
+                                .createdAt(Instant.now())
+                                .build();
+
+                // Then
+                Assertions.assertThat(instance.getPricePerSquareMeter())
+                        .isNotEqualTo(pricePerSquareMeter);
             }
 
             @Test
@@ -266,6 +320,7 @@ class AdvertisementTest {
                                 .description(getValidDescription())
                                 .price(getValidPrice())
                                 .locality(getValidLocality())
+                                .area(getValidArea())
                                 .details(getValidDetails())
                                 .status(getValidStatus())
                                 .userId(getValidIdentifier())
@@ -291,6 +346,7 @@ class AdvertisementTest {
                                 .price(getValidPrice())
                                 .locality(getValidLocality())
                                 .details(getValidDetails())
+                                .area(getValidArea())
                                 .status(getValidStatus())
                                 .userId(getValidIdentifier())
                                 .build();
@@ -352,6 +408,7 @@ class AdvertisementTest {
                                 () ->
                                         Advertisement.reconstitute()
                                                 .title(getValidTitle())
+                                                .pricePerSquareMeter(getValidPricePerSquareMeter())
                                                 .description(getValidDescription())
                                                 .price(getValidPrice())
                                                 .build())
@@ -369,6 +426,7 @@ class AdvertisementTest {
                                 () ->
                                         Advertisement.reconstitute()
                                                 .title(getValidTitle())
+                                                .pricePerSquareMeter(getValidPricePerSquareMeter())
                                                 .description(getValidDescription())
                                                 .price(getValidPrice())
                                                 .locality(getValidLocality())
@@ -391,6 +449,8 @@ class AdvertisementTest {
                                                 .price(getValidPrice())
                                                 .locality(getValidLocality())
                                                 .userId(getValidIdentifier())
+                                                .area(getValidArea())
+                                                .pricePerSquareMeter(getValidPricePerSquareMeter())
                                                 .id(getValidIdentifier())
                                                 .createdAt(Instant.now())
                                                 .slug(getValidSlug())
@@ -413,6 +473,7 @@ class AdvertisementTest {
                                                 .description(getValidDescription())
                                                 .price(getValidPrice())
                                                 .locality(getValidLocality())
+                                                .pricePerSquareMeter(getValidPricePerSquareMeter())
                                                 .details(getValidDetails())
                                                 .status(getValidStatus())
                                                 .build())
@@ -431,6 +492,8 @@ class AdvertisementTest {
                                         Advertisement.reconstitute()
                                                 .title(getValidTitle())
                                                 .description(getValidDescription())
+                                                .pricePerSquareMeter(getValidPricePerSquareMeter())
+                                                .area(getValidArea())
                                                 .price(getValidPrice())
                                                 .locality(getValidLocality())
                                                 .details(getValidDetails())
@@ -452,15 +515,42 @@ class AdvertisementTest {
                                         Advertisement.reconstitute()
                                                 .title(getValidTitle())
                                                 .description(getValidDescription())
+                                                .area(getValidArea())
                                                 .price(getValidPrice())
                                                 .locality(getValidLocality())
                                                 .details(getValidDetails())
                                                 .status(getValidStatus())
+                                                .pricePerSquareMeter(getValidPricePerSquareMeter())
                                                 .userId(getValidIdentifier())
                                                 .id(getValidIdentifier())
                                                 .build())
                         .isExactlyInstanceOf(InvalidArgumentValueException.class)
                         .hasMessage("CreatedAt cannot be null");
+            }
+
+            @Test
+            @DisplayName("Should throw exception when pricePerSquareMeter is null")
+            void shouldThrowWhenPricePerSquareMeterIsNull() {
+                // Given
+                // When
+                // Then
+                Assertions.assertThatThrownBy(
+                                () ->
+                                        Advertisement.reconstitute()
+                                                .title(getValidTitle())
+                                                .description(getValidDescription())
+                                                .area(getValidArea())
+                                                .price(getValidPrice())
+                                                .locality(getValidLocality())
+                                                .details(getValidDetails())
+                                                .status(getValidStatus())
+                                                .userId(getValidIdentifier())
+                                                .createdAt(Instant.now())
+                                                .slug(getValidSlug())
+                                                .id(getValidIdentifier())
+                                                .build())
+                        .isExactlyInstanceOf(InvalidArgumentValueException.class)
+                        .hasMessage("PricePerSquareMeter cannot be null");
             }
 
             @Test
@@ -477,10 +567,12 @@ class AdvertisementTest {
                                                 .description(getValidDescription())
                                                 .price(getValidPrice())
                                                 .locality(getValidLocality())
+                                                .pricePerSquareMeter(getValidPricePerSquareMeter())
                                                 .details(getValidDetails())
                                                 .status(getValidStatus())
                                                 .userId(getValidIdentifier())
                                                 .id(getValidIdentifier())
+                                                .area(getValidArea())
                                                 .createdAt(createdAt)
                                                 .slug(getValidSlug())
                                                 .build())
@@ -503,10 +595,12 @@ class AdvertisementTest {
                                                 .description(getValidDescription())
                                                 .price(getValidPrice())
                                                 .locality(getValidLocality())
+                                                .pricePerSquareMeter(getValidPricePerSquareMeter())
                                                 .details(getValidDetails())
                                                 .status(getValidStatus())
                                                 .userId(getValidIdentifier())
                                                 .id(getValidIdentifier())
+                                                .area(getValidArea())
                                                 .createdAt(createdAt)
                                                 .build())
                         .isExactlyInstanceOf(InvalidArgumentValueException.class)
@@ -529,6 +623,7 @@ class AdvertisementTest {
                                 () ->
                                         Advertisement.reconstitute()
                                                 .title(getValidTitle())
+                                                .area(getValidArea())
                                                 .description(getValidDescription())
                                                 .price(getValidPrice())
                                                 .locality(getValidLocality())
@@ -537,6 +632,7 @@ class AdvertisementTest {
                                                 .userId(getValidIdentifier())
                                                 .photos(photos)
                                                 .slug(getValidSlug())
+                                                .pricePerSquareMeter(getValidPricePerSquareMeter())
                                                 .id(getValidIdentifier())
                                                 .createdAt(Instant.now())
                                                 .build())
@@ -562,6 +658,8 @@ class AdvertisementTest {
                                 .price(getValidPrice())
                                 .locality(getValidLocality())
                                 .details(getValidDetails())
+                                .area(getValidArea())
+                                .pricePerSquareMeter(getValidPricePerSquareMeter())
                                 .status(getValidStatus())
                                 .userId(getValidIdentifier())
                                 .createdAt(Instant.now())
@@ -586,6 +684,8 @@ class AdvertisementTest {
                                 .title(getValidTitle())
                                 .description(getValidDescription())
                                 .price(getValidPrice())
+                                .pricePerSquareMeter(getValidPricePerSquareMeter())
+                                .area(getValidArea())
                                 .locality(getValidLocality())
                                 .details(getValidDetails())
                                 .status(getValidStatus())
@@ -612,10 +712,12 @@ class AdvertisementTest {
                         Advertisement.reconstitute()
                                 .id(getValidIdentifier())
                                 .slug(getValidSlug())
+                                .pricePerSquareMeter(getValidPricePerSquareMeter())
                                 .title(getValidTitle())
                                 .description(getValidDescription())
                                 .price(getValidPrice())
                                 .locality(getValidLocality())
+                                .area(getValidArea())
                                 .details(getValidDetails())
                                 .status(getValidStatus())
                                 .userId(getValidIdentifier())
@@ -647,8 +749,10 @@ class AdvertisementTest {
                                 .description(getValidDescription())
                                 .price(getValidPrice())
                                 .locality(getValidLocality())
+                                .pricePerSquareMeter(getValidPricePerSquareMeter())
                                 .details(getValidDetails())
                                 .status(getValidStatus())
+                                .area(getValidArea())
                                 .userId(getValidIdentifier())
                                 .createdAt(Instant.now())
                                 .photos(photos)
@@ -667,8 +771,7 @@ class AdvertisementTest {
         @DisplayName("Should throw exception when details is null")
         void shouldThrowExceptionWhenDetailsIsNull() {
             // Given
-            final PlotDetails plotDetails =
-                    new PlotDetails(new Area(null), PlotBuildingType.CONSTRUCTION, null);
+            final PlotDetails plotDetails = new PlotDetails(PlotBuildingType.CONSTRUCTION, null);
 
             final Advertisement instance =
                     Advertisement.reconstitute()
@@ -680,6 +783,8 @@ class AdvertisementTest {
                             .locality(getValidLocality())
                             .details(plotDetails)
                             .status(getValidStatus())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
+                            .area(getValidArea())
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
                             .photos(null)
@@ -696,12 +801,10 @@ class AdvertisementTest {
         @DisplayName("Should throw exception when details has different type")
         void shouldThrowExceptionWhenDetailsHasDifferentType() {
             // Given
-            final PlotDetails plotDetails =
-                    new PlotDetails(new Area(null), PlotBuildingType.CONSTRUCTION, null);
+            final PlotDetails plotDetails = new PlotDetails(PlotBuildingType.CONSTRUCTION, null);
 
             final HouseDetails houseDetails =
                     new HouseDetails(
-                            new Area(null),
                             HouseBuildingType.DETACHED,
                             null,
                             new NumberOfRooms(null),
@@ -717,10 +820,12 @@ class AdvertisementTest {
                             .description(getValidDescription())
                             .price(getValidPrice())
                             .locality(getValidLocality())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .details(plotDetails)
                             .status(getValidStatus())
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
+                            .area(getValidArea())
                             .photos(null)
                             .build();
 
@@ -735,14 +840,10 @@ class AdvertisementTest {
         @DisplayName("Should update details successfully")
         void shouldUpdateDetailsSuccessfully() {
             // Given
-            final PlotDetails plotDetails =
-                    new PlotDetails(new Area(null), PlotBuildingType.CONSTRUCTION, null);
+            final PlotDetails plotDetails = new PlotDetails(PlotBuildingType.CONSTRUCTION, null);
 
             final PlotDetails incomingPlotDetails =
-                    new PlotDetails(
-                            new Area(BigDecimal.valueOf(2_500_000)),
-                            PlotBuildingType.CONSTRUCTION,
-                            null);
+                    new PlotDetails(PlotBuildingType.CONSTRUCTION, null);
 
             final Advertisement instance =
                     Advertisement.reconstitute()
@@ -752,6 +853,8 @@ class AdvertisementTest {
                             .description(getValidDescription())
                             .price(getValidPrice())
                             .locality(getValidLocality())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
+                            .area(getValidArea())
                             .details(plotDetails)
                             .status(getValidStatus())
                             .userId(getValidIdentifier())
@@ -785,6 +888,8 @@ class AdvertisementTest {
                             .locality(getValidLocality())
                             .details(getValidDetails())
                             .status(getValidStatus())
+                            .area(getValidArea())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
                             .photos(null)
@@ -813,8 +918,10 @@ class AdvertisementTest {
                             .price(getValidPrice())
                             .locality(getValidLocality())
                             .details(getValidDetails())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .status(getValidStatus())
                             .userId(getValidIdentifier())
+                            .area(getValidArea())
                             .createdAt(Instant.now())
                             .photos(null)
                             .build();
@@ -838,6 +945,8 @@ class AdvertisementTest {
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
+                            .area(getValidArea())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .title(title)
                             .description(getValidDescription())
                             .price(getValidPrice())
@@ -874,6 +983,139 @@ class AdvertisementTest {
                             .locality(getValidLocality())
                             .details(getValidDetails())
                             .status(getValidStatus())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
+                            .area(getValidArea())
+                            .userId(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .photos(null)
+                            .build();
+
+            // When
+            final Advertisement updatedInstance = instance.updateTitle(incomingTitle);
+
+            // Then
+            Assertions.assertThat(instance).isEqualTo(updatedInstance);
+            Assertions.assertThat(updatedInstance.getSlug()).isNotNull().isNotEqualTo(slug);
+        }
+    }
+
+    @Nested
+    final class UpdateAreaTests {
+
+        @Test
+        @DisplayName("Should throw exception when area is null")
+        void shouldThrowExceptionWhenAreaIsNull() {
+            // Given
+            final Advertisement instance =
+                    Advertisement.reconstitute()
+                            .id(getValidIdentifier())
+                            .slug(getValidSlug())
+                            .title(getValidTitle())
+                            .description(getValidDescription())
+                            .price(getValidPrice())
+                            .locality(getValidLocality())
+                            .details(getValidDetails())
+                            .status(getValidStatus())
+                            .title(getValidTitle())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
+                            .userId(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .photos(null)
+                            .area(getValidArea())
+                            .build();
+
+            // When
+            // Then
+            Assertions.assertThatThrownBy(() -> instance.updateArea(null))
+                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
+                    .hasMessage("Area cannot be null");
+        }
+
+        @Test
+        @DisplayName("Should update area successfully")
+        void shouldUpdateAreaSuccessfully() {
+            // Given
+            final Area area = new Area(BigDecimal.valueOf(25.5));
+            final Area incomingArea = new Area(BigDecimal.valueOf(55.65));
+
+            final Advertisement instance =
+                    Advertisement.reconstitute()
+                            .id(getValidIdentifier())
+                            .slug(getValidSlug())
+                            .title(getValidTitle())
+                            .description(getValidDescription())
+                            .price(getValidPrice())
+                            .locality(getValidLocality())
+                            .details(getValidDetails())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
+                            .status(getValidStatus())
+                            .userId(getValidIdentifier())
+                            .area(area)
+                            .createdAt(Instant.now())
+                            .photos(null)
+                            .build();
+
+            // When
+            final Advertisement updatedInstance = instance.updateArea(incomingArea);
+
+            // Then
+            Assertions.assertThat(instance).isEqualTo(updatedInstance);
+            Assertions.assertThat(updatedInstance.getArea()).isEqualTo(incomingArea);
+        }
+
+        @Test
+        @DisplayName("Should throw exception when incoming area is the same as old area")
+        void shouldThrowExceptionWhenIncomingAreaIsTheSameAsOldArea() {
+            // Given
+            final BigDecimal value = BigDecimal.valueOf(25.5);
+            final Area area = new Area(value);
+            final Area incomingArea = new Area(value);
+
+            final Advertisement instance =
+                    Advertisement.reconstitute()
+                            .id(getValidIdentifier())
+                            .slug(getValidSlug())
+                            .area(getValidArea())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
+                            .title(getValidTitle())
+                            .area(area)
+                            .description(getValidDescription())
+                            .price(getValidPrice())
+                            .locality(getValidLocality())
+                            .details(getValidDetails())
+                            .status(getValidStatus())
+                            .userId(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .photos(null)
+                            .build();
+
+            // When
+            // Then
+            Assertions.assertThatThrownBy(() -> instance.updateArea(incomingArea))
+                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
+                    .hasMessage("Incoming area cannot be the same as old area");
+        }
+
+        @Test
+        @DisplayName("Should update slug")
+        void shouldUpdateSlug() {
+            // Given
+            final Title title = new Title("abc abc abc");
+            final Title incomingTitle = new Title("cde cde cde");
+            final Slug slug = Slug.create(title);
+
+            final Advertisement instance =
+                    Advertisement.reconstitute()
+                            .id(getValidIdentifier())
+                            .slug(slug)
+                            .title(title)
+                            .description(getValidDescription())
+                            .price(getValidPrice())
+                            .locality(getValidLocality())
+                            .details(getValidDetails())
+                            .status(getValidStatus())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
+                            .area(getValidArea())
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
                             .photos(null)
@@ -903,6 +1145,8 @@ class AdvertisementTest {
                             .description(getValidDescription())
                             .price(getValidPrice())
                             .locality(getValidLocality())
+                            .area(getValidArea())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .details(getValidDetails())
                             .status(getValidStatus())
                             .userId(getValidIdentifier())
@@ -928,11 +1172,13 @@ class AdvertisementTest {
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .title(getValidTitle())
                             .description(description)
                             .price(getValidPrice())
                             .locality(getValidLocality())
                             .details(getValidDetails())
+                            .area(getValidArea())
                             .status(getValidStatus())
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
@@ -961,12 +1207,14 @@ class AdvertisementTest {
                             .slug(getValidSlug())
                             .title(getValidTitle())
                             .description(getValidDescription())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .price(getValidPrice())
                             .locality(getValidLocality())
                             .details(getValidDetails())
                             .status(getValidStatus())
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
+                            .area(getValidArea())
                             .photos(null)
                             .build();
 
@@ -981,8 +1229,8 @@ class AdvertisementTest {
         @DisplayName("Should throw exception when incoming price is the same as old price")
         void shouldThrowExceptionWhenIncomingPriceIsTheSameAsOldPrice() {
             // Given
-            final Money price = new Money(BigDecimal.valueOf(2_500_00), MoneyCurrency.PLN);
-            final Money incomingPrice = new Money(BigDecimal.valueOf(2_500_00), MoneyCurrency.PLN);
+            final Price price = new Price(BigDecimal.valueOf(2_500_00), MoneyCurrency.PLN);
+            final Price incomingPrice = new Price(BigDecimal.valueOf(2_500_00), MoneyCurrency.PLN);
 
             final Advertisement instance =
                     Advertisement.reconstitute()
@@ -996,6 +1244,8 @@ class AdvertisementTest {
                             .status(getValidStatus())
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
+                            .area(getValidArea())
                             .photos(null)
                             .build();
 
@@ -1010,8 +1260,8 @@ class AdvertisementTest {
         @DisplayName("Should update price successfully")
         void shouldUpdatePriceSuccessfully() {
             // Given
-            final Money price = new Money(BigDecimal.valueOf(2_500_00), MoneyCurrency.PLN);
-            final Money incomingPrice = new Money(BigDecimal.valueOf(1_500_00), MoneyCurrency.PLN);
+            final Price price = new Price(BigDecimal.valueOf(2_500_00), MoneyCurrency.PLN);
+            final Price incomingPrice = new Price(BigDecimal.valueOf(1_500_00), MoneyCurrency.PLN);
 
             final Advertisement instance =
                     Advertisement.reconstitute()
@@ -1021,11 +1271,13 @@ class AdvertisementTest {
                             .description(getValidDescription())
                             .price(price)
                             .locality(getValidLocality())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .details(getValidDetails())
                             .status(getValidStatus())
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
                             .photos(null)
+                            .area(getValidArea())
                             .build();
 
             // When
@@ -1040,8 +1292,8 @@ class AdvertisementTest {
         @DisplayName("Should add event after successful update")
         void shouldAddEventAfterSuccessfulUpdate() {
             // Given
-            final Money price = new Money(BigDecimal.valueOf(2_500_00), MoneyCurrency.PLN);
-            final Money incomingPrice = new Money(BigDecimal.valueOf(1_500_00), MoneyCurrency.PLN);
+            final Price price = new Price(BigDecimal.valueOf(2_500_00), MoneyCurrency.PLN);
+            final Price incomingPrice = new Price(BigDecimal.valueOf(1_500_00), MoneyCurrency.PLN);
 
             final Advertisement instance =
                     Advertisement.reconstitute()
@@ -1054,7 +1306,9 @@ class AdvertisementTest {
                             .details(getValidDetails())
                             .status(getValidStatus())
                             .userId(getValidIdentifier())
+                            .area(getValidArea())
                             .createdAt(Instant.now())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .photos(null)
                             .build();
 
@@ -1082,12 +1336,14 @@ class AdvertisementTest {
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
                             .title(getValidTitle())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .description(getValidDescription())
                             .price(getValidPrice())
                             .locality(getValidLocality())
                             .details(getValidDetails())
                             .status(getValidStatus())
                             .userId(getValidIdentifier())
+                            .area(getValidArea())
                             .createdAt(Instant.now())
                             .photos(null)
                             .build();
@@ -1116,6 +1372,8 @@ class AdvertisementTest {
                             .locality(locality)
                             .details(getValidDetails())
                             .status(getValidStatus())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
+                            .area(getValidArea())
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
                             .photos(null)
@@ -1137,8 +1395,6 @@ class AdvertisementTest {
         @DisplayName("Should throw exception when advertisement is sold")
         void shouldThrowExceptionWhenAdvertisementIsSold() {
             // Given
-            final AdvertisementStatus status = AdvertisementStatus.SOLD;
-
             final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
@@ -1147,9 +1403,11 @@ class AdvertisementTest {
                             .description(getValidDescription())
                             .price(getValidPrice())
                             .locality(getValidLocality())
+                            .area(getValidArea())
                             .details(getValidDetails())
-                            .status(status)
+                            .status(AdvertisementStatus.SOLD)
                             .userId(getValidIdentifier())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .createdAt(Instant.now())
                             .photos(null)
                             .build();
@@ -1165,8 +1423,6 @@ class AdvertisementTest {
         @DisplayName("Should throw exception when advertisement is active")
         void shouldThrowExceptionWhenAdvertisementIsActive() {
             // Given
-            final AdvertisementStatus status = ACTIVE;
-
             final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
@@ -1176,7 +1432,9 @@ class AdvertisementTest {
                             .price(getValidPrice())
                             .locality(getValidLocality())
                             .details(getValidDetails())
-                            .status(status)
+                            .area(getValidArea())
+                            .status(ACTIVE)
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
                             .photos(null)
@@ -1193,18 +1451,18 @@ class AdvertisementTest {
         @DisplayName("Should update status successfully")
         void shouldUpdateStatusSuccessfully() {
             // Given
-            final AdvertisementStatus status = AdvertisementStatus.INACTIVE;
-
             final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
                             .title(getValidTitle())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .description(getValidDescription())
                             .price(getValidPrice())
                             .locality(getValidLocality())
                             .details(getValidDetails())
-                            .status(status)
+                            .status(AdvertisementStatus.INACTIVE)
+                            .area(getValidArea())
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
                             .photos(null)
@@ -1234,6 +1492,8 @@ class AdvertisementTest {
                             .locality(getValidLocality())
                             .details(getValidDetails())
                             .status(status)
+                            .area(getValidArea())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
                             .photos(null)
@@ -1258,8 +1518,6 @@ class AdvertisementTest {
         @DisplayName("Should throw exception when advertisement is sold")
         void shouldThrowExceptionWhenAdvertisementIsSold() {
             // Given
-            final AdvertisementStatus status = AdvertisementStatus.SOLD;
-
             final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
@@ -1269,7 +1527,9 @@ class AdvertisementTest {
                             .price(getValidPrice())
                             .locality(getValidLocality())
                             .details(getValidDetails())
-                            .status(status)
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
+                            .status(AdvertisementStatus.SOLD)
+                            .area(getValidArea())
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
                             .photos(null)
@@ -1286,18 +1546,18 @@ class AdvertisementTest {
         @DisplayName("Should throw exception when advertisement is inactive")
         void shouldThrowExceptionWhenAdvertisementIsActive() {
             // Given
-            final AdvertisementStatus status = AdvertisementStatus.INACTIVE;
-
             final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
+                            .area(getValidArea())
                             .title(getValidTitle())
                             .description(getValidDescription())
                             .price(getValidPrice())
                             .locality(getValidLocality())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .details(getValidDetails())
-                            .status(status)
+                            .status(AdvertisementStatus.INACTIVE)
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
                             .photos(null)
@@ -1314,8 +1574,6 @@ class AdvertisementTest {
         @DisplayName("Should update status successfully")
         void shouldUpdateStatusSuccessfully() {
             // Given
-            final AdvertisementStatus status = ACTIVE;
-
             final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
@@ -1324,8 +1582,10 @@ class AdvertisementTest {
                             .description(getValidDescription())
                             .price(getValidPrice())
                             .locality(getValidLocality())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .details(getValidDetails())
-                            .status(status)
+                            .area(getValidArea())
+                            .status(ACTIVE)
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
                             .photos(null)
@@ -1349,9 +1609,11 @@ class AdvertisementTest {
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
+                            .area(getValidArea())
                             .title(getValidTitle())
                             .description(getValidDescription())
                             .price(getValidPrice())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .locality(getValidLocality())
                             .details(getValidDetails())
                             .status(status)
@@ -1380,18 +1642,18 @@ class AdvertisementTest {
         @DisplayName("Should throw exception when advertisement is sold")
         void shouldThrowExceptionWhenAdvertisementIsSold() {
             // Given
-            final AdvertisementStatus status = AdvertisementStatus.SOLD;
-
             final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
                             .title(getValidTitle())
                             .description(getValidDescription())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
+                            .area(getValidArea())
                             .price(getValidPrice())
                             .locality(getValidLocality())
                             .details(getValidDetails())
-                            .status(status)
+                            .status(AdvertisementStatus.SOLD)
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
                             .photos(null)
@@ -1408,8 +1670,6 @@ class AdvertisementTest {
         @DisplayName("Should throw exception when advertisement is inactive")
         void shouldThrowExceptionWhenAdvertisementIsInactive() {
             // Given
-            final AdvertisementStatus status = AdvertisementStatus.INACTIVE;
-
             final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
@@ -1417,10 +1677,12 @@ class AdvertisementTest {
                             .title(getValidTitle())
                             .description(getValidDescription())
                             .price(getValidPrice())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .locality(getValidLocality())
                             .details(getValidDetails())
-                            .status(status)
+                            .status(AdvertisementStatus.INACTIVE)
                             .userId(getValidIdentifier())
+                            .area(getValidArea())
                             .createdAt(Instant.now())
                             .photos(null)
                             .build();
@@ -1436,8 +1698,6 @@ class AdvertisementTest {
         @DisplayName("Should update status successfully")
         void shouldUpdateStatusSuccessfully() {
             // Given
-            final AdvertisementStatus status = ACTIVE;
-
             final Advertisement instance =
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
@@ -1446,8 +1706,10 @@ class AdvertisementTest {
                             .description(getValidDescription())
                             .price(getValidPrice())
                             .locality(getValidLocality())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .details(getValidDetails())
-                            .status(status)
+                            .status(ACTIVE)
+                            .area(getValidArea())
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
                             .photos(null)
@@ -1475,6 +1737,8 @@ class AdvertisementTest {
                             .description(getValidDescription())
                             .price(getValidPrice())
                             .locality(getValidLocality())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
+                            .area(getValidArea())
                             .details(getValidDetails())
                             .status(status)
                             .userId(getValidIdentifier())
@@ -1508,6 +1772,8 @@ class AdvertisementTest {
                             .slug(getValidSlug())
                             .title(getValidTitle())
                             .description(getValidDescription())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
+                            .area(getValidArea())
                             .price(getValidPrice())
                             .locality(getValidLocality())
                             .details(getValidDetails())
@@ -1538,10 +1804,12 @@ class AdvertisementTest {
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
                             .title(getValidTitle())
+                            .area(getValidArea())
                             .description(getValidDescription())
                             .price(getValidPrice())
                             .locality(getValidLocality())
                             .details(getValidDetails())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .status(getValidStatus())
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
@@ -1567,7 +1835,9 @@ class AdvertisementTest {
                             .description(getValidDescription())
                             .price(getValidPrice())
                             .locality(getValidLocality())
+                            .area(getValidArea())
                             .details(getValidDetails())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .status(getValidStatus())
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
@@ -1596,10 +1866,12 @@ class AdvertisementTest {
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .title(getValidTitle())
                             .description(getValidDescription())
                             .price(getValidPrice())
                             .locality(getValidLocality())
+                            .area(getValidArea())
                             .details(getValidDetails())
                             .status(getValidStatus())
                             .userId(getValidIdentifier())
@@ -1635,11 +1907,13 @@ class AdvertisementTest {
                             .slug(getValidSlug())
                             .title(getValidTitle())
                             .description(getValidDescription())
+                            .area(getValidArea())
                             .price(getValidPrice())
                             .locality(getValidLocality())
                             .details(getValidDetails())
                             .status(getValidStatus())
                             .userId(getValidIdentifier())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .createdAt(Instant.now())
                             .photos(Set.of(existingPhoto, existingPhoto2))
                             .build();
@@ -1683,6 +1957,8 @@ class AdvertisementTest {
                             .details(getValidDetails())
                             .status(getValidStatus())
                             .userId(getValidIdentifier())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
+                            .area(getValidArea())
                             .photos(photos)
                             .slug(getValidSlug())
                             .id(getValidIdentifier())
@@ -1718,7 +1994,9 @@ class AdvertisementTest {
                             .locality(getValidLocality())
                             .details(getValidDetails())
                             .status(getValidStatus())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .userId(getValidIdentifier())
+                            .area(getValidArea())
                             .createdAt(Instant.now())
                             .photos(photos)
                             .build();
@@ -1749,11 +2027,13 @@ class AdvertisementTest {
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
                             .title(getValidTitle())
+                            .area(getValidArea())
                             .description(getValidDescription())
                             .price(getValidPrice())
                             .locality(getValidLocality())
                             .details(getValidDetails())
                             .status(getValidStatus())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
                             .photos(null)
@@ -1780,8 +2060,10 @@ class AdvertisementTest {
                             .title(getValidTitle())
                             .description(getValidDescription())
                             .price(getValidPrice())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .locality(getValidLocality())
                             .details(getValidDetails())
+                            .area(getValidArea())
                             .status(getValidStatus())
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
@@ -1812,6 +2094,8 @@ class AdvertisementTest {
                             .locality(getValidLocality())
                             .details(getValidDetails())
                             .status(getValidStatus())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
+                            .area(getValidArea())
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
                             .photos(Set.of(advertisementPhoto))
@@ -1842,6 +2126,8 @@ class AdvertisementTest {
                             .title(getValidTitle())
                             .description(getValidDescription())
                             .price(getValidPrice())
+                            .area(getValidArea())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .locality(getValidLocality())
                             .details(getValidDetails())
                             .status(getValidStatus())
@@ -1886,8 +2172,10 @@ class AdvertisementTest {
                             .price(getValidPrice())
                             .locality(getValidLocality())
                             .details(getValidDetails())
+                            .area(getValidArea())
                             .status(getValidStatus())
                             .userId(getValidIdentifier())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .createdAt(Instant.now())
                             .photos(Set.of(advertisementPhoto, advertisementPhoto2))
                             .build();
@@ -1928,10 +2216,12 @@ class AdvertisementTest {
                             .slug(getValidSlug())
                             .title(getValidTitle())
                             .description(getValidDescription())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .price(getValidPrice())
                             .locality(getValidLocality())
                             .details(getValidDetails())
                             .status(getValidStatus())
+                            .area(getValidArea())
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
                             .photos(
@@ -1983,6 +2273,8 @@ class AdvertisementTest {
                             .locality(getValidLocality())
                             .details(getValidDetails())
                             .status(status)
+                            .area(getValidArea())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
                             .photos(null)
@@ -2008,8 +2300,10 @@ class AdvertisementTest {
                             .price(getValidPrice())
                             .locality(getValidLocality())
                             .details(getValidDetails())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .status(ACTIVE)
                             .featured(true)
+                            .area(getValidArea())
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
                             .photos(null)
@@ -2037,8 +2331,10 @@ class AdvertisementTest {
                             .details(getValidDetails())
                             .status(ACTIVE)
                             .featured(false)
+                            .area(getValidArea())
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .photos(null)
                             .build();
 
@@ -2075,6 +2371,8 @@ class AdvertisementTest {
                             .status(status)
                             .userId(getValidIdentifier())
                             .featured(true)
+                            .area(getValidArea())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .createdAt(Instant.now())
                             .photos(null)
                             .build();
@@ -2094,6 +2392,7 @@ class AdvertisementTest {
                     Advertisement.reconstitute()
                             .id(getValidIdentifier())
                             .slug(getValidSlug())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .title(getValidTitle())
                             .description(getValidDescription())
                             .price(getValidPrice())
@@ -2103,6 +2402,7 @@ class AdvertisementTest {
                             .featured(false)
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
+                            .area(getValidArea())
                             .photos(null)
                             .build();
 
@@ -2125,11 +2425,13 @@ class AdvertisementTest {
                             .description(getValidDescription())
                             .price(getValidPrice())
                             .locality(getValidLocality())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .details(getValidDetails())
                             .status(ACTIVE)
                             .featured(true)
                             .userId(getValidIdentifier())
                             .createdAt(Instant.now())
+                            .area(getValidArea())
                             .photos(null)
                             .build();
 
@@ -2162,6 +2464,8 @@ class AdvertisementTest {
                             .userId(getValidIdentifier())
                             .featured(true)
                             .createdAt(Instant.now())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
+                            .area(getValidArea())
                             .photos(null)
                             .build();
 
@@ -2194,6 +2498,8 @@ class AdvertisementTest {
                             .userId(getValidIdentifier())
                             .featured(true)
                             .createdAt(Instant.now())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
+                            .area(getValidArea())
                             .photos(null)
                             .build();
 
@@ -2226,6 +2532,8 @@ class AdvertisementTest {
                             .userId(getValidIdentifier())
                             .featured(true)
                             .createdAt(Instant.now())
+                            .area(getValidArea())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
                             .photos(null)
                             .build();
 
@@ -2253,6 +2561,7 @@ class AdvertisementTest {
                             .status(UserStatus.ACTIVE)
                             .id(getValidIdentifier())
                             .createdAt(Instant.now())
+                            .type(UserType.AGENCY)
                             .build();
 
             final Advertisement instance =
@@ -2266,6 +2575,8 @@ class AdvertisementTest {
                             .details(getValidDetails())
                             .status(AdvertisementStatus.DELETED)
                             .userId(getValidIdentifier())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
+                            .area(getValidArea())
                             .featured(true)
                             .createdAt(Instant.now())
                             .photos(null)
@@ -2295,6 +2606,7 @@ class AdvertisementTest {
                             .status(UserStatus.ACTIVE)
                             .id(getValidIdentifier())
                             .createdAt(Instant.now())
+                            .type(UserType.AGENCY)
                             .build();
 
             final Advertisement instance =
@@ -2308,9 +2620,56 @@ class AdvertisementTest {
                             .details(getValidDetails())
                             .status(AdvertisementStatus.DELETED)
                             .userId(user.getId())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
+                            .area(getValidArea())
                             .featured(true)
                             .createdAt(Instant.now())
                             .photos(null)
+                            .area(getValidArea())
+                            .build();
+
+            // When
+            // Then
+            Assertions.assertThatCode(() -> instance.verifyOwner(user)).doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("Should verify when user is admin")
+        void shouldVerifyWhenUserIsAdmin() {
+            // Given
+            final User user =
+                    User.reconstitute()
+                            .email(new Email("abc@mail.com"))
+                            .password(Password.ofHashed("$abc"))
+                            .fullName(new FullName("abc", "cde"))
+                            .role(UserRole.ADMIN_ROLE)
+                            .contactDetails(
+                                    new ContactDetails(
+                                            new Email("abc@mail.com"),
+                                            new PhoneNumber("123456789")))
+                            .status(UserStatus.ACTIVE)
+                            .id(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .type(UserType.AGENCY)
+                            .build();
+
+            final Advertisement instance =
+                    Advertisement.reconstitute()
+                            .id(getValidIdentifier())
+                            .slug(getValidSlug())
+                            .title(getValidTitle())
+                            .description(getValidDescription())
+                            .price(getValidPrice())
+                            .locality(getValidLocality())
+                            .details(getValidDetails())
+                            .status(AdvertisementStatus.DELETED)
+                            .userId(Identifier.generate())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
+                            .area(getValidArea())
+                            .featured(true)
+                            .createdAt(Instant.now())
+                            .photos(null)
+                            .area(getValidArea())
                             .build();
 
             // When
@@ -2339,7 +2698,9 @@ class AdvertisementTest {
                         .featured(true)
                         .userId(getValidIdentifier())
                         .createdAt(Instant.now())
+                        .pricePerSquareMeter(getValidPricePerSquareMeter())
                         .photos(null)
+                        .area(getValidArea())
                         .build();
 
         // When
@@ -2368,6 +2729,8 @@ class AdvertisementTest {
                         .userId(getValidIdentifier())
                         .createdAt(Instant.now())
                         .photos(null)
+                        .pricePerSquareMeter(getValidPricePerSquareMeter())
+                        .area(getValidArea())
                         .build();
 
         // When
@@ -2396,6 +2759,8 @@ class AdvertisementTest {
                         .userId(getValidIdentifier())
                         .createdAt(Instant.now())
                         .photos(null)
+                        .area(getValidArea())
+                        .pricePerSquareMeter(getValidPricePerSquareMeter())
                         .build();
 
         // When
@@ -2411,12 +2776,20 @@ class AdvertisementTest {
         return new Title("xyz xyz xyz");
     }
 
+    private static Area getValidArea() {
+        return new Area(BigDecimal.valueOf(45.5));
+    }
+
+    private static PricePerSquareMeter getValidPricePerSquareMeter() {
+        return PricePerSquareMeter.create(null, null);
+    }
+
     private static Description getValidDescription() {
         return new Description("xyz xyz xyz");
     }
 
-    private static Money getValidPrice() {
-        return new Money(null, MoneyCurrency.PLN);
+    private static Price getValidPrice() {
+        return new Price(null, MoneyCurrency.PLN);
     }
 
     private static Locality getValidLocality() {
@@ -2432,6 +2805,6 @@ class AdvertisementTest {
     }
 
     private static AdvertisementDetails<?> getValidDetails() {
-        return new PlotDetails(new Area(null), PlotBuildingType.CONSTRUCTION, null);
+        return new PlotDetails(PlotBuildingType.CONSTRUCTION, null);
     }
 }

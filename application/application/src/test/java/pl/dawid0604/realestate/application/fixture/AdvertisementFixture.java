@@ -18,9 +18,13 @@ public class AdvertisementFixture {
         return Advertisement.reconstitute()
                 .id(Identifier.generate())
                 .createdAt(Instant.now())
+                .area(new Area(BigDecimal.valueOf(45.5)))
+                .pricePerSquareMeter(
+                        PricePerSquareMeter.reconstitute(
+                                BigDecimal.valueOf(2500), MoneyCurrency.PLN))
                 .title(title)
                 .description(new Description("any description content"))
-                .price(new Money(BigDecimal.valueOf(2_500_00), MoneyCurrency.PLN))
+                .price(new Price(BigDecimal.valueOf(2_500_00), MoneyCurrency.PLN))
                 .locality(new Locality(Identifier.generate()))
                 .details(details)
                 .status(AdvertisementStatus.ACTIVE)
@@ -30,7 +34,6 @@ public class AdvertisementFixture {
 
     public static FlatDetails getDummyFlatDetails() {
         return new FlatDetails(
-                new Area(BigDecimal.valueOf(50.25)),
                 FlatBuildingType.APARTMENT,
                 null,
                 new NumberOfRooms(1),
@@ -42,7 +45,6 @@ public class AdvertisementFixture {
 
     public static CommercialDetails getDummyCommercialDetails() {
         return new CommercialDetails(
-                new Area(BigDecimal.valueOf(50.25)),
                 CommercialBuildingType.HALL,
                 null,
                 new NumberOfRooms(1),
@@ -54,7 +56,6 @@ public class AdvertisementFixture {
 
     public static HouseDetails getDummyHouseDetails() {
         return new HouseDetails(
-                new Area(BigDecimal.valueOf(50.25)),
                 HouseBuildingType.DETACHED,
                 null,
                 new NumberOfRooms(1),
@@ -64,11 +65,6 @@ public class AdvertisementFixture {
     }
 
     public static PlotDetails getDummyPlotDetails() {
-        return new PlotDetails(
-                new Area(BigDecimal.valueOf(50.25)), PlotBuildingType.AGRICULTURAL, null);
-    }
-
-    public static Slug getDummySlug() {
-        return Slug.of("abcdefghijklmn");
+        return new PlotDetails(PlotBuildingType.AGRICULTURAL, null);
     }
 }

@@ -25,7 +25,9 @@ public final class Advertisement extends AggregateRoot {
     private final Slug slug;
     private final Title title;
     private final Description description;
-    private final Money price;
+    private final Price price;
+    private final Area area;
+    private final PricePerSquareMeter pricePerSquareMeter;
     private final Locality locality;
     private final AdvertisementDetails<?> details;
     private final AdvertisementStatus status;
@@ -83,16 +85,31 @@ public final class Advertisement extends AggregateRoot {
         return copy().title(newTitle).slug(Slug.create(newTitle)).build();
     }
 
+    public Advertisement updateArea(final Area newArea) {
+        if (Objects.equals(this.area, newArea)) {
+            throw new InvalidArgumentValueException("Incoming area cannot be the same as old area");
+        }
+
+        return copy().area(newArea)
+                .pricePerSquareMeter(PricePerSquareMeter.create(newArea, this.price))
+                .build();
+    }
+
     public Advertisement updateDescription(final Description newDescription) {
         return copy().description(newDescription).build();
     }
 
-    public Advertisement updatePrice(final Money newPrice) {
+    public Advertisement updatePrice(final Price newPrice) {
         if (Objects.equals(this.price, newPrice)) {
             throw new InvalidArgumentValueException("Price cannot be the same as old price");
         }
 
-        final Advertisement currentObj = this.copy().price(newPrice).build();
+        final Advertisement currentObj =
+                this.copy()
+                        .price(newPrice)
+                        .pricePerSquareMeter(PricePerSquareMeter.create(this.area, newPrice))
+                        .build();
+
         currentObj.addEvent(
                 new AdvertisementPriceChangedEvent(currentObj.id, this.price, newPrice));
 
@@ -222,8 +239,16 @@ public final class Advertisement extends AggregateRoot {
         return description;
     }
 
-    public Money getPrice() {
+    public Price getPrice() {
         return price;
+    }
+
+    public PricePerSquareMeter getPricePerSquareMeter() {
+        return pricePerSquareMeter;
+    }
+
+    public Area getArea() {
+        return area;
     }
 
     public Locality getLocality() {
@@ -259,7 +284,9 @@ public final class Advertisement extends AggregateRoot {
             final Slug slug,
             final Title title,
             final Description description,
-            final Money price,
+            final Price price,
+            final Area area,
+            final PricePerSquareMeter pricePerSquareMeter,
             final Locality locality,
             final AdvertisementDetails<?> details,
             final AdvertisementStatus status,
@@ -280,6 +307,8 @@ public final class Advertisement extends AggregateRoot {
         this.photos = photos;
         this.featured = featured;
         this.createdAt = createdAt;
+        this.area = area;
+        this.pricePerSquareMeter = pricePerSquareMeter;
     }
 
     public static Builder create() {
@@ -301,6 +330,8 @@ public final class Advertisement extends AggregateRoot {
                 .details(this.details)
                 .status(this.status)
                 .userId(this.userId)
+                .area(this.area)
+                .pricePerSquareMeter(this.pricePerSquareMeter)
                 .photos(this.photos)
                 .createdAt(this.createdAt);
     }
@@ -310,7 +341,9 @@ public final class Advertisement extends AggregateRoot {
         private Slug slug;
         private Title title;
         private Description description;
-        private Money price;
+        private Price price;
+        private Area area;
+        private PricePerSquareMeter pricePerSquareMeter;
         private Locality locality;
         private AdvertisementDetails<?> details;
         private AdvertisementStatus status;
@@ -331,18 +364,21 @@ public final class Advertisement extends AggregateRoot {
             requireNonNull(this.locality, "Locality");
             requireNonNull(this.details, "Details");
             requireNonNull(this.userId, "UserId");
+            requireNonNull(this.area, "Area");
 
             if (createMode) {
                 this.id = Identifier.generate();
                 this.createdAt = Instant.now();
                 this.slug = Slug.create(title);
                 this.status = AdvertisementStatus.ACTIVE;
+                this.pricePerSquareMeter = PricePerSquareMeter.create(area, price);
 
             } else {
                 requireNonNull(this.id, "Id");
                 requireNonNull(this.createdAt, "CreatedAt");
                 requireNonNull(this.slug, "Slug");
                 requireNonNull(this.status, "Status");
+                requireNonNull(this.pricePerSquareMeter, "PricePerSquareMeter");
             }
 
             if (createdAt.isAfter(Instant.now())) {
@@ -358,18 +394,20 @@ public final class Advertisement extends AggregateRoot {
             }
 
             return new Advertisement(
-                    id,
-                    slug,
-                    title,
-                    description,
-                    price,
-                    locality,
-                    details,
-                    status,
-                    userId,
-                    photos,
-                    BooleanUtils.toBoolean(featured),
-                    createdAt);
+                    this.id,
+                    this.slug,
+                    this.title,
+                    this.description,
+                    this.price,
+                    this.area,
+                    this.pricePerSquareMeter,
+                    this.locality,
+                    this.details,
+                    this.status,
+                    this.userId,
+                    this.photos,
+                    BooleanUtils.toBoolean(this.featured),
+                    this.createdAt);
         }
 
         public Builder slug(final Slug slug) {
@@ -387,8 +425,18 @@ public final class Advertisement extends AggregateRoot {
             return this;
         }
 
-        public Builder price(final Money price) {
+        public Builder price(final Price price) {
             this.price = price;
+            return this;
+        }
+
+        public Builder area(final Area area) {
+            this.area = area;
+            return this;
+        }
+
+        public Builder pricePerSquareMeter(final PricePerSquareMeter pricePerSquareMeter) {
+            this.pricePerSquareMeter = pricePerSquareMeter;
             return this;
         }
 

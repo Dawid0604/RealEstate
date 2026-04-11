@@ -10,7 +10,6 @@ public final class HouseDetails extends AdvertisementDetails<HouseBuildingType> 
     private final TypeOfMarket typeOfMarket;
 
     public HouseDetails(
-            final Area area,
             final HouseBuildingType buildingType,
             final Set<AdvertisementClaim> claims,
             final NumberOfRooms numberOfRooms,
@@ -18,7 +17,7 @@ public final class HouseDetails extends AdvertisementDetails<HouseBuildingType> 
             final BuiltYear builtYear,
             final TypeOfMarket typeOfMarket) {
 
-        super(area, buildingType, claims);
+        super(buildingType, claims);
         requireNonNull(numberOfRooms, "NumberOfRooms");
         requireNonNull(floors, "Floors");
         requireNonNull(builtYear, "BuiltYear");

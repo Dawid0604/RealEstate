@@ -13,6 +13,7 @@ import pl.dawid0604.realestate.domain.PhoneNumber;
 import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserRole;
 import pl.dawid0604.realestate.domain.UserStatus;
+import pl.dawid0604.realestate.domain.UserType;
 
 @UtilityClass
 public class UserFixture {
@@ -30,6 +31,7 @@ public class UserFixture {
                 .fullName(new FullName("John", "Doe"))
                 .status(UserStatus.ACTIVE)
                 .role(UserRole.USER_ROLE)
+                .type(UserType.DEVELOPER)
                 .contactDetails(
                         new ContactDetails(
                                 new Email(getDummyEmail()), new PhoneNumber("+48123456789")));

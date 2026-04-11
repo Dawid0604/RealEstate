@@ -21,6 +21,7 @@ import pl.dawid0604.realestate.domain.Email;
 import pl.dawid0604.realestate.domain.Password;
 import pl.dawid0604.realestate.domain.PhoneNumber;
 import pl.dawid0604.realestate.domain.User;
+import pl.dawid0604.realestate.domain.UserType;
 import pl.dawid0604.realestate.domain.port.out.PasswordEncoder;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.event.UserRegisteredEvent;
@@ -83,6 +84,8 @@ class RegisterUserHandlerTest {
                             Assertions.assertThat(user.getEmail().value())
                                     .isEqualTo(command.email());
 
+                            Assertions.assertThat(user.getType()).isEqualTo(UserType.DEVELOPER);
+
                             Assertions.assertThat(user.getPassword())
                                     .matches(Password::isHashed)
                                     .matches(p -> Objects.equals(p.getValue(), hashedPassword));
@@ -114,6 +117,7 @@ class RegisterUserHandlerTest {
                 "Password123.@d",
                 "firstName",
                 "lastName",
+                "DEVELOPER",
                 "cde@mail.com",
                 "123456789");
     }

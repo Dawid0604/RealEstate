@@ -1,13 +1,13 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.command;
 
+import java.util.List;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import pl.dawid0604.realestate.application.fixture.AnnotationAssertions;
 import pl.dawid0604.realestate.application.validation.ValidEmail;
-
-import java.util.List;
 
 class BanUserCommandTest {
 

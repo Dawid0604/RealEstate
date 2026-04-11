@@ -13,23 +13,12 @@ import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueExcep
 class PlotDetailsTest {
 
     @Test
-    @DisplayName("Should throw exception when area is null")
-    void shouldThrowExceptionWhenAreaIsNull() {
-        // Given
-        // When
-        // Then
-        Assertions.assertThatThrownBy(() -> new PlotDetails(null, null, null))
-                .isExactlyInstanceOf(InvalidArgumentValueException.class)
-                .hasMessage("Area cannot be null");
-    }
-
-    @Test
     @DisplayName("Should throw exception when buildingType is null")
     void shouldThrowExceptionWhenBuildingTypeIsNull() {
         // Given
         // When
         // Then
-        Assertions.assertThatThrownBy(() -> new PlotDetails(getValidArea(), null, null))
+        Assertions.assertThatThrownBy(() -> new PlotDetails(null, null))
                 .isExactlyInstanceOf(InvalidArgumentValueException.class)
                 .hasMessage("BuildingType cannot be null");
     }
@@ -39,8 +28,7 @@ class PlotDetailsTest {
     void shouldSetClaimsWithDefaultValueWhenTheyAreNull() {
         // Given
         // When
-        final PlotDetails instance =
-                new PlotDetails(getValidArea(), getValidPlotBuildingType(), null);
+        final PlotDetails instance = new PlotDetails(getValidPlotBuildingType(), null);
 
         // Then
         Assertions.assertThat(instance.getClaims()).isNotNull().isEmpty();
@@ -53,8 +41,7 @@ class PlotDetailsTest {
         final Set<AdvertisementClaim> claims = new HashSet<>();
 
         // When
-        final PlotDetails instance =
-                new PlotDetails(getValidArea(), getValidPlotBuildingType(), claims);
+        final PlotDetails instance = new PlotDetails(getValidPlotBuildingType(), claims);
 
         // If claims are copied at initialization time, the following should not be added to the
         // instance claims
@@ -69,15 +56,10 @@ class PlotDetailsTest {
     void shouldSetTypeOfMarketWithDefaultValue() {
         // Given
         // When
-        final PlotDetails instance =
-                new PlotDetails(getValidArea(), getValidPlotBuildingType(), null);
+        final PlotDetails instance = new PlotDetails(getValidPlotBuildingType(), null);
 
         // Then
         Assertions.assertThat(instance.getTypeOfMarket()).isEqualTo(TypeOfMarket.SECONDARY);
-    }
-
-    private static Area getValidArea() {
-        return new Area(null);
     }
 
     private static PlotBuildingType getValidPlotBuildingType() {

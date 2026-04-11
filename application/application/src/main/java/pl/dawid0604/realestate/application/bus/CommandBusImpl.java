@@ -10,20 +10,22 @@ import pl.dawid0604.realestate.application.port.in.CommandHandler;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Component
 non-sealed class CommandBusImpl implements CommandBus {
-    private final Map<Class<? extends Command>, CommandHandler<? extends Command, ?>> handlers;
+    private final Map<Class<? extends Command>, CommandHandler<?, ?>> handlers;
 
     CommandBusImpl(final List<CommandHandler<? extends Command, ?>> handlerBeans) {
         this.handlers =
-                handlerBeans.stream()
+                Objects.requireNonNullElse(handlerBeans, List.<CommandHandler<?, ?>>of()).stream()
                         .collect(toMap(CommandHandler::getCommandType, handler -> handler));
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public final <R> R send(final Command command) {
+        Objects.requireNonNull(command, "Command cannot be null");
         final CommandHandler<?, ?> handler = handlers.get(command.getClass());
 
         if (handler == null) {

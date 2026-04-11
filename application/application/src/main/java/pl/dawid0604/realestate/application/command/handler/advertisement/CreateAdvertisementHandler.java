@@ -32,11 +32,11 @@ import pl.dawid0604.realestate.domain.HouseBuildingType;
 import pl.dawid0604.realestate.domain.HouseDetails;
 import pl.dawid0604.realestate.domain.Identifier;
 import pl.dawid0604.realestate.domain.Locality;
-import pl.dawid0604.realestate.domain.Money;
 import pl.dawid0604.realestate.domain.MoneyCurrency;
 import pl.dawid0604.realestate.domain.NumberOfRooms;
 import pl.dawid0604.realestate.domain.PlotBuildingType;
 import pl.dawid0604.realestate.domain.PlotDetails;
+import pl.dawid0604.realestate.domain.Price;
 import pl.dawid0604.realestate.domain.Title;
 import pl.dawid0604.realestate.domain.TypeOfMarket;
 import pl.dawid0604.realestate.domain.Url;
@@ -68,12 +68,13 @@ class CreateAdvertisementHandler implements CommandHandler<CreateAdvertisementCo
 
         builder.title(new Title(command.title()));
         builder.description(new Description(command.description()));
-        builder.price(new Money(command.price(), MoneyCurrency.PLN));
+        builder.price(new Price(command.price(), MoneyCurrency.PLN));
         builder.locality(new Locality(Identifier.of(command.localityId())));
         builder.userId(user.getId());
         builder.photos(getPhotos(command.photos()));
         builder.featured(command.featured());
         builder.details(getDetails(command));
+        builder.area(new Area(command.area()));
 
         final Advertisement builtAdvertisement = builder.build();
         advertisementRepository.save(builtAdvertisement);
@@ -98,7 +99,6 @@ class CreateAdvertisementHandler implements CommandHandler<CreateAdvertisementCo
         return switch (command) {
             case CreateFlatAdvertisementCommand cmd ->
                     new FlatDetails(
-                            new Area(cmd.area()),
                             BuildingType.of(FlatBuildingType.class, cmd.buildingType()),
                             mapClaims(cmd.claims()),
                             new NumberOfRooms(cmd.numberOfRooms()),
@@ -109,7 +109,6 @@ class CreateAdvertisementHandler implements CommandHandler<CreateAdvertisementCo
 
             case CreateHouseAdvertisementCommand cmd ->
                     new HouseDetails(
-                            new Area(cmd.area()),
                             BuildingType.of(HouseBuildingType.class, cmd.buildingType()),
                             mapClaims(cmd.claims()),
                             new NumberOfRooms(cmd.numberOfRooms()),
@@ -119,7 +118,6 @@ class CreateAdvertisementHandler implements CommandHandler<CreateAdvertisementCo
 
             case CreateCommercialAdvertisementCommand cmd ->
                     new CommercialDetails(
-                            new Area(cmd.area()),
                             BuildingType.of(CommercialBuildingType.class, cmd.buildingType()),
                             mapClaims(cmd.claims()),
                             new NumberOfRooms(cmd.numberOfRooms()),
@@ -130,7 +128,6 @@ class CreateAdvertisementHandler implements CommandHandler<CreateAdvertisementCo
 
             case CreatePlotAdvertisementCommand cmd ->
                     new PlotDetails(
-                            new Area(cmd.area()),
                             BuildingType.of(PlotBuildingType.class, cmd.buildingType()),
                             mapClaims(cmd.claims()));
         };

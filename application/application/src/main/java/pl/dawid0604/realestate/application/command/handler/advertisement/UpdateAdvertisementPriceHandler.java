@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import pl.dawid0604.realestate.application.command.UpdateAdvertisementPriceCommand;
 import pl.dawid0604.realestate.application.port.in.CommandHandler;
 import pl.dawid0604.realestate.domain.Advertisement;
-import pl.dawid0604.realestate.domain.Money;
+import pl.dawid0604.realestate.domain.Price;
 import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
@@ -43,7 +43,7 @@ class UpdateAdvertisementPriceHandler
         advertisement.verifyOwner(user);
         advertisement =
                 advertisement.updatePrice(
-                        new Money(command.newPrice(), advertisement.getPrice().currency()));
+                        new Price(command.newPrice(), advertisement.getPrice().currency()));
 
         advertisementRepository.save(advertisement);
         advertisement.getEvents().forEach(eventPublisher::publishEvent);

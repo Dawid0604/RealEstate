@@ -32,8 +32,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import pl.dawid0604.realestate.application.command.UpdateAdvertisementPriceCommand;
 import pl.dawid0604.realestate.domain.Advertisement;
 import pl.dawid0604.realestate.domain.AdvertisementDetails;
-import pl.dawid0604.realestate.domain.Money;
 import pl.dawid0604.realestate.domain.MoneyCurrency;
+import pl.dawid0604.realestate.domain.Price;
 import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
@@ -53,7 +53,7 @@ class UpdateAdvertisementPriceHandlerTest {
     @Mock private UserRepository userRepository;
     @Mock private ApplicationEventPublisher eventPublisher;
     @Captor private ArgumentCaptor<Advertisement> advertisementArgumentCaptor;
-    @Captor private ArgumentCaptor<Money> priceArgumentCapture;
+    @Captor private ArgumentCaptor<Price> priceArgumentCapture;
     private UpdateAdvertisementPriceHandler handler;
 
     @BeforeEach

@@ -39,6 +39,37 @@ class AreaTest {
         Assertions.assertThat(instance.value()).isEqualByComparingTo(value);
     }
 
+    @Test
+    @DisplayName("Should set proper value scale")
+    void shouldSetProperValueScale() {
+        // Given
+        // When
+        final Area instance = new Area(BigDecimal.valueOf(1.5521));
+
+        // Then
+        Assertions.assertThat(instance.value()).hasScaleOf(2);
+    }
+
+    @ParameterizedTest
+    @DisplayName("Should round value properly")
+    @MethodSource("shouldRoundValueProperlyDataProvider")
+    void shouldRoundValueProperly(final BigDecimal value, final BigDecimal expectedValue) {
+        // Given
+        // When
+        final Area instance = new Area(value);
+
+        // Then
+        Assertions.assertThat(instance.value()).isEqualByComparingTo(expectedValue);
+    }
+
+    private static Stream<Arguments> shouldRoundValueProperlyDataProvider() {
+        return Stream.of(
+                Arguments.of(BigDecimal.valueOf(1.55), BigDecimal.valueOf(1.55)),
+                Arguments.of(BigDecimal.valueOf(1.551), BigDecimal.valueOf(1.55)),
+                Arguments.of(BigDecimal.valueOf(1.554), BigDecimal.valueOf(1.55)),
+                Arguments.of(BigDecimal.valueOf(1.555), BigDecimal.valueOf(1.56)));
+    }
+
     @ParameterizedTest
     @DisplayName("Should throw exception when value is lower than one")
     @MethodSource("shouldThrowExceptionWhenValueIsLowerThanOneDataProvider")

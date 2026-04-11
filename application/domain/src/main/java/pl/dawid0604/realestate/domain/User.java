@@ -17,6 +17,7 @@ public final class User extends AggregateRoot {
     private final ContactDetails contactDetails;
     private final Url avatar;
     private final UserRole role;
+    private final UserType type;
     private final UserStatus status;
     private final Instant createdAt;
     private final Instant lastLoginAt;
@@ -33,9 +34,11 @@ public final class User extends AggregateRoot {
             final UserStatus status,
             final Instant createdAt,
             final Instant lastLoginAt,
-            final boolean createMode) {
+            final boolean createMode,
+            final UserType type) {
 
         this.id = id;
+        this.type = type;
         this.email = email;
         this.password = password;
         this.fullName = fullName;
@@ -166,6 +169,10 @@ public final class User extends AggregateRoot {
         return email;
     }
 
+    public UserType getType() {
+        return type;
+    }
+
     public static Builder create() {
         return new Builder(true);
     }
@@ -185,6 +192,7 @@ public final class User extends AggregateRoot {
                 .role(this.role)
                 .status(this.status)
                 .createdAt(this.createdAt)
+                .type(this.type)
                 .lastLoginAt(this.lastLoginAt);
     }
 
@@ -199,6 +207,7 @@ public final class User extends AggregateRoot {
         private UserStatus status;
         private Instant createdAt;
         private Instant lastLoginAt;
+        private UserType type;
         private final boolean createMode;
 
         private Builder(final boolean createMode) {
@@ -211,6 +220,7 @@ public final class User extends AggregateRoot {
             requireNonNull(this.fullName, "FullName");
             requireNonNull(this.role, "Role");
             requireNonNull(this.contactDetails, "ContactDetails");
+            requireNonNull(this.type, "Type");
 
             if (createMode) {
                 this.id = Identifier.generate();
@@ -242,7 +252,8 @@ public final class User extends AggregateRoot {
                     this.status,
                     this.createdAt,
                     this.lastLoginAt,
-                    this.createMode);
+                    this.createMode,
+                    this.type);
         }
 
         private static void throwDateFromTheFutureException(final String fieldName) {
@@ -286,6 +297,11 @@ public final class User extends AggregateRoot {
 
         public Builder status(final UserStatus status) {
             this.status = status;
+            return this;
+        }
+
+        public Builder type(final UserType type) {
+            this.type = type;
             return this;
         }
 

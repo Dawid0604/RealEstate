@@ -3,4 +3,4 @@ package pl.dawid0604.realestate.application.query;
 
 import pl.dawid0604.realestate.application.validation.ValidEmail;
 
-public record GetUserProfileQuery(@ValidEmail String email) implements Query {}
+public record UserProfileQuery(@ValidEmail String email) implements Query {}
