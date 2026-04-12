@@ -28,6 +28,7 @@ class UpdateUserFullNameHandler implements CommandHandler<UpdateUserFullNameComm
 
         user.verifyUser();
         user = user.updateFullName(new FullName(command.newFirstName(), command.newLastName()));
+
         userRepository.save(user);
         return null;
     }

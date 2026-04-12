@@ -3,12 +3,15 @@ package pl.dawid0604.realestate.domain.port.out;
 
 import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserStatus;
+import pl.dawid0604.realestate.domain.shared.projection.user.AdvertisementUserProjection;
 import pl.dawid0604.realestate.domain.shared.projection.user.UserProfileProjection;
 
 import java.util.Optional;
 
 public interface UserRepository {
     Optional<UserProfileProjection> findUserProfile(String email);
+
+    Optional<AdvertisementUserProjection> findAdvertisementUser(String email);
 
     Optional<User> findByEmail(String email);
 

@@ -13,39 +13,38 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import pl.dawid0604.realestate.application.command.RegisterUserCommand;
-import pl.dawid0604.realestate.application.command.UnbanUserCommand;
-import pl.dawid0604.realestate.application.port.in.CommandHandler;
+import pl.dawid0604.realestate.application.port.in.QueryHandler;
+import pl.dawid0604.realestate.application.query.IsUserBannedQuery;
+import pl.dawid0604.realestate.application.query.UserProfileQuery;
 
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
-class CommandBusImplTest {
+class QueryBusImplTest {
 
-    private static final class TestHandler implements CommandHandler<UnbanUserCommand, String> {
+    private static final class TestHandler implements QueryHandler<UserProfileQuery, String> {
 
         @Override
-        public String handle(final UnbanUserCommand command) {
+        public String handle(final UserProfileQuery query) {
             return null;
         }
 
         @Override
-        public Class<UnbanUserCommand> getCommandType() {
-            return UnbanUserCommand.class;
+        public Class<UserProfileQuery> getQueryType() {
+            return UserProfileQuery.class;
         }
     }
 
-    private static final class SecondTestHandler
-            implements CommandHandler<RegisterUserCommand, Void> {
+    private static final class SecondTestHandler implements QueryHandler<IsUserBannedQuery, Void> {
 
         @Override
-        public Void handle(final RegisterUserCommand command) {
+        public Void handle(final IsUserBannedQuery query) {
             return null;
         }
 
         @Override
-        public Class<RegisterUserCommand> getCommandType() {
-            return RegisterUserCommand.class;
+        public Class<IsUserBannedQuery> getQueryType() {
+            return IsUserBannedQuery.class;
         }
     }
 
@@ -53,11 +52,11 @@ class CommandBusImplTest {
     @DisplayName("Should create instance")
     void shouldCreateInstance() {
         // Given
-        final CommandHandler<UnbanUserCommand, String> handler = new TestHandler();
+        final QueryHandler<UserProfileQuery, String> handler = new TestHandler();
 
         // When
         // Then
-        Assertions.assertThatCode(() -> new CommandBusImpl(List.of(handler)))
+        Assertions.assertThatCode(() -> new QueryBusImpl(List.of(handler)))
                 .doesNotThrowAnyException();
     }
 
@@ -67,7 +66,7 @@ class CommandBusImplTest {
         // Given
         // When
         // Then
-        Assertions.assertThatCode(() -> new CommandBusImpl(List.of())).doesNotThrowAnyException();
+        Assertions.assertThatCode(() -> new QueryBusImpl(List.of())).doesNotThrowAnyException();
     }
 
     @Test
@@ -76,20 +75,20 @@ class CommandBusImplTest {
         // Given
         // When
         // Then
-        Assertions.assertThatCode(() -> new CommandBusImpl(null)).doesNotThrowAnyException();
+        Assertions.assertThatCode(() -> new QueryBusImpl(null)).doesNotThrowAnyException();
     }
 
     @Test
-    @DisplayName("Should send command")
-    void shouldSendCommand() {
+    @DisplayName("Should send query")
+    void shouldSendQuery() {
         // Given
         final TestHandler handler = spy(new TestHandler());
 
         // When
-        final CommandBusImpl instance = new CommandBusImpl(List.of(handler));
+        final QueryBusImpl instance = new QueryBusImpl(List.of(handler));
 
         // Then
-        Assertions.assertThatCode(() -> instance.send(mock(UnbanUserCommand.class)))
+        Assertions.assertThatCode(() -> instance.send(mock(UserProfileQuery.class)))
                 .doesNotThrowAnyException();
     }
 
@@ -102,35 +101,35 @@ class CommandBusImplTest {
 
         // When
         // Then
-        Assertions.assertThatThrownBy(() -> new CommandBusImpl(List.of(handler1, handler2)))
+        Assertions.assertThatThrownBy(() -> new QueryBusImpl(List.of(handler1, handler2)))
                 .isExactlyInstanceOf(IllegalStateException.class);
     }
 
     @Test
-    @DisplayName("Should throw exception when command is null")
-    void shouldThrowExceptionWhenCommandIsNull() {
+    @DisplayName("Should throw exception when query is null")
+    void shouldThrowExceptionWhenQueryIsNull() {
         // Given
         final TestHandler handler1 = spy(new TestHandler());
 
         // When
-        final CommandBusImpl instance = new CommandBusImpl(List.of(handler1));
+        final QueryBusImpl instance = new QueryBusImpl(List.of(handler1));
 
         // Then
         Assertions.assertThatThrownBy(() -> instance.send(null))
                 .isExactlyInstanceOf(NullPointerException.class)
-                .hasMessageContaining("Command cannot be null");
+                .hasMessageContaining("Query cannot be null");
     }
 
     @Test
-    @DisplayName("Should handle command with different generic types")
-    void shouldHandleCommandDifferentGenericTypes() {
+    @DisplayName("Should handle query with different generic types")
+    void shouldHandleQueryDifferentGenericTypes() {
         // Given
-        final CommandHandler<UnbanUserCommand, String> handler1 = spy(new TestHandler());
-        final CommandHandler<RegisterUserCommand, Void> handler2 = spy(new SecondTestHandler());
+        final QueryHandler<UserProfileQuery, String> handler1 = spy(new TestHandler());
+        final QueryHandler<IsUserBannedQuery, Void> handler2 = spy(new SecondTestHandler());
 
         // When
-        final CommandBusImpl instance = new CommandBusImpl(List.of(handler1, handler2));
-        instance.send(mock(RegisterUserCommand.class));
+        final QueryBusImpl instance = new QueryBusImpl(List.of(handler1, handler2));
+        instance.send(mock(IsUserBannedQuery.class));
 
         // Then
         verify(handler1, never()).handle(any());
@@ -138,14 +137,14 @@ class CommandBusImplTest {
     }
 
     @Test
-    @DisplayName("Should handle command with void return type")
-    void shouldHandleCommandVoidReturnType() {
+    @DisplayName("Should handle query with void return type")
+    void shouldHandleQueryVoidReturnType() {
         // Given
         final TestHandler handler = spy(new TestHandler());
 
         // When
-        final CommandBusImpl instance = new CommandBusImpl(List.of(handler));
-        instance.send(mock(UnbanUserCommand.class));
+        final QueryBusImpl instance = new QueryBusImpl(List.of(handler));
+        instance.send(mock(UserProfileQuery.class));
 
         // Then
         verify(handler).handle(any());
@@ -156,11 +155,11 @@ class CommandBusImplTest {
     void shouldThrowExceptionWhenHandlerNotFound() {
         // Given
         // When
-        final CommandBusImpl instance = new CommandBusImpl(List.of());
+        final QueryBusImpl instance = new QueryBusImpl(List.of());
 
         // Then
-        Assertions.assertThatThrownBy(() -> instance.send(mock(UnbanUserCommand.class)))
+        Assertions.assertThatThrownBy(() -> instance.send(mock(UserProfileQuery.class)))
                 .isExactlyInstanceOf(UnsupportedOperationException.class)
-                .hasMessageContaining("Handler not registered for command");
+                .hasMessageContaining("Handler not registered for query");
     }
 }

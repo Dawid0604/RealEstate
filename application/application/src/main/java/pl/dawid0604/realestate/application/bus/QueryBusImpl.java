@@ -29,8 +29,8 @@ non-sealed class QueryBusImpl implements QueryBus {
         final QueryHandler<?, ?> handler = handlers.get(query.getClass());
 
         if (handler == null) {
-            throw new IllegalStateException(
-                    "Handler not registered for command, type=" + query.getClass());
+            throw new UnsupportedOperationException(
+                    "Handler not registered for query, type=" + query.getClass());
         }
 
         return ((QueryHandler<Query, R>) handler).handle(query);

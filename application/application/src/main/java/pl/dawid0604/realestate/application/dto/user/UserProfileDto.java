@@ -6,10 +6,10 @@ import java.util.UUID;
 public record UserProfileDto(
         UUID userId,
         String email,
-        String firstName,
-        String lastName,
+        String fullName,
         String contactPhoneNumber,
         String contactEmail,
         String avatarUrl,
         String role,
+        String type,
         String status) {}

@@ -3,24 +3,18 @@ package pl.dawid0604.realestate.domain.shared.projection.user;
 
 import java.util.UUID;
 
-public interface UserProfileProjection {
-    UUID getUserId();
-
-    String getEmail();
+public interface AdvertisementUserProjection {
+    UUID getId();
 
     String getFirstName();
 
+    String getUserAvatarUrl();
+
     String getLastName();
+
+    String getType();
 
     String getContactPhoneNumber();
 
     String getContactEmail();
-
-    String getAvatarUrl();
-
-    String getRole();
-
-    String getType();
-
-    String getStatus();
 }

@@ -1,8 +1,11 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.query;
 
-import pl.dawid0604.realestate.application.validation.ValidEmail;
-import pl.dawid0604.realestate.application.validation.ValidSlug;
+public sealed interface AdvertisementDetailsQuery extends Query
+        permits CommercialAdvertisementDetailsQuery,
+                FlatAdvertisementDetailsQuery,
+                HouseAdvertisementDetailsQuery,
+                PlotAdvertisementDetailsQuery {
 
-public record AdvertisementDetailsQuery(@ValidSlug String slug, @ValidEmail String userEmail)
-        implements Query {}
+    String slug();
+}

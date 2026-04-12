@@ -14,4 +14,8 @@ public abstract sealed class DomainException extends RuntimeException
     protected DomainException(final String message) {
         super(message);
     }
+
+    protected DomainException(final String message, final Exception exception) {
+        super(message, exception);
+    }
 }
