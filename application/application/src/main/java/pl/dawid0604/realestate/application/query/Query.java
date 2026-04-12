@@ -6,5 +6,4 @@ public sealed interface Query
                 IsUserBannedQuery,
                 SearchAdvertisementsQuery,
                 UserAdvertisementsQuery,
-                UserLoginHistoryQuery,
                 UserProfileQuery {}

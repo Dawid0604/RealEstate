@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Component;
 
-import pl.dawid0604.realestate.application.dto.UserProfileDto;
+import pl.dawid0604.realestate.application.dto.user.UserProfileDto;
 import pl.dawid0604.realestate.application.mapper.user.UserMapper;
 import pl.dawid0604.realestate.application.port.in.QueryHandler;
 import pl.dawid0604.realestate.application.query.UserProfileQuery;

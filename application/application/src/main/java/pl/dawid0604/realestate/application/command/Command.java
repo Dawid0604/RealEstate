@@ -25,4 +25,5 @@ public sealed interface Command
                 UpdateUserContactDetailsCommand,
                 UpdateUserEmailCommand,
                 UpdateUserFullNameCommand,
-                UpdateUserPasswordCommand {}
+                UpdateUserPasswordCommand,
+                UpdateUserTypeCommand {}

@@ -1,13 +1,13 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
-import java.time.Instant;
-import java.util.Objects;
-import java.util.Optional;
-
 import pl.dawid0604.realestate.domain.shared.event.UserRegisteredEvent;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
+
+import java.time.Instant;
+import java.util.Objects;
+import java.util.Optional;
 
 public final class User extends AggregateRoot {
     private final Identifier id;
@@ -116,6 +116,10 @@ public final class User extends AggregateRoot {
 
     public User updateContactDetails(final ContactDetails contactDetails) {
         return copy().contactDetails(contactDetails).build();
+    }
+
+    public User updateType(final UserType newType) {
+        return copy().type(newType).build();
     }
 
     public User register() {

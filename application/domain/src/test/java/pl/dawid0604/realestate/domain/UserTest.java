@@ -3,8 +3,6 @@ package pl.dawid0604.realestate.domain;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 
-import java.time.Instant;
-
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -15,6 +13,8 @@ import org.junit.jupiter.params.provider.EnumSource;
 import pl.dawid0604.realestate.domain.shared.event.UserRegisteredEvent;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
+
+import java.time.Instant;
 
 class UserTest {
 
@@ -1343,6 +1343,61 @@ class UserTest {
             Assertions.assertThatThrownBy(instance::register)
                     .isExactlyInstanceOf(UnauthorizedAccessException.class)
                     .hasMessage("User is already registered");
+        }
+    }
+
+    @Nested
+    final class UpdateTypeTests {
+
+        @Test
+        @DisplayName("Should update type successfully when value is present")
+        void shouldUpdateFullNameSuccessfullyWhenValueIsPresent() {
+            // Given
+            final UserType newType = UserType.DEVELOPER;
+
+            final User instance =
+                    User.reconstitute()
+                            .email(getValidEmail())
+                            .password(getValidPassword())
+                            .fullName(getValidFullName())
+                            .role(UserRole.USER_ROLE)
+                            .contactDetails(getValidContactDetails())
+                            .status(UserStatus.ACTIVE)
+                            .id(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .type(UserType.AGENCY)
+                            .build();
+
+            // When
+            final User updatedInstance = instance.updateType(newType);
+
+            // Then
+            Assertions.assertThat(updatedInstance).isEqualTo(instance);
+            Assertions.assertThat(updatedInstance.getType()).isEqualTo(newType);
+        }
+
+        @Test
+        @DisplayName("Should throw exception when type is null")
+        void shouldThrowExceptionWhenTypeIsNull() {
+            // Given
+            final User instance =
+                    User.reconstitute()
+                            .email(getValidEmail())
+                            .password(getValidPassword())
+                            .fullName(getValidFullName())
+                            .role(UserRole.USER_ROLE)
+                            .contactDetails(getValidContactDetails())
+                            .status(UserStatus.ACTIVE)
+                            .id(getValidIdentifier())
+                            .createdAt(Instant.now())
+                            .type(UserType.AGENCY)
+                            .build();
+
+            // When
+            // Then
+            Assertions.assertThatThrownBy(() -> instance.updateType(null))
+                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
+                    .hasMessage("Type cannot be null");
         }
     }
 

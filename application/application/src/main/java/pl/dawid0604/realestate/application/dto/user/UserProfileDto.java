@@ -1,5 +1,5 @@
 /* Copyright 2026 RealEstate */
-package pl.dawid0604.realestate.application.dto;
+package pl.dawid0604.realestate.application.dto.user;
 
 import java.util.UUID;
 

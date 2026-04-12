@@ -28,4 +28,14 @@ public record SearchAdvertisementCriteria(
         offerFrom = offerFrom != null ? Set.copyOf(offerFrom) : emptySet();
         types = types != null ? Set.copyOf(types) : emptySet();
     }
+
+    @Override
+    public Set<String> offerFrom() {
+        return Set.copyOf(offerFrom);
+    }
+
+    @Override
+    public Set<String> types() {
+        return Set.copyOf(types);
+    }
 }
