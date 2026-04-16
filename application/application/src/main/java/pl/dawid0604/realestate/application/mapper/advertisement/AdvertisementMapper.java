@@ -7,25 +7,33 @@ import org.mapstruct.Named;
 
 import pl.dawid0604.realestate.application.dto.advertisement.AdvertisementDetailsDto;
 import pl.dawid0604.realestate.application.dto.advertisement.AdvertisementPhotoDto;
+import pl.dawid0604.realestate.application.dto.advertisement.CommercialAdvertisementCardDto;
 import pl.dawid0604.realestate.application.dto.advertisement.CommercialAdvertisementDetailsDto;
+import pl.dawid0604.realestate.application.dto.advertisement.FlatAdvertisementCardDto;
 import pl.dawid0604.realestate.application.dto.advertisement.FlatAdvertisementDetailsDto;
+import pl.dawid0604.realestate.application.dto.advertisement.HouseAdvertisementCardDto;
 import pl.dawid0604.realestate.application.dto.advertisement.HouseAdvertisementDetailsDto;
+import pl.dawid0604.realestate.application.dto.advertisement.PlotAdvertisementCardDto;
 import pl.dawid0604.realestate.application.dto.advertisement.PlotAdvertisementDetailsDto;
 import pl.dawid0604.realestate.application.dto.advertisement.UserCommercialAdvertisementCardDto;
 import pl.dawid0604.realestate.application.dto.advertisement.UserFlatAdvertisementCardDto;
 import pl.dawid0604.realestate.application.dto.advertisement.UserHouseAdvertisementCardDto;
 import pl.dawid0604.realestate.application.dto.advertisement.UserPlotAdvertisementCardDto;
-import pl.dawid0604.realestate.domain.shared.projection.advertisement.AdvertisementClaimProjection;
-import pl.dawid0604.realestate.domain.shared.projection.advertisement.CommercialAdvertisementCardProjection;
-import pl.dawid0604.realestate.domain.shared.projection.advertisement.CommercialAdvertisementDetailsProjection;
-import pl.dawid0604.realestate.domain.shared.projection.advertisement.FlatAdvertisementCardProjection;
-import pl.dawid0604.realestate.domain.shared.projection.advertisement.FlatAdvertisementDetailsProjection;
-import pl.dawid0604.realestate.domain.shared.projection.advertisement.HouseAdvertisementCardProjection;
-import pl.dawid0604.realestate.domain.shared.projection.advertisement.HouseAdvertisementDetailsProjection;
-import pl.dawid0604.realestate.domain.shared.projection.advertisement.PlotAdvertisementCardProjection;
-import pl.dawid0604.realestate.domain.shared.projection.advertisement.PlotAdvertisementDetailsProjection;
-import pl.dawid0604.realestate.domain.shared.projection.photo.PhotoProjection;
-import pl.dawid0604.realestate.domain.shared.projection.user.AdvertisementUserProjection;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementClaimProjection;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.CommercialAdvertisementCardProjection;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.CommercialAdvertisementDetailsProjection;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.FlatAdvertisementCardProjection;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.FlatAdvertisementDetailsProjection;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.HouseAdvertisementCardProjection;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.HouseAdvertisementDetailsProjection;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.PlotAdvertisementCardProjection;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.PlotAdvertisementDetailsProjection;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserCommercialAdvertisementCardProjection;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserFlatAdvertisementCardProjection;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserHouseAdvertisementCardProjection;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserPlotAdvertisementCardProjection;
+import pl.dawid0604.realestate.domain.shared.photo.projection.PhotoProjection;
+import pl.dawid0604.realestate.domain.shared.user.projection.AdvertisementUserProjection;
 
 import java.util.Set;
 
@@ -138,7 +146,27 @@ public interface AdvertisementMapper {
     @Mapping(target = "floor", source = "projection.floor")
     @Mapping(target = "floors", source = "projection.floors")
     @Mapping(target = "builtYear", source = "projection.builtYear")
-    UserCommercialAdvertisementCardDto toCommercialCardDto(
+    UserCommercialAdvertisementCardDto toUserCommercialCardDto(
+            UserCommercialAdvertisementCardProjection projection,
+            String localityFullName,
+            Set<PhotoProjection> photos);
+
+    @Mapping(target = "photos", source = "photos", qualifiedByName = "toPhoto")
+    @Mapping(target = "slug", source = "projection.slug")
+    @Mapping(target = "userType", source = "projection.userType")
+    @Mapping(target = "title", source = "projection.title")
+    @Mapping(target = "price", source = "projection.price")
+    @Mapping(target = "area", source = "projection.area")
+    @Mapping(target = "pricePerSquareMeter", source = "projection.pricePerSquareMeter")
+    @Mapping(target = "status", source = "projection.status")
+    @Mapping(target = "createdAt", source = "projection.createdAt")
+    @Mapping(target = "isFeatured", source = "projection.featured")
+    @Mapping(target = "buildingType", source = "projection.buildingType")
+    @Mapping(target = "numberOfRooms", source = "projection.numberOfRooms")
+    @Mapping(target = "floor", source = "projection.floor")
+    @Mapping(target = "floors", source = "projection.floors")
+    @Mapping(target = "builtYear", source = "projection.builtYear")
+    CommercialAdvertisementCardDto toCommercialCardDto(
             CommercialAdvertisementCardProjection projection,
             String localityFullName,
             Set<PhotoProjection> photos);
@@ -157,7 +185,27 @@ public interface AdvertisementMapper {
     @Mapping(target = "floor", source = "projection.floor")
     @Mapping(target = "floors", source = "projection.floors")
     @Mapping(target = "builtYear", source = "projection.builtYear")
-    UserFlatAdvertisementCardDto toFlatCardDto(
+    UserFlatAdvertisementCardDto toUserFlatCardDto(
+            UserFlatAdvertisementCardProjection projection,
+            String localityFullName,
+            Set<PhotoProjection> photos);
+
+    @Mapping(target = "photos", source = "photos", qualifiedByName = "toPhoto")
+    @Mapping(target = "userType", source = "projection.userType")
+    @Mapping(target = "slug", source = "projection.slug")
+    @Mapping(target = "title", source = "projection.title")
+    @Mapping(target = "price", source = "projection.price")
+    @Mapping(target = "area", source = "projection.area")
+    @Mapping(target = "pricePerSquareMeter", source = "projection.pricePerSquareMeter")
+    @Mapping(target = "status", source = "projection.status")
+    @Mapping(target = "createdAt", source = "projection.createdAt")
+    @Mapping(target = "isFeatured", source = "projection.featured")
+    @Mapping(target = "buildingType", source = "projection.buildingType")
+    @Mapping(target = "numberOfRooms", source = "projection.numberOfRooms")
+    @Mapping(target = "floor", source = "projection.floor")
+    @Mapping(target = "floors", source = "projection.floors")
+    @Mapping(target = "builtYear", source = "projection.builtYear")
+    FlatAdvertisementCardDto toFlatCardDto(
             FlatAdvertisementCardProjection projection,
             String localityFullName,
             Set<PhotoProjection> photos);
@@ -175,7 +223,26 @@ public interface AdvertisementMapper {
     @Mapping(target = "numberOfRooms", source = "projection.numberOfRooms")
     @Mapping(target = "floors", source = "projection.floors")
     @Mapping(target = "builtYear", source = "projection.builtYear")
-    UserHouseAdvertisementCardDto toHouseCardDto(
+    UserHouseAdvertisementCardDto toUserHouseCardDto(
+            UserHouseAdvertisementCardProjection projection,
+            String localityFullName,
+            Set<PhotoProjection> photos);
+
+    @Mapping(target = "photos", source = "photos", qualifiedByName = "toPhoto")
+    @Mapping(target = "userType", source = "projection.userType")
+    @Mapping(target = "slug", source = "projection.slug")
+    @Mapping(target = "title", source = "projection.title")
+    @Mapping(target = "price", source = "projection.price")
+    @Mapping(target = "area", source = "projection.area")
+    @Mapping(target = "pricePerSquareMeter", source = "projection.pricePerSquareMeter")
+    @Mapping(target = "status", source = "projection.status")
+    @Mapping(target = "createdAt", source = "projection.createdAt")
+    @Mapping(target = "isFeatured", source = "projection.featured")
+    @Mapping(target = "buildingType", source = "projection.buildingType")
+    @Mapping(target = "numberOfRooms", source = "projection.numberOfRooms")
+    @Mapping(target = "floors", source = "projection.floors")
+    @Mapping(target = "builtYear", source = "projection.builtYear")
+    HouseAdvertisementCardDto toHouseCardDto(
             HouseAdvertisementCardProjection projection,
             String localityFullName,
             Set<PhotoProjection> photos);
@@ -190,7 +257,23 @@ public interface AdvertisementMapper {
     @Mapping(target = "createdAt", source = "projection.createdAt")
     @Mapping(target = "isFeatured", source = "projection.featured")
     @Mapping(target = "plotType", source = "projection.plotType")
-    UserPlotAdvertisementCardDto toPlotCardDto(
+    UserPlotAdvertisementCardDto toUserPlotCardDto(
+            UserPlotAdvertisementCardProjection projection,
+            String localityFullName,
+            Set<PhotoProjection> photos);
+
+    @Mapping(target = "photos", source = "photos", qualifiedByName = "toPhoto")
+    @Mapping(target = "userType", source = "projection.userType")
+    @Mapping(target = "slug", source = "projection.slug")
+    @Mapping(target = "title", source = "projection.title")
+    @Mapping(target = "price", source = "projection.price")
+    @Mapping(target = "area", source = "projection.area")
+    @Mapping(target = "pricePerSquareMeter", source = "projection.pricePerSquareMeter")
+    @Mapping(target = "status", source = "projection.status")
+    @Mapping(target = "createdAt", source = "projection.createdAt")
+    @Mapping(target = "isFeatured", source = "projection.featured")
+    @Mapping(target = "plotType", source = "projection.plotType")
+    PlotAdvertisementCardDto toPlotCardDto(
             PlotAdvertisementCardProjection projection,
             String localityFullName,
             Set<PhotoProjection> photos);

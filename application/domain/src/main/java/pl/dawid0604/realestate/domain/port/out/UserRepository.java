@@ -3,8 +3,8 @@ package pl.dawid0604.realestate.domain.port.out;
 
 import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserStatus;
-import pl.dawid0604.realestate.domain.shared.projection.user.AdvertisementUserProjection;
-import pl.dawid0604.realestate.domain.shared.projection.user.UserProfileProjection;
+import pl.dawid0604.realestate.domain.shared.user.projection.AdvertisementUserProjection;
+import pl.dawid0604.realestate.domain.shared.user.projection.UserProfileProjection;
 
 import java.util.Optional;
 

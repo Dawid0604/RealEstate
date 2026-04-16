@@ -3,27 +3,23 @@ package pl.dawid0604.realestate.application.query.handler.advertisement;
 
 import static lombok.AccessLevel.PACKAGE;
 
-import static java.util.stream.Collectors.toSet;
-
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
-import pl.dawid0604.realestate.application.dto.advertisement.UserAdvertisementCardDto;
+import pl.dawid0604.realestate.application.dto.advertisement.AdvertisementCardDto;
 import pl.dawid0604.realestate.application.mapper.advertisement.AdvertisementMapper;
 import pl.dawid0604.realestate.application.port.in.QueryHandler;
-import pl.dawid0604.realestate.application.query.UserAdvertisementsQuery;
-import pl.dawid0604.realestate.domain.AdvertisementStatus;
+import pl.dawid0604.realestate.application.query.SearchAdvertisementsQuery;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
 import pl.dawid0604.realestate.domain.port.out.LocalityRepository;
 import pl.dawid0604.realestate.domain.port.out.PhotoRepository;
 import pl.dawid0604.realestate.domain.shared.Page;
-import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserAdvertisementCardProjection;
-import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserCommercialAdvertisementCardProjection;
-import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserFlatAdvertisementCardProjection;
-import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserHouseAdvertisementCardProjection;
-import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserPlotAdvertisementCardProjection;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementCardProjection;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.CommercialAdvertisementCardProjection;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.FlatAdvertisementCardProjection;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.HouseAdvertisementCardProjection;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.PlotAdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.exception.LocalityNotFoundException;
 import pl.dawid0604.realestate.domain.shared.photo.projection.PhotoProjection;
 
@@ -38,27 +34,21 @@ import java.util.concurrent.Executors;
 
 @Component
 @RequiredArgsConstructor(access = PACKAGE)
-class UserAdvertisementsQueryHandler
-        implements QueryHandler<UserAdvertisementsQuery, Page<UserAdvertisementCardDto>> {
+class SearchAdvertisementQueryHandler
+        implements QueryHandler<SearchAdvertisementsQuery, Page<AdvertisementCardDto>> {
 
     private final AdvertisementRepository advertisementRepository;
+    private final AdvertisementMapper advertisementMapper;
     private final PhotoRepository photoRepository;
     private final LocalityRepository localityRepository;
-    private final AdvertisementMapper advertisementMapper;
-    private static final Set<AdvertisementStatus> DEFAULT_STATUSES =
-            Set.of(AdvertisementStatus.values());
 
     @Override
-    public Page<UserAdvertisementCardDto> handle(final UserAdvertisementsQuery query) {
+    public Page<AdvertisementCardDto> handle(final SearchAdvertisementsQuery query) {
         Objects.requireNonNull(query, "Query cannot be null");
         final Exception exception;
 
         try (ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor()) {
-            final Set<AdvertisementStatus> statuses = getRequiredStatuses(query.statuses());
-
-            final var advertisementsPage =
-                    advertisementRepository.findAdvertisementsByUser(
-                            statuses, query.email(), query.page(), query.pageSize());
+            final var advertisementsPage = advertisementRepository.findByCriteria(query.criteria());
 
             return Page.of(
                     mapPage(advertisementsPage, executorService),
@@ -79,23 +69,15 @@ class UserAdvertisementsQueryHandler
     }
 
     @Override
-    public Class<UserAdvertisementsQuery> getQueryType() {
-        return UserAdvertisementsQuery.class;
+    public Class<SearchAdvertisementsQuery> getQueryType() {
+        return SearchAdvertisementsQuery.class;
     }
 
-    private static Set<AdvertisementStatus> getRequiredStatuses(final Set<String> statuses) {
-        if (CollectionUtils.isEmpty(statuses)) {
-            return DEFAULT_STATUSES;
-        }
-
-        return statuses.stream().map(AdvertisementStatus::of).collect(toSet());
-    }
-
-    private List<UserAdvertisementCardDto> mapPage(
-            final Page<UserAdvertisementCardProjection> page, final ExecutorService executorService)
+    private List<AdvertisementCardDto> mapPage(
+            final Page<AdvertisementCardProjection> page, final ExecutorService executorService)
             throws ExecutionException, InterruptedException {
 
-        final List<UserAdvertisementCardDto> cards = new ArrayList<>();
+        final List<AdvertisementCardDto> cards = new ArrayList<>();
 
         for (final var projection : page.getItems()) {
             cards.add(mapAdvertisement(projection, executorService));
@@ -104,8 +86,8 @@ class UserAdvertisementsQueryHandler
         return cards;
     }
 
-    private UserAdvertisementCardDto mapAdvertisement(
-            final UserAdvertisementCardProjection projection, final ExecutorService executorService)
+    private AdvertisementCardDto mapAdvertisement(
+            final AdvertisementCardProjection projection, final ExecutorService executorService)
             throws InterruptedException, ExecutionException {
 
         final var localityFullName = getLocalityFullName(projection, executorService);
@@ -114,27 +96,26 @@ class UserAdvertisementsQueryHandler
         CompletableFuture.allOf(localityFullName, photosFuture).join();
 
         return switch (projection) {
-            case UserCommercialAdvertisementCardProjection commercialAdvertisement ->
-                    advertisementMapper.toUserCommercialCardDto(
+            case CommercialAdvertisementCardProjection commercialAdvertisement ->
+                    advertisementMapper.toCommercialCardDto(
                             commercialAdvertisement, localityFullName.get(), photosFuture.get());
 
-            case UserFlatAdvertisementCardProjection flatAdvertisement ->
-                    advertisementMapper.toUserFlatCardDto(
+            case FlatAdvertisementCardProjection flatAdvertisement ->
+                    advertisementMapper.toFlatCardDto(
                             flatAdvertisement, localityFullName.get(), photosFuture.get());
 
-            case UserHouseAdvertisementCardProjection houseAdvertisement ->
-                    advertisementMapper.toUserHouseCardDto(
+            case HouseAdvertisementCardProjection houseAdvertisement ->
+                    advertisementMapper.toHouseCardDto(
                             houseAdvertisement, localityFullName.get(), photosFuture.get());
 
-            case UserPlotAdvertisementCardProjection plotAdvertisement ->
-                    advertisementMapper.toUserPlotCardDto(
+            case PlotAdvertisementCardProjection plotAdvertisement ->
+                    advertisementMapper.toPlotCardDto(
                             plotAdvertisement, localityFullName.get(), photosFuture.get());
         };
     }
 
     private CompletableFuture<String> getLocalityFullName(
-            final UserAdvertisementCardProjection projection,
-            final ExecutorService executorService) {
+            final AdvertisementCardProjection projection, final ExecutorService executorService) {
 
         return CompletableFuture.supplyAsync(
                 () ->
@@ -148,25 +129,24 @@ class UserAdvertisementsQueryHandler
     }
 
     private CompletableFuture<Set<PhotoProjection>> findPhotos(
-            final UserAdvertisementCardProjection projection,
-            final ExecutorService executorService) {
+            final AdvertisementCardProjection projection, final ExecutorService executorService) {
 
         return CompletableFuture.supplyAsync(
                 () ->
                         switch (projection) {
-                            case UserCommercialAdvertisementCardProjection detailsProjection ->
+                            case CommercialAdvertisementCardProjection detailsProjection ->
                                     photoRepository.findCommercialAdvertisementPhotos(
                                             detailsProjection.getSlug());
 
-                            case UserFlatAdvertisementCardProjection detailsProjection ->
+                            case FlatAdvertisementCardProjection detailsProjection ->
                                     photoRepository.findFlatAdvertisementPhotos(
                                             detailsProjection.getSlug());
 
-                            case UserHouseAdvertisementCardProjection detailsProjection ->
+                            case HouseAdvertisementCardProjection detailsProjection ->
                                     photoRepository.findHouseAdvertisementPhotos(
                                             detailsProjection.getSlug());
 
-                            case UserPlotAdvertisementCardProjection detailsProjection ->
+                            case PlotAdvertisementCardProjection detailsProjection ->
                                     photoRepository.findPlotAdvertisementPhotos(
                                             detailsProjection.getSlug());
                         },

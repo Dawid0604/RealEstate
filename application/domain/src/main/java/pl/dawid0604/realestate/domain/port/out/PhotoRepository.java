@@ -1,7 +1,7 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain.port.out;
 
-import pl.dawid0604.realestate.domain.shared.projection.photo.PhotoProjection;
+import pl.dawid0604.realestate.domain.shared.photo.projection.PhotoProjection;
 
 import java.util.Set;
 

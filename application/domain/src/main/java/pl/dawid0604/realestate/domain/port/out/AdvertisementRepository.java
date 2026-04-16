@@ -4,12 +4,14 @@ package pl.dawid0604.realestate.domain.port.out;
 import pl.dawid0604.realestate.domain.Advertisement;
 import pl.dawid0604.realestate.domain.AdvertisementStatus;
 import pl.dawid0604.realestate.domain.shared.Page;
-import pl.dawid0604.realestate.domain.shared.projection.advertisement.AdvertisementCardProjection;
-import pl.dawid0604.realestate.domain.shared.projection.advertisement.AdvertisementClaimProjection;
-import pl.dawid0604.realestate.domain.shared.projection.advertisement.CommercialAdvertisementDetailsProjection;
-import pl.dawid0604.realestate.domain.shared.projection.advertisement.FlatAdvertisementDetailsProjection;
-import pl.dawid0604.realestate.domain.shared.projection.advertisement.HouseAdvertisementDetailsProjection;
-import pl.dawid0604.realestate.domain.shared.projection.advertisement.PlotAdvertisementDetailsProjection;
+import pl.dawid0604.realestate.domain.shared.advertisement.SearchAdvertisementsCriteria;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementCardProjection;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementClaimProjection;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.CommercialAdvertisementDetailsProjection;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.FlatAdvertisementDetailsProjection;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.HouseAdvertisementDetailsProjection;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.PlotAdvertisementDetailsProjection;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserAdvertisementCardProjection;
 
 import java.util.Optional;
 import java.util.Set;
@@ -35,6 +37,8 @@ public interface AdvertisementRepository {
 
     Set<AdvertisementClaimProjection> findPlotClaims(String slug);
 
-    Page<AdvertisementCardProjection> findAdvertisementsByUser(
+    Page<UserAdvertisementCardProjection> findAdvertisementsByUser(
             Set<AdvertisementStatus> statuses, String email, int page, int pageSize);
+
+    Page<AdvertisementCardProjection> findByCriteria(SearchAdvertisementsCriteria criteria);
 }

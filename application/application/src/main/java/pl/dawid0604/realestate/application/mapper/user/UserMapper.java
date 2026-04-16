@@ -6,7 +6,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
 import pl.dawid0604.realestate.application.dto.user.UserProfileDto;
-import pl.dawid0604.realestate.domain.shared.projection.user.UserProfileProjection;
+import pl.dawid0604.realestate.domain.shared.user.projection.UserProfileProjection;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
