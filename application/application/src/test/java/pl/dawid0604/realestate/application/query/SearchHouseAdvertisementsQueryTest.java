@@ -1,6 +1,13 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.query;
 
+import java.lang.annotation.Annotation;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.DisplayName;
@@ -17,13 +24,6 @@ import pl.dawid0604.realestate.application.validation.ValidPageSize;
 import pl.dawid0604.realestate.application.validation.ValidPrice;
 import pl.dawid0604.realestate.domain.shared.advertisement.SearchHouseAdvertisementsCriteria;
 
-import java.lang.annotation.Annotation;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
 class SearchHouseAdvertisementsQueryTest {
 
     @Test
@@ -37,7 +37,7 @@ class SearchHouseAdvertisementsQueryTest {
 
     @Test
     @DisplayName("Should have area field with required annotations")
-    void shouldHaveSlugFieldWithRequiredAnnotations() {
+    void shouldHaveAreaFieldWithRequiredAnnotations() {
         // Given
         // When
         // Then

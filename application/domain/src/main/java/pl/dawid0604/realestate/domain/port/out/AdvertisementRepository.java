@@ -1,41 +1,29 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain.port.out;
 
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
 import pl.dawid0604.realestate.domain.Advertisement;
 import pl.dawid0604.realestate.domain.AdvertisementStatus;
+import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.Page;
 import pl.dawid0604.realestate.domain.shared.advertisement.SearchAdvertisementsCriteria;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementClaimProjection;
-import pl.dawid0604.realestate.domain.shared.advertisement.projection.CommercialAdvertisementDetailsProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.FlatAdvertisementDetailsProjection;
-import pl.dawid0604.realestate.domain.shared.advertisement.projection.HouseAdvertisementDetailsProjection;
-import pl.dawid0604.realestate.domain.shared.advertisement.projection.PlotAdvertisementDetailsProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserAdvertisementCardProjection;
-
-import java.util.Optional;
-import java.util.Set;
 
 public interface AdvertisementRepository {
     void save(Advertisement advertisement);
 
     Optional<Advertisement> findBySlug(String slug);
 
-    Optional<FlatAdvertisementDetailsProjection> findFlatDetails(String slug);
+    Optional<FlatAdvertisementDetailsProjection> findDetails(
+            String slug, AdvertisementType advertisementType);
 
-    Optional<HouseAdvertisementDetailsProjection> findHouseDetails(String slug);
-
-    Optional<CommercialAdvertisementDetailsProjection> findCommercialDetails(String slug);
-
-    Optional<PlotAdvertisementDetailsProjection> findPlotDetails(String slug);
-
-    Set<AdvertisementClaimProjection> findFlatClaims(String slug);
-
-    Set<AdvertisementClaimProjection> findHouseClaims(String slug);
-
-    Set<AdvertisementClaimProjection> findCommercialClaims(String slug);
-
-    Set<AdvertisementClaimProjection> findPlotClaims(String slug);
+    Set<AdvertisementClaimProjection> findClaims(UUID id, AdvertisementType advertisementType);
 
     Page<UserAdvertisementCardProjection> findAdvertisementsByUser(
             Set<AdvertisementStatus> statuses, String email, int page, int pageSize);

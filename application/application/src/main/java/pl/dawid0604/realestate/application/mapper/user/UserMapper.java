@@ -29,6 +29,18 @@ public interface UserMapper {
             return null;
         }
 
-        return projection.getFirstName() + " " + projection.getLastName();
+        if (projection.getFirstName() != null && projection.getLastName() != null) {
+            return projection.getFirstName().trim() + " " + projection.getLastName().trim();
+        }
+
+        if (projection.getFirstName() != null) {
+            return projection.getFirstName().strip();
+        }
+
+        if (projection.getLastName() != null) {
+            return projection.getLastName().strip();
+        }
+
+        return null;
     }
 }

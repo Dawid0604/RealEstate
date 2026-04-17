@@ -19,6 +19,7 @@ import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
 import pl.dawid0604.realestate.domain.port.out.LocalityRepository;
 import pl.dawid0604.realestate.domain.port.out.PhotoRepository;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
+import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementClaimProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementDetailsProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.CommercialAdvertisementDetailsProjection;
@@ -26,16 +27,15 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.FlatAdvert
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.HouseAdvertisementDetailsProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.PlotAdvertisementDetailsProjection;
 import pl.dawid0604.realestate.domain.shared.exception.AdvertisementNotFoundException;
-import pl.dawid0604.realestate.domain.shared.exception.LocalityNotFoundException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 import pl.dawid0604.realestate.domain.shared.photo.projection.PhotoProjection;
 import pl.dawid0604.realestate.domain.shared.user.projection.AdvertisementUserProjection;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -69,22 +69,21 @@ class AdvertisementDetailsQueryHandler
 
         return switch (query) {
             case CommercialAdvertisementDetailsQuery commercialQuery ->
-                    advertisementRepository.findCommercialDetails(commercialQuery.slug());
+                    advertisementRepository.findDetails(
+                            commercialQuery.slug(), AdvertisementType.COMMERCIAL);
 
             case FlatAdvertisementDetailsQuery flatQuery ->
-                    advertisementRepository.findFlatDetails(flatQuery.slug());
+                    advertisementRepository.findDetails(flatQuery.slug(), AdvertisementType.FLAT);
 
             case HouseAdvertisementDetailsQuery houseQuery ->
-                    advertisementRepository.findHouseDetails(houseQuery.slug());
+                    advertisementRepository.findDetails(houseQuery.slug(), AdvertisementType.HOUSE);
 
             case PlotAdvertisementDetailsQuery plotQuery ->
-                    advertisementRepository.findPlotDetails(plotQuery.slug());
+                    advertisementRepository.findDetails(plotQuery.slug(), AdvertisementType.PLOT);
         };
     }
 
     private AdvertisementDetailsDto toDetails(final AdvertisementDetailsProjection projection) {
-        final Exception exception;
-
         try (ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor()) {
             final var localityFullName = getLocalityFullName(projection, executorService);
             final var photosFuture = findPhotos(projection, executorService);
@@ -96,20 +95,11 @@ class AdvertisementDetailsQueryHandler
 
             return map(
                     projection,
-                    localityFullName.get(),
-                    photosFuture.get(),
-                    claimsFuture.get(),
-                    userFuture.get());
-
-        } catch (InterruptedException interruptedException) {
-            Thread.currentThread().interrupt();
-            exception = interruptedException;
-
-        } catch (ExecutionException executionException) {
-            exception = executionException;
+                    localityFullName.join(),
+                    photosFuture.join(),
+                    claimsFuture.join(),
+                    userFuture.join());
         }
-
-        throw new AdvertisementNotFoundException(projection.getSlug(), exception);
     }
 
     private AdvertisementDetailsDto map(
@@ -161,11 +151,8 @@ class AdvertisementDetailsQueryHandler
         return CompletableFuture.supplyAsync(
                 () ->
                         localityRepository
-                                .getFullName(projection.getLocalityId())
-                                .orElseThrow(
-                                        () ->
-                                                new LocalityNotFoundException(
-                                                        projection.getLocalityId())),
+                                .getFullNamesInBatch(Set.of(projection.getLocalityId()))
+                                .get(projection.getLocalityId()),
                 executorService);
     }
 
@@ -175,23 +162,11 @@ class AdvertisementDetailsQueryHandler
 
         return CompletableFuture.supplyAsync(
                 () ->
-                        switch (projection) {
-                            case CommercialAdvertisementDetailsProjection detailsProjection ->
-                                    photoRepository.findCommercialAdvertisementPhotos(
-                                            detailsProjection.getSlug());
-
-                            case FlatAdvertisementDetailsProjection detailsProjection ->
-                                    photoRepository.findFlatAdvertisementPhotos(
-                                            detailsProjection.getSlug());
-
-                            case HouseAdvertisementDetailsProjection detailsProjection ->
-                                    photoRepository.findHouseAdvertisementPhotos(
-                                            detailsProjection.getSlug());
-
-                            case PlotAdvertisementDetailsProjection detailsProjection ->
-                                    photoRepository.findPlotAdvertisementPhotos(
-                                            detailsProjection.getSlug());
-                        },
+                        photoRepository
+                                .findAdvertisementsPhotosInBatch(
+                                        List.of(projection.getId()),
+                                        getAdvertisementType(projection))
+                                .get(projection.getId()),
                 executorService);
     }
 
@@ -216,23 +191,20 @@ class AdvertisementDetailsQueryHandler
 
         return CompletableFuture.supplyAsync(
                 () ->
-                        switch (projection) {
-                            case CommercialAdvertisementDetailsProjection detailsProjection ->
-                                    advertisementRepository.findCommercialClaims(
-                                            detailsProjection.getSlug());
-
-                            case FlatAdvertisementDetailsProjection detailsProjection ->
-                                    advertisementRepository.findFlatClaims(
-                                            detailsProjection.getSlug());
-
-                            case HouseAdvertisementDetailsProjection detailsProjection ->
-                                    advertisementRepository.findHouseClaims(
-                                            detailsProjection.getSlug());
-
-                            case PlotAdvertisementDetailsProjection detailsProjection ->
-                                    advertisementRepository.findPlotClaims(
-                                            detailsProjection.getSlug());
-                        },
+                        advertisementRepository.findClaims(
+                                projection.getId(), getAdvertisementType(projection)),
                 executorService);
+    }
+
+    private static AdvertisementType getAdvertisementType(
+            final AdvertisementDetailsProjection projection) {
+
+        return switch (projection) {
+            case CommercialAdvertisementDetailsProjection ignored -> AdvertisementType.COMMERCIAL;
+
+            case FlatAdvertisementDetailsProjection ignored -> AdvertisementType.FLAT;
+            case HouseAdvertisementDetailsProjection ignored -> AdvertisementType.HOUSE;
+            case PlotAdvertisementDetailsProjection ignored -> AdvertisementType.PLOT;
+        };
     }
 }

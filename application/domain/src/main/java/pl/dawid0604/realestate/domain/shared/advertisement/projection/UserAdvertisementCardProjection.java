@@ -1,17 +1,19 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain.shared.advertisement.projection;
 
-import pl.dawid0604.realestate.domain.AdvertisementStatus;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
+
+import pl.dawid0604.realestate.domain.AdvertisementStatus;
 
 public sealed interface UserAdvertisementCardProjection
         permits UserCommercialAdvertisementCardProjection,
                 UserFlatAdvertisementCardProjection,
                 UserHouseAdvertisementCardProjection,
                 UserPlotAdvertisementCardProjection {
+
+    UUID getId();
 
     String getSlug();
 

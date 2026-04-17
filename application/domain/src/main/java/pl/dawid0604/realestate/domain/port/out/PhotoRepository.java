@@ -1,17 +1,15 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain.port.out;
 
-import pl.dawid0604.realestate.domain.shared.photo.projection.PhotoProjection;
-
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+
+import pl.dawid0604.realestate.domain.shared.AdvertisementType;
+import pl.dawid0604.realestate.domain.shared.photo.projection.PhotoProjection;
 
 public interface PhotoRepository {
 
-    Set<PhotoProjection> findFlatAdvertisementPhotos(String slug);
-
-    Set<PhotoProjection> findHouseAdvertisementPhotos(String slug);
-
-    Set<PhotoProjection> findCommercialAdvertisementPhotos(String slug);
-
-    Set<PhotoProjection> findPlotAdvertisementPhotos(String slug);
+    Map<UUID, Set<PhotoProjection>> findAdvertisementsPhotosInBatch(
+            Iterable<UUID> ids, AdvertisementType advertisementType);
 }

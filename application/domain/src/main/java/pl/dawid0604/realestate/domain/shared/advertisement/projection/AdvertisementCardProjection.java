@@ -11,6 +11,8 @@ public sealed interface AdvertisementCardProjection
                 HouseAdvertisementCardProjection,
                 PlotAdvertisementCardProjection {
 
+    UUID getId();
+
     String getSlug();
 
     String getTitle();
