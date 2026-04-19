@@ -23,7 +23,7 @@ public sealed interface AdvertisementCardProjection
 
     BigDecimal getPricePerSquareMeter();
 
-    BigDecimal getStatus();
+    String getStatus();
 
     Instant getCreatedAt();
 

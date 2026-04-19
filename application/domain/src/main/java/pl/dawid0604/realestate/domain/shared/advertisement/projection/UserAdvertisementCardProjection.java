@@ -25,7 +25,7 @@ public sealed interface UserAdvertisementCardProjection
 
     BigDecimal getPricePerSquareMeter();
 
-    BigDecimal getStatus();
+    String getStatus();
 
     Instant getCreatedAt();
 
