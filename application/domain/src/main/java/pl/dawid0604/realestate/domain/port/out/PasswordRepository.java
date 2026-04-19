@@ -1,7 +1,7 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain.port.out;
 
-public interface PasswordEncoder {
+public interface PasswordRepository {
 
     String encode(String plainPassword);
 

@@ -39,6 +39,7 @@
     <modules>
         <module>domain</module>
         <module>application</module>
+        <module>infrastructure</module>
     </modules>
 
     <properties>
@@ -125,6 +126,11 @@
             <dependency>
                 <groupId>pl.dawid0604.real-estate</groupId>
                 <artifactId>domain</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>pl.dawid0604.real-estate</groupId>
+                <artifactId>infrastructure</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
         </dependencies>

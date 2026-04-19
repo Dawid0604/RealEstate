@@ -18,7 +18,7 @@ import pl.dawid0604.realestate.domain.PhoneNumber;
 import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserRole;
 import pl.dawid0604.realestate.domain.UserType;
-import pl.dawid0604.realestate.domain.port.out.PasswordEncoder;
+import pl.dawid0604.realestate.domain.port.out.PasswordRepository;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.exception.UserExistsException;
 
@@ -28,7 +28,7 @@ import java.util.UUID;
 @RequiredArgsConstructor(access = PACKAGE)
 class RegisterUserHandler implements CommandHandler<RegisterUserCommand, UUID> {
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final PasswordRepository passwordRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
@@ -40,7 +40,7 @@ class RegisterUserHandler implements CommandHandler<RegisterUserCommand, UUID> {
         User user =
                 User.create()
                         .email(new Email(command.email()))
-                        .password(Password.ofHashed(passwordEncoder.encode(command.password())))
+                        .password(Password.ofHashed(passwordRepository.encode(command.password())))
                         .fullName(new FullName(command.firstName(), command.lastName()))
                         .role(UserRole.USER_ROLE)
                         .type(UserType.of(command.type()))

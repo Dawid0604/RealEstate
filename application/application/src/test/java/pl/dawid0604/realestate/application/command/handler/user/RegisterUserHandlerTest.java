@@ -22,7 +22,7 @@ import pl.dawid0604.realestate.domain.Password;
 import pl.dawid0604.realestate.domain.PhoneNumber;
 import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserType;
-import pl.dawid0604.realestate.domain.port.out.PasswordEncoder;
+import pl.dawid0604.realestate.domain.port.out.PasswordRepository;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.event.UserRegisteredEvent;
 import pl.dawid0604.realestate.domain.shared.exception.UserExistsException;
@@ -33,14 +33,14 @@ import java.util.UUID;
 @ExtendWith(MockitoExtension.class)
 class RegisterUserHandlerTest {
     @Mock private UserRepository userRepository;
-    @Mock private PasswordEncoder passwordEncoder;
+    @Mock private PasswordRepository passwordRepository;
     @Mock private ApplicationEventPublisher eventPublisher;
     @Captor private ArgumentCaptor<User> userArgumentCaptor;
     private RegisterUserHandler handler;
 
     @BeforeEach
     void setUp() {
-        handler = new RegisterUserHandler(userRepository, passwordEncoder, eventPublisher);
+        handler = new RegisterUserHandler(userRepository, passwordRepository, eventPublisher);
     }
 
     @Test
@@ -67,7 +67,7 @@ class RegisterUserHandlerTest {
         final RegisterUserCommand command = getCommand();
         final String hashedPassword = "anyEncryptedPassword";
 
-        given(passwordEncoder.encode(command.password())).willReturn(hashedPassword);
+        given(passwordRepository.encode(command.password())).willReturn(hashedPassword);
 
         // When
         final UUID result = handler.handle(command);
