@@ -6,7 +6,6 @@ import java.util.Set;
 public final class CommercialDetails extends FlooredDetails<CommercialBuildingType> {
 
     public CommercialDetails(
-            final Area area,
             final CommercialBuildingType buildingType,
             final Set<AdvertisementClaim> claims,
             final NumberOfRooms numberOfRooms,
@@ -15,6 +14,6 @@ public final class CommercialDetails extends FlooredDetails<CommercialBuildingTy
             final BuiltYear builtYear,
             final TypeOfMarket typeOfMarket) {
 
-        super(area, buildingType, claims, numberOfRooms, floor, floors, builtYear, typeOfMarket);
+        super(buildingType, claims, numberOfRooms, floor, floors, builtYear, typeOfMarket);
     }
 }

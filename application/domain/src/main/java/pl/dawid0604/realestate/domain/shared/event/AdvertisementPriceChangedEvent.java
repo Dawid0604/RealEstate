@@ -1,18 +1,18 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain.shared.event;
 
-import pl.dawid0604.realestate.domain.Identifier;
-import pl.dawid0604.realestate.domain.Money;
-import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
-
 import java.util.Objects;
 
+import pl.dawid0604.realestate.domain.Identifier;
+import pl.dawid0604.realestate.domain.Price;
+import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
+
 public final class AdvertisementPriceChangedEvent extends AdvertisementEvent {
-    private final Money oldPrice;
-    private final Money newPrice;
+    private final Price oldPrice;
+    private final Price newPrice;
 
     public AdvertisementPriceChangedEvent(
-            final Identifier advertisementId, final Money oldPrice, final Money newPrice) {
+            final Identifier advertisementId, final Price oldPrice, final Price newPrice) {
 
         super(advertisementId);
 
@@ -32,11 +32,11 @@ public final class AdvertisementPriceChangedEvent extends AdvertisementEvent {
         this.newPrice = newPrice;
     }
 
-    public Money getOldPrice() {
+    public Price getOldPrice() {
         return oldPrice;
     }
 
-    public Money getNewPrice() {
+    public Price getNewPrice() {
         return newPrice;
     }
 }

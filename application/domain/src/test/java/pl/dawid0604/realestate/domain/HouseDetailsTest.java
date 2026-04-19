@@ -1,28 +1,16 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 
-import java.util.HashSet;
-import java.util.Set;
-
 class HouseDetailsTest {
-
-    @Test
-    @DisplayName("Should throw exception when area is null")
-    void shouldThrowExceptionWhenAreaIsNull() {
-        // Given
-        // When
-        // Then
-        Assertions.assertThatThrownBy(
-                        () -> new HouseDetails(null, null, null, null, null, null, null))
-                .isExactlyInstanceOf(InvalidArgumentValueException.class)
-                .hasMessage("Area cannot be null");
-    }
 
     @Test
     @DisplayName("Should throw exception when buildingType is null")
@@ -30,8 +18,7 @@ class HouseDetailsTest {
         // Given
         // When
         // Then
-        Assertions.assertThatThrownBy(
-                        () -> new HouseDetails(getValidArea(), null, null, null, null, null, null))
+        Assertions.assertThatThrownBy(() -> new HouseDetails(null, null, null, null, null, null))
                 .isExactlyInstanceOf(InvalidArgumentValueException.class)
                 .hasMessage("BuildingType cannot be null");
     }
@@ -45,13 +32,7 @@ class HouseDetailsTest {
         Assertions.assertThatThrownBy(
                         () ->
                                 new HouseDetails(
-                                        getValidArea(),
-                                        getValidHouseBuildingType(),
-                                        null,
-                                        null,
-                                        null,
-                                        null,
-                                        null))
+                                        getValidHouseBuildingType(), null, null, null, null, null))
                 .isExactlyInstanceOf(InvalidArgumentValueException.class)
                 .hasMessage("NumberOfRooms cannot be null");
     }
@@ -65,7 +46,6 @@ class HouseDetailsTest {
         Assertions.assertThatThrownBy(
                         () ->
                                 new HouseDetails(
-                                        getValidArea(),
                                         getValidHouseBuildingType(),
                                         null,
                                         getValidNumberOfRooms(),
@@ -85,7 +65,6 @@ class HouseDetailsTest {
         Assertions.assertThatThrownBy(
                         () ->
                                 new HouseDetails(
-                                        getValidArea(),
                                         getValidHouseBuildingType(),
                                         null,
                                         getValidNumberOfRooms(),
@@ -105,7 +84,6 @@ class HouseDetailsTest {
         Assertions.assertThatThrownBy(
                         () ->
                                 new HouseDetails(
-                                        getValidArea(),
                                         getValidHouseBuildingType(),
                                         null,
                                         getValidNumberOfRooms(),
@@ -123,7 +101,6 @@ class HouseDetailsTest {
         // When
         final HouseDetails instance =
                 new HouseDetails(
-                        getValidArea(),
                         getValidHouseBuildingType(),
                         null,
                         getValidNumberOfRooms(),
@@ -144,7 +121,6 @@ class HouseDetailsTest {
         // When
         final HouseDetails instance =
                 new HouseDetails(
-                        getValidArea(),
                         getValidHouseBuildingType(),
                         claims,
                         getValidNumberOfRooms(),
@@ -169,7 +145,6 @@ class HouseDetailsTest {
         // When
         final HouseDetails instance =
                 new HouseDetails(
-                        getValidArea(),
                         getValidHouseBuildingType(),
                         claims,
                         getValidNumberOfRooms(),
@@ -178,17 +153,12 @@ class HouseDetailsTest {
                         getValidTypeOfMarket());
 
         // Then
-        Assertions.assertThat(instance.getArea()).isEqualTo(getValidArea());
-        Assertions.assertThat(instance.getType()).isEqualTo(getValidHouseBuildingType());
+        Assertions.assertThat(instance.getBuildingType()).isEqualTo(getValidHouseBuildingType());
         Assertions.assertThat(instance.getClaims()).isEqualTo(claims);
         Assertions.assertThat(instance.getNumberOfRooms()).isEqualTo(getValidNumberOfRooms());
         Assertions.assertThat(instance.getFloors()).isEqualTo(getValidFloors());
         Assertions.assertThat(instance.getBuiltYear()).isEqualTo(getValidBuiltYear());
         Assertions.assertThat(instance.getTypeOfMarket()).isEqualTo(getValidTypeOfMarket());
-    }
-
-    private static Area getValidArea() {
-        return new Area(null);
     }
 
     private static NumberOfRooms getValidNumberOfRooms() {

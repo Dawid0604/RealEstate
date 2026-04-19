@@ -4,15 +4,15 @@ package pl.dawid0604.realestate.domain;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
-
-import java.math.BigDecimal;
-import java.time.Instant;
 
 class ListingPriceHistoryEntryTest {
 
@@ -34,7 +34,7 @@ class ListingPriceHistoryEntryTest {
         @DisplayName("Should throw exception when new price is null")
         void shouldThrowExceptionWhenNewPriceIsNull() {
             // Given
-            final Money oldPrice = new Money(BigDecimal.valueOf(1_500_000), MoneyCurrency.PLN);
+            final Price oldPrice = new Price(BigDecimal.valueOf(1_500_000), MoneyCurrency.PLN);
             // When
             // Then
             Assertions.assertThatThrownBy(() -> ListingPriceHistoryEntry.create(oldPrice, null))
@@ -46,8 +46,8 @@ class ListingPriceHistoryEntryTest {
         @DisplayName("Should append current date")
         void shouldAppendCurrentDate() {
             // Given
-            final Money oldPrice = new Money(BigDecimal.valueOf(1_500_000), MoneyCurrency.PLN);
-            final Money newPrice = new Money(BigDecimal.valueOf(2_500_000), MoneyCurrency.PLN);
+            final Price oldPrice = new Price(BigDecimal.valueOf(1_500_000), MoneyCurrency.PLN);
+            final Price newPrice = new Price(BigDecimal.valueOf(2_500_000), MoneyCurrency.PLN);
 
             // When
             final ListingPriceHistoryEntry instance =
@@ -64,8 +64,8 @@ class ListingPriceHistoryEntryTest {
         @DisplayName("Should generate id")
         void shouldGenerateId() {
             // Given
-            final Money oldPrice = new Money(BigDecimal.valueOf(1_500_000), MoneyCurrency.PLN);
-            final Money newPrice = new Money(BigDecimal.valueOf(2_500_000), MoneyCurrency.PLN);
+            final Price oldPrice = new Price(BigDecimal.valueOf(1_500_000), MoneyCurrency.PLN);
+            final Price newPrice = new Price(BigDecimal.valueOf(2_500_000), MoneyCurrency.PLN);
 
             // When
             final ListingPriceHistoryEntry instance =
@@ -91,8 +91,8 @@ class ListingPriceHistoryEntryTest {
     @DisplayName("Should throw exception when date is null")
     void shouldThrowExceptionWhenDateIsNull() {
         // Given
-        final Money oldPrice = new Money(BigDecimal.valueOf(1_500_000), MoneyCurrency.PLN);
-        final Money newPrice = new Money(BigDecimal.valueOf(2_500_000), MoneyCurrency.PLN);
+        final Price oldPrice = new Price(BigDecimal.valueOf(1_500_000), MoneyCurrency.PLN);
+        final Price newPrice = new Price(BigDecimal.valueOf(2_500_000), MoneyCurrency.PLN);
 
         // When
         // Then
@@ -108,8 +108,8 @@ class ListingPriceHistoryEntryTest {
     @DisplayName("Should throw exception when date is from the future")
     void shouldThrowExceptionWhenDateIsFromTheFuture() {
         // Given
-        final Money oldPrice = new Money(BigDecimal.valueOf(1_500_000), MoneyCurrency.PLN);
-        final Money newPrice = new Money(BigDecimal.valueOf(2_500_000), MoneyCurrency.PLN);
+        final Price oldPrice = new Price(BigDecimal.valueOf(1_500_000), MoneyCurrency.PLN);
+        final Price newPrice = new Price(BigDecimal.valueOf(2_500_000), MoneyCurrency.PLN);
         final Instant date = Instant.now().plus(25, DAYS);
 
         // When
@@ -126,8 +126,8 @@ class ListingPriceHistoryEntryTest {
     @DisplayName("Should throw exception when old price and new price are same")
     void shouldThrowExceptionWhenOldPriceAndNewPriceAreSame() {
         // Given
-        final Money oldPrice = new Money(BigDecimal.valueOf(1_500_000), MoneyCurrency.PLN);
-        final Money newPrice = new Money(BigDecimal.valueOf(1_500_000), MoneyCurrency.PLN);
+        final Price oldPrice = new Price(BigDecimal.valueOf(1_500_000), MoneyCurrency.PLN);
+        final Price newPrice = new Price(BigDecimal.valueOf(1_500_000), MoneyCurrency.PLN);
 
         // When
         // Then
@@ -143,8 +143,8 @@ class ListingPriceHistoryEntryTest {
     @DisplayName("Should create instance successfully and return same values")
     void shouldCreateInstanceSuccessfullyAndReturnSameValues() {
         // Given
-        final Money oldPrice = new Money(BigDecimal.valueOf(1_500_000), MoneyCurrency.PLN);
-        final Money newPrice = new Money(BigDecimal.valueOf(2_500_000), MoneyCurrency.PLN);
+        final Price oldPrice = new Price(BigDecimal.valueOf(1_500_000), MoneyCurrency.PLN);
+        final Price newPrice = new Price(BigDecimal.valueOf(2_500_000), MoneyCurrency.PLN);
         final Instant date = Instant.now();
         final Identifier id = Identifier.generate();
 
@@ -162,8 +162,8 @@ class ListingPriceHistoryEntryTest {
     @DisplayName("Should instances are equal")
     void shouldInstancesAreEqual() {
         // Given
-        final Money oldPrice = new Money(BigDecimal.valueOf(1_500_000), MoneyCurrency.PLN);
-        final Money newPrice = new Money(BigDecimal.valueOf(2_500_000), MoneyCurrency.PLN);
+        final Price oldPrice = new Price(BigDecimal.valueOf(1_500_000), MoneyCurrency.PLN);
+        final Price newPrice = new Price(BigDecimal.valueOf(2_500_000), MoneyCurrency.PLN);
         final Instant date = Instant.now();
         final Identifier id = Identifier.generate();
 
@@ -183,8 +183,8 @@ class ListingPriceHistoryEntryTest {
     @DisplayName("Should instances are different")
     void shouldInstancesAreDifferent() {
         // Given
-        final Money oldPrice = new Money(BigDecimal.valueOf(1_500_000), MoneyCurrency.PLN);
-        final Money newPrice = new Money(BigDecimal.valueOf(2_500_000), MoneyCurrency.PLN);
+        final Price oldPrice = new Price(BigDecimal.valueOf(1_500_000), MoneyCurrency.PLN);
+        final Price newPrice = new Price(BigDecimal.valueOf(2_500_000), MoneyCurrency.PLN);
         final Instant date = Instant.now();
         final Identifier id = Identifier.generate();
 

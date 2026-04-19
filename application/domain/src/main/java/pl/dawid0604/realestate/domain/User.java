@@ -1,11 +1,13 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
-import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
-
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
+
+import pl.dawid0604.realestate.domain.shared.event.UserRegisteredEvent;
+import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
+import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
 
 public final class User extends AggregateRoot {
     private final Identifier id;
@@ -15,9 +17,11 @@ public final class User extends AggregateRoot {
     private final ContactDetails contactDetails;
     private final Url avatar;
     private final UserRole role;
+    private final UserType type;
     private final UserStatus status;
     private final Instant createdAt;
     private final Instant lastLoginAt;
+    private final boolean createMode;
 
     private User(
             final Identifier id,
@@ -29,9 +33,12 @@ public final class User extends AggregateRoot {
             final UserRole role,
             final UserStatus status,
             final Instant createdAt,
-            final Instant lastLoginAt) {
+            final Instant lastLoginAt,
+            final boolean createMode,
+            final UserType type) {
 
         this.id = id;
+        this.type = type;
         this.email = email;
         this.password = password;
         this.fullName = fullName;
@@ -41,6 +48,14 @@ public final class User extends AggregateRoot {
         this.status = status;
         this.createdAt = createdAt;
         this.lastLoginAt = lastLoginAt;
+        this.createMode = createMode;
+    }
+
+    public void verifyUser() {
+        if (this.status != UserStatus.ACTIVE) {
+            throw new UnauthorizedAccessException(
+                    "User account has no permissions to perform this action");
+        }
     }
 
     public boolean canLogin() {
@@ -88,27 +103,42 @@ public final class User extends AggregateRoot {
             return copy().status(UserStatus.ACTIVE).build();
         }
 
-        throw new InvalidArgumentValueException("User must be inactivate");
+        throw new InvalidArgumentValueException("User must be deactivated");
     }
 
     public User updatePassword(final Password password) {
-        requireNonNull(password, "Password");
         return copy().password(password).build();
     }
 
     public User updateEmail(final Email email) {
-        requireNonNull(email, "Email");
         return copy().email(email).build();
     }
 
     public User updateContactDetails(final ContactDetails contactDetails) {
-        requireNonNull(contactDetails, "ContactDetails");
         return copy().contactDetails(contactDetails).build();
     }
 
+    public User updateType(final UserType newType) {
+        return copy().type(newType).build();
+    }
+
+    public User register() {
+        if (!createMode) {
+            throw new UnauthorizedAccessException("User is already registered");
+        }
+
+        final User currentObj = copy().build();
+        currentObj.addEvent(new UserRegisteredEvent(id));
+
+        return currentObj;
+    }
+
     public User updateFullName(final FullName fullName) {
-        requireNonNull(fullName, "FullName");
         return copy().fullName(fullName).build();
+    }
+
+    public boolean isAdmin() {
+        return this.role == UserRole.ADMIN_ROLE;
     }
 
     public User updateAvatar(final Url avatar) {
@@ -143,6 +173,10 @@ public final class User extends AggregateRoot {
         return email;
     }
 
+    public UserType getType() {
+        return type;
+    }
+
     public static Builder create() {
         return new Builder(true);
     }
@@ -162,6 +196,7 @@ public final class User extends AggregateRoot {
                 .role(this.role)
                 .status(this.status)
                 .createdAt(this.createdAt)
+                .type(this.type)
                 .lastLoginAt(this.lastLoginAt);
     }
 
@@ -176,6 +211,7 @@ public final class User extends AggregateRoot {
         private UserStatus status;
         private Instant createdAt;
         private Instant lastLoginAt;
+        private UserType type;
         private final boolean createMode;
 
         private Builder(final boolean createMode) {
@@ -188,15 +224,17 @@ public final class User extends AggregateRoot {
             requireNonNull(this.fullName, "FullName");
             requireNonNull(this.role, "Role");
             requireNonNull(this.contactDetails, "ContactDetails");
-            requireNonNull(this.status, "Status");
+            requireNonNull(this.type, "Type");
 
             if (createMode) {
                 this.id = Identifier.generate();
                 this.createdAt = Instant.now();
+                this.status = UserStatus.INACTIVE;
 
             } else {
                 requireNonNull(this.id, "Id");
                 requireNonNull(this.createdAt, "CreatedAt");
+                requireNonNull(this.status, "Status");
             }
 
             if (createdAt.isAfter(Instant.now())) {
@@ -217,7 +255,9 @@ public final class User extends AggregateRoot {
                     this.role,
                     this.status,
                     this.createdAt,
-                    this.lastLoginAt);
+                    this.lastLoginAt,
+                    this.createMode,
+                    this.type);
         }
 
         private static void throwDateFromTheFutureException(final String fieldName) {
@@ -261,6 +301,11 @@ public final class User extends AggregateRoot {
 
         public Builder status(final UserStatus status) {
             this.status = status;
+            return this;
+        }
+
+        public Builder type(final UserType type) {
+            this.type = type;
             return this;
         }
 

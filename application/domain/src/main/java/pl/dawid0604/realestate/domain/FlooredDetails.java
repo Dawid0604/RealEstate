@@ -1,9 +1,9 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
-import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
-
 import java.util.Set;
+
+import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 
 public abstract sealed class FlooredDetails<B extends BuildingType> extends AdvertisementDetails<B>
         permits FlatDetails, CommercialDetails {
@@ -15,7 +15,6 @@ public abstract sealed class FlooredDetails<B extends BuildingType> extends Adve
     private final TypeOfMarket typeOfMarket;
 
     protected FlooredDetails(
-            final Area area,
             final B buildingType,
             final Set<AdvertisementClaim> claims,
             final NumberOfRooms numberOfRooms,
@@ -24,7 +23,7 @@ public abstract sealed class FlooredDetails<B extends BuildingType> extends Adve
             final BuiltYear builtYear,
             final TypeOfMarket typeOfMarket) {
 
-        super(area, buildingType, claims);
+        super(buildingType, claims);
         requireNonNull(numberOfRooms, "NumberOfRooms");
         requireNonNull(floor, "Floor");
         requireNonNull(floors, "Floors");

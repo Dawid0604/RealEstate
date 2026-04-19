@@ -1,28 +1,16 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 
-import java.util.HashSet;
-import java.util.Set;
-
 class FlatDetailsTest {
-
-    @Test
-    @DisplayName("Should throw exception when area is null")
-    void shouldThrowExceptionWhenAreaIsNull() {
-        // Given
-        // When
-        // Then
-        Assertions.assertThatThrownBy(
-                        () -> new FlatDetails(null, null, null, null, null, null, null, null))
-                .isExactlyInstanceOf(InvalidArgumentValueException.class)
-                .hasMessage("Area cannot be null");
-    }
 
     @Test
     @DisplayName("Should throw exception when buildingType is null")
@@ -31,9 +19,7 @@ class FlatDetailsTest {
         // When
         // Then
         Assertions.assertThatThrownBy(
-                        () ->
-                                new FlatDetails(
-                                        getValidArea(), null, null, null, null, null, null, null))
+                        () -> new FlatDetails(null, null, null, null, null, null, null))
                 .isExactlyInstanceOf(InvalidArgumentValueException.class)
                 .hasMessage("BuildingType cannot be null");
     }
@@ -47,7 +33,6 @@ class FlatDetailsTest {
         Assertions.assertThatThrownBy(
                         () ->
                                 new FlatDetails(
-                                        getValidArea(),
                                         getValidFlatBuildingType(),
                                         null,
                                         null,
@@ -68,7 +53,6 @@ class FlatDetailsTest {
         Assertions.assertThatThrownBy(
                         () ->
                                 new FlatDetails(
-                                        getValidArea(),
                                         getValidFlatBuildingType(),
                                         null,
                                         getValidNumberOfRooms(),
@@ -89,7 +73,6 @@ class FlatDetailsTest {
         Assertions.assertThatThrownBy(
                         () ->
                                 new FlatDetails(
-                                        getValidArea(),
                                         getValidFlatBuildingType(),
                                         null,
                                         getValidNumberOfRooms(),
@@ -110,7 +93,6 @@ class FlatDetailsTest {
         Assertions.assertThatThrownBy(
                         () ->
                                 new FlatDetails(
-                                        getValidArea(),
                                         getValidFlatBuildingType(),
                                         null,
                                         getValidNumberOfRooms(),
@@ -131,7 +113,6 @@ class FlatDetailsTest {
         Assertions.assertThatThrownBy(
                         () ->
                                 new FlatDetails(
-                                        getValidArea(),
                                         getValidFlatBuildingType(),
                                         null,
                                         getValidNumberOfRooms(),
@@ -155,7 +136,6 @@ class FlatDetailsTest {
         Assertions.assertThatThrownBy(
                         () ->
                                 new FlatDetails(
-                                        getValidArea(),
                                         getValidFlatBuildingType(),
                                         null,
                                         getValidNumberOfRooms(),
@@ -174,7 +154,6 @@ class FlatDetailsTest {
         // When
         final FlatDetails instance =
                 new FlatDetails(
-                        getValidArea(),
                         getValidFlatBuildingType(),
                         null,
                         getValidNumberOfRooms(),
@@ -196,7 +175,6 @@ class FlatDetailsTest {
         // When
         final FlatDetails instance =
                 new FlatDetails(
-                        getValidArea(),
                         getValidFlatBuildingType(),
                         claims,
                         getValidNumberOfRooms(),
@@ -222,7 +200,6 @@ class FlatDetailsTest {
         // When
         final FlatDetails instance =
                 new FlatDetails(
-                        getValidArea(),
                         getValidFlatBuildingType(),
                         claims,
                         getValidNumberOfRooms(),
@@ -232,8 +209,7 @@ class FlatDetailsTest {
                         getValidTypeOfMarket());
 
         // Then
-        Assertions.assertThat(instance.getArea()).isEqualTo(getValidArea());
-        Assertions.assertThat(instance.getType()).isEqualTo(getValidFlatBuildingType());
+        Assertions.assertThat(instance.getBuildingType()).isEqualTo(getValidFlatBuildingType());
         Assertions.assertThat(instance.getClaims()).isEqualTo(claims);
         Assertions.assertThat(instance.getNumberOfRooms()).isEqualTo(getValidNumberOfRooms());
         Assertions.assertThat(instance.getFloor()).isEqualTo(getValidFloor());
@@ -253,7 +229,6 @@ class FlatDetailsTest {
         // When
         final FlatDetails instance =
                 new FlatDetails(
-                        getValidArea(),
                         getValidFlatBuildingType(),
                         claims,
                         getValidNumberOfRooms(),
@@ -263,8 +238,7 @@ class FlatDetailsTest {
                         getValidTypeOfMarket());
 
         // Then
-        Assertions.assertThat(instance.getArea()).isEqualTo(getValidArea());
-        Assertions.assertThat(instance.getType()).isEqualTo(getValidFlatBuildingType());
+        Assertions.assertThat(instance.getBuildingType()).isEqualTo(getValidFlatBuildingType());
         Assertions.assertThat(instance.getClaims()).isEqualTo(claims);
         Assertions.assertThat(instance.getNumberOfRooms()).isEqualTo(getValidNumberOfRooms());
         Assertions.assertThat(instance.getFloor()).isEqualTo(floor);
@@ -284,7 +258,6 @@ class FlatDetailsTest {
         // When
         final FlatDetails instance =
                 new FlatDetails(
-                        getValidArea(),
                         getValidFlatBuildingType(),
                         claims,
                         getValidNumberOfRooms(),
@@ -294,8 +267,7 @@ class FlatDetailsTest {
                         getValidTypeOfMarket());
 
         // Then
-        Assertions.assertThat(instance.getArea()).isEqualTo(getValidArea());
-        Assertions.assertThat(instance.getType()).isEqualTo(getValidFlatBuildingType());
+        Assertions.assertThat(instance.getBuildingType()).isEqualTo(getValidFlatBuildingType());
         Assertions.assertThat(instance.getClaims()).isEqualTo(claims);
         Assertions.assertThat(instance.getNumberOfRooms()).isEqualTo(getValidNumberOfRooms());
         Assertions.assertThat(instance.getFloor()).isEqualTo(floor);
@@ -315,7 +287,6 @@ class FlatDetailsTest {
         // When
         final FlatDetails instance =
                 new FlatDetails(
-                        getValidArea(),
                         getValidFlatBuildingType(),
                         claims,
                         getValidNumberOfRooms(),
@@ -325,18 +296,13 @@ class FlatDetailsTest {
                         getValidTypeOfMarket());
 
         // Then
-        Assertions.assertThat(instance.getArea()).isEqualTo(getValidArea());
-        Assertions.assertThat(instance.getType()).isEqualTo(getValidFlatBuildingType());
+        Assertions.assertThat(instance.getBuildingType()).isEqualTo(getValidFlatBuildingType());
         Assertions.assertThat(instance.getClaims()).isEqualTo(claims);
         Assertions.assertThat(instance.getNumberOfRooms()).isEqualTo(getValidNumberOfRooms());
         Assertions.assertThat(instance.getFloor()).isEqualTo(floor);
         Assertions.assertThat(instance.getFloors()).isEqualTo(floors);
         Assertions.assertThat(instance.getBuiltYear()).isEqualTo(getValidBuiltYear());
         Assertions.assertThat(instance.getTypeOfMarket()).isEqualTo(getValidTypeOfMarket());
-    }
-
-    private static Area getValidArea() {
-        return new Area(null);
     }
 
     private static NumberOfRooms getValidNumberOfRooms() {

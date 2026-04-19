@@ -1,6 +1,9 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
+import java.math.BigDecimal;
+import java.util.stream.Stream;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,9 +12,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
-
-import java.math.BigDecimal;
-import java.util.stream.Stream;
 
 class AreaTest {
 
@@ -37,6 +37,37 @@ class AreaTest {
 
         // Then
         Assertions.assertThat(instance.value()).isEqualByComparingTo(value);
+    }
+
+    @Test
+    @DisplayName("Should set proper value scale")
+    void shouldSetProperValueScale() {
+        // Given
+        // When
+        final Area instance = new Area(BigDecimal.valueOf(1.5521));
+
+        // Then
+        Assertions.assertThat(instance.value()).hasScaleOf(2);
+    }
+
+    @ParameterizedTest
+    @DisplayName("Should round value properly")
+    @MethodSource("shouldRoundValueProperlyDataProvider")
+    void shouldRoundValueProperly(final BigDecimal value, final BigDecimal expectedValue) {
+        // Given
+        // When
+        final Area instance = new Area(value);
+
+        // Then
+        Assertions.assertThat(instance.value()).isEqualByComparingTo(expectedValue);
+    }
+
+    private static Stream<Arguments> shouldRoundValueProperlyDataProvider() {
+        return Stream.of(
+                Arguments.of(BigDecimal.valueOf(1.55), BigDecimal.valueOf(1.55)),
+                Arguments.of(BigDecimal.valueOf(1.551), BigDecimal.valueOf(1.55)),
+                Arguments.of(BigDecimal.valueOf(1.554), BigDecimal.valueOf(1.55)),
+                Arguments.of(BigDecimal.valueOf(1.555), BigDecimal.valueOf(1.56)));
     }
 
     @ParameterizedTest

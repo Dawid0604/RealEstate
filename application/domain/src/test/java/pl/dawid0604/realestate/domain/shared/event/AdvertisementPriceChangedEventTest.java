@@ -1,16 +1,16 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain.shared.event;
 
+import java.math.BigDecimal;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import pl.dawid0604.realestate.domain.Identifier;
-import pl.dawid0604.realestate.domain.Money;
 import pl.dawid0604.realestate.domain.MoneyCurrency;
+import pl.dawid0604.realestate.domain.Price;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
-
-import java.math.BigDecimal;
 
 class AdvertisementPriceChangedEventTest {
 
@@ -41,7 +41,7 @@ class AdvertisementPriceChangedEventTest {
     @DisplayName("Should throw exception when new price is null")
     void shouldThrowExceptionWhenNewPriceIsNull() {
         // Given
-        final Money oldPrice = new Money(BigDecimal.valueOf(2_500_00d), MoneyCurrency.PLN);
+        final Price oldPrice = new Price(BigDecimal.valueOf(2_500_00d), MoneyCurrency.PLN);
 
         // When
         // Then
@@ -55,8 +55,8 @@ class AdvertisementPriceChangedEventTest {
     @DisplayName("Should throw exception when new prices are same")
     void shouldThrowExceptionWhenNewPricesAreSame() {
         // Given
-        final Money oldPrice = new Money(BigDecimal.valueOf(2_500_00d), MoneyCurrency.PLN);
-        final Money newPrice = new Money(oldPrice.value(), oldPrice.currency());
+        final Price oldPrice = new Price(BigDecimal.valueOf(2_500_00d), MoneyCurrency.PLN);
+        final Price newPrice = new Price(oldPrice.value(), oldPrice.currency());
 
         // When
         // Then
@@ -70,8 +70,8 @@ class AdvertisementPriceChangedEventTest {
     @DisplayName("Should create instance successfully and get same values")
     void shouldCreateInstanceSuccessfullyAndGetSameValues() {
         // Given
-        final Money oldPrice = new Money(BigDecimal.valueOf(2_500_00d), MoneyCurrency.PLN);
-        final Money newPrice = new Money(BigDecimal.valueOf(1_500_00d), MoneyCurrency.PLN);
+        final Price oldPrice = new Price(BigDecimal.valueOf(2_500_00d), MoneyCurrency.PLN);
+        final Price newPrice = new Price(BigDecimal.valueOf(1_500_00d), MoneyCurrency.PLN);
         final Identifier advertisementId = getValidId();
 
         // When

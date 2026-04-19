@@ -5,9 +5,9 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.SPACE;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
-
 import java.util.regex.Pattern;
+
+import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 
 public record Url(String value) {
     private static final Pattern URL_PATTERN = Pattern.compile("^https?://");

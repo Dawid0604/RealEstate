@@ -6,7 +6,6 @@ import java.util.Set;
 public final class FlatDetails extends FlooredDetails<FlatBuildingType> {
 
     public FlatDetails(
-            final Area area,
             final FlatBuildingType buildingType,
             final Set<AdvertisementClaim> claims,
             final NumberOfRooms numberOfRooms,
@@ -15,6 +14,6 @@ public final class FlatDetails extends FlooredDetails<FlatBuildingType> {
             final BuiltYear builtYear,
             final TypeOfMarket typeOfMarket) {
 
-        super(area, buildingType, claims, numberOfRooms, floor, floors, builtYear, typeOfMarket);
+        super(buildingType, claims, numberOfRooms, floor, floors, builtYear, typeOfMarket);
     }
 }

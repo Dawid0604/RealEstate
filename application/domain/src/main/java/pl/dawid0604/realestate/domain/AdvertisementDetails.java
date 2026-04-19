@@ -1,26 +1,21 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
-import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
-
 import java.util.HashSet;
 import java.util.Set;
+
+import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 
 public abstract sealed class AdvertisementDetails<B extends BuildingType>
         permits FlooredDetails, HouseDetails, PlotDetails {
 
-    private final Area area;
-    private final B type;
+    private final B buildingType;
     private final Set<AdvertisementClaim> claims;
 
-    protected AdvertisementDetails(
-            final Area area, final B buildingType, final Set<AdvertisementClaim> claims) {
-
-        requireNonNull(area, "Area");
+    protected AdvertisementDetails(final B buildingType, final Set<AdvertisementClaim> claims) {
         requireNonNull(buildingType, "BuildingType");
 
-        this.area = area;
-        this.type = buildingType;
+        this.buildingType = buildingType;
         this.claims = claims == null ? new HashSet<>() : new HashSet<>(claims);
     }
 
@@ -28,12 +23,8 @@ public abstract sealed class AdvertisementDetails<B extends BuildingType>
         return Set.copyOf(claims);
     }
 
-    public final Area getArea() {
-        return area;
-    }
-
-    public final B getType() {
-        return type;
+    public final B getBuildingType() {
+        return buildingType;
     }
 
     protected final void requireNonNull(final Object field, final String name) {

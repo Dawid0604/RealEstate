@@ -1,11 +1,11 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
+import java.util.UUID;
+
 import com.github.f4b6a3.uuid.UuidCreator;
 
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
-
-import java.util.UUID;
 
 public final class Identifier {
     private final UUID value;

@@ -1,6 +1,9 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
+import java.util.Locale;
+import java.util.stream.Stream;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -13,8 +16,6 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
-
-import java.util.stream.Stream;
 
 class PasswordTest {
 
@@ -128,8 +129,18 @@ class PasswordTest {
                 shouldCreateInstanceSuccessfullyAtBoundaryValuesDataProvider() {
 
             return Stream.of(
-                    Arguments.of("R" + RandomStringUtils.secure().nextAlphabetic(5) + "1."),
-                    Arguments.of("R" + RandomStringUtils.secure().nextAlphabetic(69) + "1@"));
+                    Arguments.of(
+                            "R"
+                                    + RandomStringUtils.secure()
+                                            .nextAlphabetic(5)
+                                            .toLowerCase(Locale.ENGLISH)
+                                    + "1."),
+                    Arguments.of(
+                            "R"
+                                    + RandomStringUtils.secure()
+                                            .nextAlphabetic(69)
+                                            .toLowerCase(Locale.ENGLISH)
+                                    + "1@"));
         }
 
         @Test

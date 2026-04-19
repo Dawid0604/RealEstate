@@ -1,18 +1,18 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
-import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
-
 import java.time.Instant;
 import java.util.Objects;
 
+import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
+
 public final class ListingPriceHistoryEntry {
     private final Identifier id;
-    private final Money oldPrice;
+    private final Price oldPrice;
     private final Instant date;
 
     private ListingPriceHistoryEntry(
-            final Identifier id, final Money oldPrice, final Money newPrice, final Instant date) {
+            final Identifier id, final Price oldPrice, final Price newPrice, final Instant date) {
 
         requireNonNull(id, "Id");
         requireNonNull(oldPrice, "Old price");
@@ -38,14 +38,14 @@ public final class ListingPriceHistoryEntry {
         }
     }
 
-    public static ListingPriceHistoryEntry create(final Money oldPrice, final Money newPrice) {
+    public static ListingPriceHistoryEntry create(final Price oldPrice, final Price newPrice) {
 
         return new ListingPriceHistoryEntry(
                 Identifier.generate(), oldPrice, newPrice, Instant.now());
     }
 
     public static ListingPriceHistoryEntry of(
-            final Identifier id, final Money oldPrice, final Money newPrice, final Instant date) {
+            final Identifier id, final Price oldPrice, final Price newPrice, final Instant date) {
 
         return new ListingPriceHistoryEntry(id, oldPrice, newPrice, date);
     }
@@ -54,7 +54,7 @@ public final class ListingPriceHistoryEntry {
         return id;
     }
 
-    public Money getOldPrice() {
+    public Price getOldPrice() {
         return oldPrice;
     }
 

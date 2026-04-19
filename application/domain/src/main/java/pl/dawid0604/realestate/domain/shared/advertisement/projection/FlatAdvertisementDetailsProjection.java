@@ -1,0 +1,18 @@
+/* Copyright 2026 RealEstate */
+package pl.dawid0604.realestate.domain.shared.advertisement.projection;
+
+public non-sealed interface FlatAdvertisementDetailsProjection
+        extends AdvertisementDetailsProjection {
+
+    String getBuildingType();
+
+    Integer getNumberOfRooms();
+
+    Integer getFloor();
+
+    Integer getFloors();
+
+    Integer getBuiltYear();
+
+    String getTypeOfMarket();
+}

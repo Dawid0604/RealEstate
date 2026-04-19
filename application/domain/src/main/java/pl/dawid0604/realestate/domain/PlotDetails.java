@@ -6,12 +6,8 @@ import java.util.Set;
 public final class PlotDetails extends AdvertisementDetails<PlotBuildingType> {
     private final TypeOfMarket typeOfMarket;
 
-    public PlotDetails(
-            final Area area,
-            final PlotBuildingType buildingType,
-            final Set<AdvertisementClaim> claims) {
-
-        super(area, buildingType, claims);
+    public PlotDetails(final PlotBuildingType buildingType, final Set<AdvertisementClaim> claims) {
+        super(buildingType, claims);
         this.typeOfMarket = TypeOfMarket.SECONDARY;
     }
 

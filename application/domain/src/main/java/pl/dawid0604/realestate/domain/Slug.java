@@ -3,15 +3,15 @@ package pl.dawid0604.realestate.domain;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import com.github.slugify.Slugify;
-
-import org.apache.commons.lang3.RandomStringUtils;
-
-import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
-
 import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.RandomStringUtils;
+
+import com.github.slugify.Slugify;
+
+import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 
 public final class Slug {
     private final String value;
