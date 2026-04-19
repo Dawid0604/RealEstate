@@ -116,6 +116,10 @@ class SearchAdvertisementQueryHandler
     private CompletableFuture<Map<UUID, String>> getLocalityFullNames(
             final List<AdvertisementCardProjection> items, final ExecutorService executorService) {
 
+        if (items.isEmpty()) {
+            return CompletableFuture.completedFuture(emptyMap());
+        }
+
         return CompletableFuture.supplyAsync(
                 () -> {
                     final Set<UUID> localityIds =
@@ -135,7 +139,9 @@ class SearchAdvertisementQueryHandler
             return CompletableFuture.completedFuture(emptyMap());
         }
 
-        final List<UUID> ids = items.stream().map(AdvertisementCardProjection::getId).toList();
+        final Set<UUID> ids =
+                items.stream().map(AdvertisementCardProjection::getId).collect(toSet());
+
         final AdvertisementType advertisementType =
                 switch (items.getFirst()) {
                     case CommercialAdvertisementCardProjection ignored ->

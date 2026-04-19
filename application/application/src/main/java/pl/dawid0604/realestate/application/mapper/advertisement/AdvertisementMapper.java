@@ -285,9 +285,21 @@ public interface AdvertisementMapper {
             return null;
         }
 
+        String fullName = null;
+
+        if (user.getFirstName() != null && user.getLastName() != null) {
+            fullName = user.getFirstName().trim() + " " + user.getLastName().trim();
+
+        } else if (user.getFirstName() != null) {
+            fullName = user.getFirstName().strip();
+
+        } else if (user.getLastName() != null) {
+            fullName = user.getLastName().strip();
+        }
+
         return new AdvertisementDetailsDto.Owner(
                 user.getId(),
-                user.getFirstName() + " " + user.getLastName(),
+                fullName,
                 user.getUserAvatarUrl(),
                 user.getType(),
                 user.getContactPhoneNumber(),

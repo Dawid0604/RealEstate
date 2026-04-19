@@ -3,6 +3,7 @@ package pl.dawid0604.realestate.application.query.handler.advertisement;
 
 import static lombok.AccessLevel.PACKAGE;
 
+import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toSet;
 
 import com.google.common.collect.ImmutableMap;
@@ -21,10 +22,6 @@ import pl.dawid0604.realestate.domain.port.out.LocalityRepository;
 import pl.dawid0604.realestate.domain.port.out.PhotoRepository;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.Page;
-import pl.dawid0604.realestate.domain.shared.advertisement.projection.CommercialAdvertisementCardProjection;
-import pl.dawid0604.realestate.domain.shared.advertisement.projection.FlatAdvertisementCardProjection;
-import pl.dawid0604.realestate.domain.shared.advertisement.projection.HouseAdvertisementCardProjection;
-import pl.dawid0604.realestate.domain.shared.advertisement.projection.PlotAdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserAdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserCommercialAdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserFlatAdvertisementCardProjection;
@@ -134,6 +131,10 @@ class UserAdvertisementsQueryHandler
             final List<UserAdvertisementCardProjection> items,
             final ExecutorService executorService) {
 
+        if (items.isEmpty()) {
+            return CompletableFuture.completedFuture(emptyMap());
+        }
+
         return CompletableFuture.supplyAsync(
                 () -> {
                     final Set<UUID> localityIds =
@@ -150,29 +151,33 @@ class UserAdvertisementsQueryHandler
             final List<UserAdvertisementCardProjection> items,
             final ExecutorService executorService) {
 
+        if (items.isEmpty()) {
+            return CompletableFuture.completedFuture(emptyMap());
+        }
+
         final var flatsIds =
                 items.stream()
-                        .filter(FlatAdvertisementCardProjection.class::isInstance)
+                        .filter(UserFlatAdvertisementCardProjection.class::isInstance)
                         .map(UserAdvertisementCardProjection::getId)
-                        .toList();
+                        .collect(toSet());
 
         final var housesIds =
                 items.stream()
-                        .filter(HouseAdvertisementCardProjection.class::isInstance)
+                        .filter(UserHouseAdvertisementCardProjection.class::isInstance)
                         .map(UserAdvertisementCardProjection::getId)
-                        .toList();
+                        .collect(toSet());
 
         final var commercialsIds =
                 items.stream()
-                        .filter(CommercialAdvertisementCardProjection.class::isInstance)
+                        .filter(UserCommercialAdvertisementCardProjection.class::isInstance)
                         .map(UserAdvertisementCardProjection::getId)
-                        .toList();
+                        .collect(toSet());
 
         final var plotsIds =
                 items.stream()
-                        .filter(PlotAdvertisementCardProjection.class::isInstance)
+                        .filter(UserPlotAdvertisementCardProjection.class::isInstance)
                         .map(UserAdvertisementCardProjection::getId)
-                        .toList();
+                        .collect(toSet());
 
         final var flatPhotosFuture =
                 flatsIds.isEmpty()

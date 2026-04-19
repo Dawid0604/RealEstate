@@ -201,7 +201,6 @@ class AdvertisementDetailsQueryHandler
 
         return switch (projection) {
             case CommercialAdvertisementDetailsProjection ignored -> AdvertisementType.COMMERCIAL;
-
             case FlatAdvertisementDetailsProjection ignored -> AdvertisementType.FLAT;
             case HouseAdvertisementDetailsProjection ignored -> AdvertisementType.HOUSE;
             case PlotAdvertisementDetailsProjection ignored -> AdvertisementType.PLOT;

@@ -12,7 +12,7 @@ import pl.dawid0604.realestate.domain.shared.Page;
 import pl.dawid0604.realestate.domain.shared.advertisement.SearchAdvertisementsCriteria;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementClaimProjection;
-import pl.dawid0604.realestate.domain.shared.advertisement.projection.FlatAdvertisementDetailsProjection;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementDetailsProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserAdvertisementCardProjection;
 
 public interface AdvertisementRepository {
@@ -20,7 +20,7 @@ public interface AdvertisementRepository {
 
     Optional<Advertisement> findBySlug(String slug);
 
-    Optional<FlatAdvertisementDetailsProjection> findDetails(
+    Optional<AdvertisementDetailsProjection> findDetails(
             String slug, AdvertisementType advertisementType);
 
     Set<AdvertisementClaimProjection> findClaims(UUID id, AdvertisementType advertisementType);
