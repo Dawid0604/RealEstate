@@ -4,14 +4,6 @@ package pl.dawid0604.realestate.domain;
 import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.toCollection;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.IntStream;
-
 import org.apache.commons.lang3.BooleanUtils;
 
 import pl.dawid0604.realestate.domain.shared.event.AdvertisementPriceChangedEvent;
@@ -19,6 +11,14 @@ import pl.dawid0604.realestate.domain.shared.event.AdvertisementStatusChangedEve
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 import pl.dawid0604.realestate.domain.shared.exception.MaxPhotosExceededException;
 import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.IntStream;
 
 public final class Advertisement extends AggregateRoot {
     private final Identifier id;
