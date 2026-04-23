@@ -1,4 +1,4 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.infrastructure.advertisement;
 
-non-sealed class HouseAdvertisementEntity extends AdvertisementEntity {}
+class CommercialAdvertisementClaimEntity extends AdvertisementClaimEntity {}

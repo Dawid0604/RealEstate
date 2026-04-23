@@ -5,6 +5,16 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
 import org.assertj.core.api.Assertions;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,16 +50,6 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.FlatAdvert
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.HouseAdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.PlotAdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.photo.projection.PhotoProjection;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
 class SearchAdvertisementQueryHandlerTest {

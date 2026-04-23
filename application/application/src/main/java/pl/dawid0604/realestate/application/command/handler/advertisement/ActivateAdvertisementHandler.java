@@ -14,6 +14,7 @@ import pl.dawid0604.realestate.domain.Advertisement;
 import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
+import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.exception.AdvertisementNotFoundException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 
@@ -34,7 +35,8 @@ class ActivateAdvertisementHandler implements CommandHandler<ActivateAdvertiseme
         user.verifyUser();
         Advertisement advertisement =
                 advertisementRepository
-                        .findBySlug(command.slug())
+                        .findBySlug(
+                                command.slug(), AdvertisementType.of(command.advertisementType()))
                         .orElseThrow(() -> new AdvertisementNotFoundException(command.slug()));
 
         advertisement.verifyOwner(user);

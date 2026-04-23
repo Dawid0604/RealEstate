@@ -1,0 +1,39 @@
+/* Copyright 2026 RealEstate */
+package pl.dawid0604.realestate.infrastructure.advertisement;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+import org.hibernate.annotations.Immutable;
+
+import pl.dawid0604.realestate.domain.AdvertisementStatus;
+import pl.dawid0604.realestate.domain.shared.AdvertisementType;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.UUID;
+
+@Entity
+@Immutable
+@Table(name = "user_advertisements_view")
+class UserAdvertisementViewEntity {
+
+    @Id private UUID id;
+    private String slug;
+    private String title;
+    private BigDecimal price;
+    private BigDecimal area;
+    private BigDecimal pricePerSquareMeter;
+    private Instant createdAt;
+    private UUID localityId;
+    private boolean featured;
+
+    @Enumerated(EnumType.STRING)
+    private AdvertisementStatus status;
+
+    @Enumerated(EnumType.STRING)
+    private AdvertisementType type;
+}

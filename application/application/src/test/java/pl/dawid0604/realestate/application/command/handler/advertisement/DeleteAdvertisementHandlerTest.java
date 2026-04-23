@@ -35,6 +35,7 @@ import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
+import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.exception.AdvertisementNotFoundException;
 import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
@@ -116,7 +117,9 @@ class DeleteAdvertisementHandlerTest {
                 spy(getDummyAdvertisementBuilder(details).userId(foundUser.getId()).build());
 
         given(userRepository.findByEmail(command.userEmail())).willReturn(Optional.of(foundUser));
-        given(advertisementRepository.findBySlug(command.slug()))
+        given(
+                        advertisementRepository.findBySlug(
+                                command.slug(), AdvertisementType.of(command.advertisementType())))
                 .willReturn(Optional.of(foundAdvertisement));
 
         // When
@@ -137,6 +140,7 @@ class DeleteAdvertisementHandlerTest {
     }
 
     private static DeleteAdvertisementCommand getCommand() {
-        return new DeleteAdvertisementCommand("abcde", getDummyEmail());
+        return new DeleteAdvertisementCommand(
+                "abcde", AdvertisementType.FLAT.name(), getDummyEmail());
     }
 }

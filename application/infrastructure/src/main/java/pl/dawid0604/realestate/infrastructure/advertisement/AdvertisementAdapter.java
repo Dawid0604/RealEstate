@@ -3,6 +3,8 @@ package pl.dawid0604.realestate.infrastructure.advertisement;
 
 import static lombok.AccessLevel.PACKAGE;
 
+import jakarta.annotation.Nonnull;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
@@ -14,10 +16,6 @@ import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.Page;
 import pl.dawid0604.realestate.domain.shared.advertisement.SearchAdvertisementsCriteria;
-import pl.dawid0604.realestate.domain.shared.advertisement.SearchCommercialAdvertisementsCriteria;
-import pl.dawid0604.realestate.domain.shared.advertisement.SearchFlatAdvertisementsCriteria;
-import pl.dawid0604.realestate.domain.shared.advertisement.SearchHouseAdvertisementsCriteria;
-import pl.dawid0604.realestate.domain.shared.advertisement.SearchPlotAdvertisementsCriteria;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementClaimProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementDetailsProjection;
@@ -30,74 +28,72 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor(access = PACKAGE)
 class AdvertisementAdapter implements AdvertisementRepository {
-    private final FlatAdvertisementJpaRepository flatJpaRepository;
-    private final HouseAdvertisementJpaRepository houseJpaRepository;
-    private final CommercialAdvertisementJpaRepository commercialJpaRepository;
-    private final PlotAdvertisementJpaRepository plotJpaRepository;
     private final AdvertisementMapper advertisementMapper;
+    private final AdvertisementJpaRepository advertisementJpaRepository;
 
     @Override
     @Transactional
-    public void save(final Advertisement advertisement) {}
+    public void save(@Nonnull final Advertisement advertisement) {
+        advertisementJpaRepository.save(advertisementMapper.toEntity(advertisement));
+    }
 
+    @Nonnull
     @Override
     @Transactional(readOnly = true)
     public Optional<Advertisement> findBySlug(
-            final String slug, final AdvertisementType advertisementType) {
+            @Nonnull final String slug, @Nonnull final AdvertisementType advertisementType) {
 
-        return switch (advertisementType) {
-            case FLAT -> flatJpaRepository.findBySlug(slug).map(advertisementMapper::toDomain);
-
-            case HOUSE -> houseJpaRepository.findBySlug(slug).map(advertisementMapper::toDomain);
-
-            case COMMERCIAL ->
-                    commercialJpaRepository.findBySlug(slug).map(advertisementMapper::toDomain);
-
-            case PLOT -> plotJpaRepository.findBySlug(slug).map(advertisementMapper::toDomain);
-        };
+        return advertisementJpaRepository
+                .findBySlug(slug, advertisementType)
+                .map(advertisementMapper::toDomain);
     }
 
+    @Nonnull
     @Override
     @Transactional(readOnly = true)
     public Optional<AdvertisementDetailsProjection> findDetails(
-            final String slug, final AdvertisementType advertisementType) {
+            @Nonnull final String slug, @Nonnull final AdvertisementType advertisementType) {
 
-        return switch (advertisementType) {
-            case FLAT -> flatJpaRepository.findDetailsBySlug(slug);
-            case HOUSE -> houseJpaRepository.findDetailsBySlug(slug);
-            case COMMERCIAL -> commercialJpaRepository.findDetailsBySlug(slug);
-            case PLOT -> plotJpaRepository.findDetailsBySlug(slug);
-        };
+        return advertisementJpaRepository.findDetails(slug, advertisementType);
     }
 
+    @Nonnull
     @Override
     @Transactional(readOnly = true)
     public Set<AdvertisementClaimProjection> findClaims(
-            final UUID id, final AdvertisementType advertisementType) {
+            @Nonnull final UUID id, @Nonnull final AdvertisementType advertisementType) {
 
-        return Set.of();
+        return advertisementJpaRepository.findClaims(id, advertisementType);
     }
 
+    @Nonnull
     @Override
     @Transactional(readOnly = true)
     public Page<UserAdvertisementCardProjection> findAdvertisementsByUser(
-            final Set<AdvertisementStatus> statuses,
-            final String email,
+            @Nonnull final Set<AdvertisementStatus> statuses,
+            @Nonnull final String email,
             final int page,
             final int pageSize) {
-        return null;
+
+        return asDomainPage(
+                advertisementJpaRepository.findAdvertisementsByUser(
+                        statuses, email, page, pageSize));
     }
 
+    @Nonnull
     @Override
     @Transactional(readOnly = true)
     public Page<AdvertisementCardProjection> findByCriteria(
-            final SearchAdvertisementsCriteria criteria) {
+            @Nonnull final SearchAdvertisementsCriteria criteria) {
 
-        return switch (criteria) {
-            case SearchCommercialAdvertisementsCriteria commercialCriteria -> null;
-            case SearchFlatAdvertisementsCriteria flatCriteria -> null;
-            case SearchHouseAdvertisementsCriteria houseCriteria -> null;
-            case SearchPlotAdvertisementsCriteria plotCriteria -> null;
-        };
+        return asDomainPage(advertisementJpaRepository.findByCriteria(criteria));
+    }
+
+    @Nonnull
+    private static <T> Page<T> asDomainPage(
+            @Nonnull final org.springframework.data.domain.Page<T> page) {
+
+        return Page.of(
+                page.getContent(), page.getNumber(), page.getSize(), page.getTotalElements());
     }
 }

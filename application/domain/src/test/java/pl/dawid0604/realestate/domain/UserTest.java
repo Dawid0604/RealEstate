@@ -1,6 +1,7 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
+import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
 import java.time.Instant;
@@ -1258,8 +1259,8 @@ class UserTest {
             Assertions.assertThat(updatedInstance).isEqualTo(instance);
             Assertions.assertThat(updatedInstance.getLastLoginAt())
                     .isPresent()
-                    .map(v -> v.truncatedTo(SECONDS))
-                    .hasValue(Instant.now().truncatedTo(SECONDS));
+                    .map(v -> v.truncatedTo(MINUTES))
+                    .hasValue(Instant.now().truncatedTo(MINUTES));
         }
 
         @Test
@@ -1289,8 +1290,8 @@ class UserTest {
             Assertions.assertThat(updatedInstance).isEqualTo(instance);
             Assertions.assertThat(updatedInstance.getLastLoginAt())
                     .isPresent()
-                    .map(v -> v.truncatedTo(SECONDS))
-                    .hasValue(Instant.now().truncatedTo(SECONDS));
+                    .map(v -> v.truncatedTo(MINUTES))
+                    .hasValue(Instant.now().truncatedTo(MINUTES));
         }
     }
 

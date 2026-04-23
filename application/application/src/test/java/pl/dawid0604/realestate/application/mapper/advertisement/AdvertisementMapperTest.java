@@ -364,7 +364,7 @@ class AdvertisementMapperTest {
         given(projection.getPrice()).willReturn(BigDecimal.valueOf(450_000));
         given(projection.getArea()).willReturn(BigDecimal.valueOf(45));
         given(projection.getPricePerSquareMeter()).willReturn(BigDecimal.valueOf(4500));
-        given(projection.getStatus()).willReturn(AdvertisementStatus.ACTIVE.name());
+        given(projection.getStatus()).willReturn(AdvertisementStatus.ACTIVE);
         given(projection.getCreatedAt()).willReturn(Instant.now().minusMillis(25_000));
         given(projection.isFeatured()).willReturn(true);
 

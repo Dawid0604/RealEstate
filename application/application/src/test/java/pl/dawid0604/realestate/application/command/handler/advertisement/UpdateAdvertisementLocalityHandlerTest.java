@@ -38,6 +38,7 @@ import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
 import pl.dawid0604.realestate.domain.port.out.LocalityRepository;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
+import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.exception.AdvertisementNotFoundException;
 import pl.dawid0604.realestate.domain.shared.exception.LocalityNotFoundException;
 import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
@@ -145,7 +146,9 @@ class UpdateAdvertisementLocalityHandlerTest {
 
         given(localityRepository.existsById(command.newLocalityId())).willReturn(true);
         given(userRepository.findByEmail(command.userEmail())).willReturn(Optional.of(foundUser));
-        given(advertisementRepository.findBySlug(command.slug()))
+        given(
+                        advertisementRepository.findBySlug(
+                                command.slug(), AdvertisementType.of(command.advertisementType())))
                 .willReturn(Optional.of(foundAdvertisement));
 
         // When
@@ -170,6 +173,9 @@ class UpdateAdvertisementLocalityHandlerTest {
 
     private static UpdateAdvertisementLocalityCommand getCommand() {
         return new UpdateAdvertisementLocalityCommand(
-                "abcde", Identifier.generate().getValue(), getDummyEmail());
+                "abcde",
+                Identifier.generate().getValue(),
+                AdvertisementType.FLAT.name(),
+                getDummyEmail());
     }
 }

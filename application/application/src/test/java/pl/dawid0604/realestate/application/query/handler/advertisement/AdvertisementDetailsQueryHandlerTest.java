@@ -5,6 +5,18 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
 import org.assertj.core.api.Assertions;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,18 +55,6 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.PlotAdvert
 import pl.dawid0604.realestate.domain.shared.exception.AdvertisementNotFoundException;
 import pl.dawid0604.realestate.domain.shared.photo.projection.PhotoProjection;
 import pl.dawid0604.realestate.domain.shared.user.projection.AdvertisementUserProjection;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
 class AdvertisementDetailsQueryHandlerTest {
