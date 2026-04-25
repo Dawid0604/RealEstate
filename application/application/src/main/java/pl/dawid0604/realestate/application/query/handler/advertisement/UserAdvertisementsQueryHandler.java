@@ -17,9 +17,9 @@ import pl.dawid0604.realestate.application.mapper.advertisement.AdvertisementMap
 import pl.dawid0604.realestate.application.port.in.QueryHandler;
 import pl.dawid0604.realestate.application.query.UserAdvertisementsQuery;
 import pl.dawid0604.realestate.domain.AdvertisementStatus;
+import pl.dawid0604.realestate.domain.port.out.AdvertisementPhotoRepository;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
 import pl.dawid0604.realestate.domain.port.out.LocalityRepository;
-import pl.dawid0604.realestate.domain.port.out.PhotoRepository;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.Page;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserAdvertisementCardProjection;
@@ -45,7 +45,7 @@ class UserAdvertisementsQueryHandler
         implements QueryHandler<UserAdvertisementsQuery, Page<UserAdvertisementCardDto>> {
 
     private final AdvertisementRepository advertisementRepository;
-    private final PhotoRepository photoRepository;
+    private final AdvertisementPhotoRepository advertisementPhotoRepository;
     private final LocalityRepository localityRepository;
     private final AdvertisementMapper advertisementMapper;
 
@@ -185,7 +185,7 @@ class UserAdvertisementsQueryHandler
                                 Collections.<UUID, Set<PhotoProjection>>emptyMap())
                         : CompletableFuture.supplyAsync(
                                 () ->
-                                        photoRepository.findAdvertisementsPhotosInBatch(
+                                        advertisementPhotoRepository.findPhotosInBatch(
                                                 flatsIds, AdvertisementType.FLAT),
                                 executorService);
 
@@ -195,7 +195,7 @@ class UserAdvertisementsQueryHandler
                                 Collections.<UUID, Set<PhotoProjection>>emptyMap())
                         : CompletableFuture.supplyAsync(
                                 () ->
-                                        photoRepository.findAdvertisementsPhotosInBatch(
+                                        advertisementPhotoRepository.findPhotosInBatch(
                                                 housesIds, AdvertisementType.HOUSE),
                                 executorService);
 
@@ -205,7 +205,7 @@ class UserAdvertisementsQueryHandler
                                 Collections.<UUID, Set<PhotoProjection>>emptyMap())
                         : CompletableFuture.supplyAsync(
                                 () ->
-                                        photoRepository.findAdvertisementsPhotosInBatch(
+                                        advertisementPhotoRepository.findPhotosInBatch(
                                                 commercialsIds, AdvertisementType.COMMERCIAL),
                                 executorService);
 
@@ -215,7 +215,7 @@ class UserAdvertisementsQueryHandler
                                 Collections.<UUID, Set<PhotoProjection>>emptyMap())
                         : CompletableFuture.supplyAsync(
                                 () ->
-                                        photoRepository.findAdvertisementsPhotosInBatch(
+                                        advertisementPhotoRepository.findPhotosInBatch(
                                                 plotsIds, AdvertisementType.PLOT),
                                 executorService);
 

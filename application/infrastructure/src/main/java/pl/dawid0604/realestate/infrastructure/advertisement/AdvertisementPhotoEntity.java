@@ -18,24 +18,25 @@ import java.util.UUID;
 @Getter
 @MappedSuperclass
 @EqualsAndHashCode(callSuper = true)
-@SuppressWarnings("PMD.ImmutableField")
 @NoArgsConstructor(access = PROTECTED)
-abstract sealed class AdvertisementClaimEntity<T extends BaseEntity> extends BaseEntity
-        permits CommercialAdvertisementClaimEntity,
-                FlatAdvertisementClaimEntity,
-                HouseAdvertisementClaimEntity,
-                PlotAdvertisementClaimEntity {
+@SuppressWarnings("PMD.ImmutableField")
+abstract sealed class AdvertisementPhotoEntity<T extends AdvertisementEntity<?, ?>>
+        extends BaseEntity
+        permits CommercialAdvertisementPhotoEntity,
+                FlatAdvertisementPhotoEntity,
+                HouseAdvertisementPhotoEntity,
+                PlotAdvertisementPhotoEntity {
+
+    private String url;
+    private int position;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "advertisement_id")
     private T advertisement;
 
-    private String claimKey;
-    private String claimValue;
-
-    AdvertisementClaimEntity(final UUID id, final String claimKey, final String claimValue) {
+    AdvertisementPhotoEntity(final UUID id, final int position, final String url) {
         super(id);
-        this.claimKey = claimKey;
-        this.claimValue = claimValue;
+        this.position = position;
+        this.url = url;
     }
 }

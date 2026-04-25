@@ -12,7 +12,6 @@
     <name>RealEstate - infrastructure</name>
 
     <dependencies>
-
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-postgresql</artifactId>

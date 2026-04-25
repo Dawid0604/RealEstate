@@ -3,13 +3,16 @@ package pl.dawid0604.realestate.infrastructure.advertisement;
 
 import static lombok.AccessLevel.PACKAGE;
 
-import jakarta.annotation.Nonnull;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
-import lombok.RequiredArgsConstructor;
+import jakarta.annotation.Nonnull;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.RequiredArgsConstructor;
 import pl.dawid0604.realestate.domain.Advertisement;
 import pl.dawid0604.realestate.domain.AdvertisementStatus;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
@@ -20,10 +23,6 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.Advertisem
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementClaimProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementDetailsProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserAdvertisementCardProjection;
-
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor(access = PACKAGE)

@@ -3,8 +3,9 @@ package pl.dawid0604.realestate.infrastructure.advertisement;
 
 import static lombok.AccessLevel.PACKAGE;
 
-import static org.springframework.util.CollectionUtils.isEmpty;
+import static org.springframework.data.util.Predicates.negate;
 
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toMap;
 
 import jakarta.annotation.Nonnull;
@@ -13,6 +14,7 @@ import jakarta.persistence.Tuple;
 import jakarta.persistence.TupleElement;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Selection;
@@ -25,6 +27,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 import pl.dawid0604.realestate.domain.AdvertisementStatus;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
@@ -45,8 +48,10 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserCommer
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserFlatAdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserHouseAdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserPlotAdvertisementCardProjection;
+import pl.dawid0604.realestate.domain.shared.exception.InternalException;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -72,7 +77,7 @@ class AdvertisementJpaRepository {
     private final EntityManager entityManager;
     private final ProjectionFactory projectionFactory = new SpelAwareProxyProjectionFactory();
 
-    void save(@Nonnull final AdvertisementEntity entity) {
+    void save(@Nonnull final AdvertisementEntity<?, ?> entity) {
         switch (entity) {
             case CommercialAdvertisementEntity commercialEntity ->
                     commercialJpaRepository.save(commercialEntity);
@@ -84,7 +89,7 @@ class AdvertisementJpaRepository {
     }
 
     @Nonnull
-    Optional<? extends AdvertisementEntity> findBySlug(
+    Optional<? extends AdvertisementEntity<?, ?>> findBySlug(
             @Nonnull final String slug, @Nonnull final AdvertisementType type) {
 
         return switch (type) {
@@ -138,23 +143,23 @@ class AdvertisementJpaRepository {
 
         selectQuery.select(
                 criteriaBuilder.tuple(
-                        selectRoot.get("id"),
-                        selectRoot.get("slug"),
-                        selectRoot.get("title"),
-                        selectRoot.get("price"),
-                        selectRoot.get("area"),
-                        selectRoot.get("pricePerSquareMeter"),
-                        selectRoot.get("createdAt"),
-                        selectRoot.get("localityId"),
-                        selectRoot.get("featured"),
-                        selectRoot.get("buildingType"),
-                        selectRoot.get("numberOfRooms"),
-                        selectRoot.get("floor"),
-                        selectRoot.get("floors"),
-                        selectRoot.get("builtYear"),
-                        selectRoot.get("typeOfMarket"),
-                        selectRoot.get("plotType"),
-                        selectRoot.get("type")));
+                        selectRoot.get(AdvertisementFields.ID),
+                        selectRoot.get(AdvertisementFields.SLUG),
+                        selectRoot.get(AdvertisementFields.TITLE),
+                        selectRoot.get(AdvertisementFields.PRICE),
+                        selectRoot.get(AdvertisementFields.AREA),
+                        selectRoot.get(AdvertisementFields.PRICE_PER_SQUARE_METER),
+                        selectRoot.get(AdvertisementFields.CREATED_AT),
+                        selectRoot.get(AdvertisementFields.LOCALITY_ID),
+                        selectRoot.get(AdvertisementFields.FEATURED),
+                        selectRoot.get(AdvertisementFields.BUILDING_TYPE),
+                        selectRoot.get(AdvertisementFields.NUMBER_OF_ROOMS),
+                        selectRoot.get(AdvertisementFields.FLOOR),
+                        selectRoot.get(AdvertisementFields.FLOORS),
+                        selectRoot.get(AdvertisementFields.BUILT_YEAR),
+                        selectRoot.get(AdvertisementFields.TYPE_OF_MARKET),
+                        selectRoot.get(AdvertisementFields.PLOT_TYPE),
+                        selectRoot.get(AdvertisementFields.TYPE)));
 
         selectQuery.where(getUserAdvertisementsPredicates(selectRoot, statuses, email));
         selectQuery.orderBy(criteriaBuilder.desc(selectRoot.get("createdAt")));
@@ -182,12 +187,12 @@ class AdvertisementJpaRepository {
 
             return new PageImpl<>(content, PageRequest.of(page, pageSize), countFuture.get());
 
-        } catch (InterruptedException | ExecutionException exception) {
-            if (exception instanceof InterruptedException) {
-                Thread.currentThread().interrupt();
-            }
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new InternalException(exception);
 
-            throw new RuntimeException(exception);
+        } catch (ExecutionException exception) {
+            throw new InternalException(exception);
         }
     }
 
@@ -198,11 +203,11 @@ class AdvertisementJpaRepository {
         final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         final CriteriaQuery<Tuple> selectQuery = criteriaBuilder.createTupleQuery();
         final CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
-        final Class<? extends AdvertisementEntity> entityClazz =
+        final Class<? extends AdvertisementEntity<?, ?>> entityClazz =
                 getAdvertisementEntityClazz(criteria);
 
-        final Root<? extends AdvertisementEntity> selectRoot = selectQuery.from(entityClazz);
-        final Root<? extends AdvertisementEntity> countRoot = countQuery.from(entityClazz);
+        final Root<? extends AdvertisementEntity<?, ?>> selectRoot = selectQuery.from(entityClazz);
+        final Root<? extends AdvertisementEntity<?, ?>> countRoot = countQuery.from(entityClazz);
 
         final List<Predicate> selectPredicates =
                 getAdvertisementByCriteriaPredicates(selectRoot, criteriaBuilder, criteria);
@@ -243,47 +248,47 @@ class AdvertisementJpaRepository {
                     PageRequest.of(criteria.page(), criteria.pageSize()),
                     countFuture.get());
 
-        } catch (InterruptedException | ExecutionException exception) {
-            if (exception instanceof InterruptedException) {
-                Thread.currentThread().interrupt();
-            }
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new InternalException(exception);
 
-            throw new RuntimeException(exception);
+        } catch (ExecutionException exception) {
+            throw new InternalException(exception);
         }
     }
 
     @Nonnull
     private static Selection<Tuple> getAdvertisementByCriteriaSelectFields(
-            @Nonnull final Root<? extends AdvertisementEntity> root,
+            @Nonnull final Root<? extends AdvertisementEntity<?, ?>> root,
             @Nonnull final CriteriaBuilder criteriaBuilder,
-            @Nonnull final Class<? extends AdvertisementEntity> clazz) {
+            @Nonnull final Class<? extends AdvertisementEntity<?, ?>> clazz) {
 
         final List<Selection<?>> fields = new ArrayList<>();
-        fields.add(root.get("id"));
-        fields.add(root.get("slug"));
-        fields.add(root.get("title"));
-        fields.add(root.get("price"));
-        fields.add(root.get("area"));
-        fields.add(root.get("pricePerSquareMeter"));
-        fields.add(root.get("status"));
-        fields.add(root.get("createdAt"));
-        fields.add(root.get("localityId"));
-        fields.add(root.get("userId"));
-        fields.add(root.get("featured"));
+        fields.add(root.get(AdvertisementFields.ID));
+        fields.add(root.get(AdvertisementFields.SLUG));
+        fields.add(root.get(AdvertisementFields.TITLE));
+        fields.add(root.get(AdvertisementFields.PRICE));
+        fields.add(root.get(AdvertisementFields.AREA));
+        fields.add(root.get(AdvertisementFields.PRICE_PER_SQUARE_METER));
+        fields.add(root.get(AdvertisementFields.STATUS));
+        fields.add(root.get(AdvertisementFields.CREATED_AT));
+        fields.add(root.get(AdvertisementFields.LOCALITY_ID));
+        fields.add(root.get(AdvertisementFields.USER_ID));
+        fields.add(root.get(AdvertisementFields.FEATURED));
 
-        if (clazz != PlotAdvertisementEntity.class) {
-            fields.add(root.get("buildingType"));
-            fields.add(root.get("numberOfRooms"));
-            fields.add(root.get("builtYear"));
-            fields.add(root.get("typeOfMarket"));
-            fields.add(root.get("floors"));
-
-            if (clazz != HouseAdvertisementEntity.class) {
-                fields.add(root.get("floor"));
-            }
+        if (clazz == PlotAdvertisementEntity.class) {
+            fields.add(root.get(AdvertisementFields.PLOT_TYPE));
 
         } else {
-            fields.add(root.get("plotType"));
+            fields.add(root.get(AdvertisementFields.BUILDING_TYPE));
+            fields.add(root.get(AdvertisementFields.NUMBER_OF_ROOMS));
+            fields.add(root.get(AdvertisementFields.BUILT_YEAR));
+            fields.add(root.get(AdvertisementFields.TYPE_OF_MARKET));
+            fields.add(root.get(AdvertisementFields.FLOORS));
+
+            if (clazz != HouseAdvertisementEntity.class) {
+                fields.add(root.get(AdvertisementFields.FLOOR));
+            }
         }
 
         return criteriaBuilder.tuple(fields);
@@ -291,193 +296,279 @@ class AdvertisementJpaRepository {
 
     @Nonnull
     private static List<Predicate> getAdvertisementByCriteriaPredicates(
-            @Nonnull final Root<? extends AdvertisementEntity> root,
+            @Nonnull final Root<? extends AdvertisementEntity<?, ?>> root,
             @Nonnull final CriteriaBuilder criteriaBuilder,
             @Nonnull final SearchAdvertisementsCriteria criteria) {
 
-        final List<Predicate> predicates = new ArrayList<>();
-        predicates.add(criteriaBuilder.equal(root.get("localityId"), criteria.localityId()));
+        final List<Predicate> predicates =
+                getBaseAdvertisementByCriteriaPredicates(criteriaBuilder, root, criteria);
 
-        if (criteria.priceFrom() != null)
-            predicates.add(
-                    criteriaBuilder.greaterThanOrEqualTo(root.get("price"), criteria.priceFrom()));
+        final List<Predicate> extraPredicates =
+                switch (criteria) {
+                    case SearchCommercialAdvertisementsCriteria commercialCriteria ->
+                            getCommercialAdvertisementByCriteriaPredicates(
+                                    criteriaBuilder, root, commercialCriteria);
 
-        if (criteria.priceTo() != null)
-            predicates.add(
-                    criteriaBuilder.lessThanOrEqualTo(root.get("price"), criteria.priceTo()));
+                    case SearchFlatAdvertisementsCriteria flatCriteria ->
+                            getFlatAdvertisementByCriteriaPredicates(
+                                    criteriaBuilder, root, flatCriteria);
 
-        if (criteria.dateFrom() != null)
-            predicates.add(
-                    criteriaBuilder.greaterThanOrEqualTo(root.get("date"), criteria.dateFrom()));
+                    case SearchHouseAdvertisementsCriteria houseCriteria ->
+                            getHouseAdvertisementByCriteriaPredicates(
+                                    criteriaBuilder, root, houseCriteria);
 
-        if (criteria.dateTo() != null)
-            predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("date"), criteria.dateTo()));
+                    default -> emptyList();
+                };
 
-        if (criteria.areaFrom() != null)
-            predicates.add(
-                    criteriaBuilder.greaterThanOrEqualTo(root.get("area"), criteria.areaFrom()));
-
-        if (criteria.areaTo() != null)
-            predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("area"), criteria.areaTo()));
-
-        if (criteria.pricePerSquareMeterFrom() != null)
-            predicates.add(
-                    criteriaBuilder.greaterThanOrEqualTo(
-                            root.get("pricePerSquareMeter"), criteria.pricePerSquareMeterFrom()));
-
-        if (criteria.pricePerSquareMeterTo() != null)
-            predicates.add(
-                    criteriaBuilder.lessThanOrEqualTo(
-                            root.get("pricePerSquareMeter"), criteria.pricePerSquareMeterTo()));
-
-        if (!isEmpty(criteria.offerFrom()))
-            predicates.add(root.get("offerFrom").in(criteria.offerFrom()));
-
-        if (!isEmpty(criteria.types())) {
-            final String field =
-                    criteria instanceof SearchPlotAdvertisementsCriteria
-                            ? "plotType"
-                            : "buildingType";
-
-            predicates.add(root.get(field).in(criteria.types()));
-        }
-
-        switch (criteria) {
-            case SearchCommercialAdvertisementsCriteria commercialCriteria -> {
-                if (commercialCriteria.floorFrom() != null)
-                    predicates.add(
-                            criteriaBuilder.greaterThanOrEqualTo(
-                                    root.get("floor"), commercialCriteria.floorFrom()));
-
-                if (commercialCriteria.floorTo() != null)
-                    predicates.add(
-                            criteriaBuilder.lessThanOrEqualTo(
-                                    root.get("floor"), commercialCriteria.floorTo()));
-
-                if (commercialCriteria.floorsFrom() != null)
-                    predicates.add(
-                            criteriaBuilder.greaterThanOrEqualTo(
-                                    root.get("floors"), commercialCriteria.floorsFrom()));
-
-                if (commercialCriteria.floorsTo() != null)
-                    predicates.add(
-                            criteriaBuilder.lessThanOrEqualTo(
-                                    root.get("floors"), commercialCriteria.floorsTo()));
-
-                if (commercialCriteria.numberOfRoomsFrom() != null)
-                    predicates.add(
-                            criteriaBuilder.greaterThanOrEqualTo(
-                                    root.get("numberOfRooms"),
-                                    commercialCriteria.numberOfRoomsFrom()));
-
-                if (commercialCriteria.numberOfRoomsTo() != null)
-                    predicates.add(
-                            criteriaBuilder.lessThanOrEqualTo(
-                                    root.get("numberOfRooms"),
-                                    commercialCriteria.numberOfRoomsTo()));
-
-                if (commercialCriteria.builtYearFrom() != null)
-                    predicates.add(
-                            criteriaBuilder.greaterThanOrEqualTo(
-                                    root.get("builtYear"), commercialCriteria.builtYearFrom()));
-
-                if (commercialCriteria.builtYearTo() != null)
-                    predicates.add(
-                            criteriaBuilder.lessThanOrEqualTo(
-                                    root.get("builtYear"), commercialCriteria.builtYearTo()));
-
-                if (!isEmpty(commercialCriteria.typeOfMarkets()))
-                    predicates.add(root.get("typeOfMarket").in(commercialCriteria.typeOfMarkets()));
-            }
-
-            case SearchFlatAdvertisementsCriteria flatCriteria -> {
-                if (flatCriteria.floorFrom() != null)
-                    predicates.add(
-                            criteriaBuilder.greaterThanOrEqualTo(
-                                    root.get("floor"), flatCriteria.floorFrom()));
-
-                if (flatCriteria.floorTo() != null)
-                    predicates.add(
-                            criteriaBuilder.lessThanOrEqualTo(
-                                    root.get("floor"), flatCriteria.floorTo()));
-
-                if (flatCriteria.floorsFrom() != null)
-                    predicates.add(
-                            criteriaBuilder.greaterThanOrEqualTo(
-                                    root.get("floors"), flatCriteria.floorsFrom()));
-
-                if (flatCriteria.floorsTo() != null)
-                    predicates.add(
-                            criteriaBuilder.lessThanOrEqualTo(
-                                    root.get("floors"), flatCriteria.floorsTo()));
-
-                if (flatCriteria.numberOfRoomsFrom() != null)
-                    predicates.add(
-                            criteriaBuilder.greaterThanOrEqualTo(
-                                    root.get("numberOfRooms"), flatCriteria.numberOfRoomsFrom()));
-
-                if (flatCriteria.numberOfRoomsTo() != null)
-                    predicates.add(
-                            criteriaBuilder.lessThanOrEqualTo(
-                                    root.get("numberOfRooms"), flatCriteria.numberOfRoomsTo()));
-
-                if (flatCriteria.builtYearFrom() != null)
-                    predicates.add(
-                            criteriaBuilder.greaterThanOrEqualTo(
-                                    root.get("builtYear"), flatCriteria.builtYearFrom()));
-
-                if (flatCriteria.builtYearTo() != null)
-                    predicates.add(
-                            criteriaBuilder.lessThanOrEqualTo(
-                                    root.get("builtYear"), flatCriteria.builtYearTo()));
-
-                if (!isEmpty(flatCriteria.typeOfMarkets()))
-                    predicates.add(root.get("typeOfMarket").in(flatCriteria.typeOfMarkets()));
-            }
-
-            case SearchHouseAdvertisementsCriteria houseCriteria -> {
-                if (houseCriteria.floorsFrom() != null)
-                    predicates.add(
-                            criteriaBuilder.greaterThanOrEqualTo(
-                                    root.get("floors"), houseCriteria.floorsFrom()));
-
-                if (houseCriteria.floorsTo() != null)
-                    predicates.add(
-                            criteriaBuilder.lessThanOrEqualTo(
-                                    root.get("floors"), houseCriteria.floorsTo()));
-
-                if (houseCriteria.numberOfRoomsFrom() != null)
-                    predicates.add(
-                            criteriaBuilder.greaterThanOrEqualTo(
-                                    root.get("numberOfRooms"), houseCriteria.numberOfRoomsFrom()));
-
-                if (houseCriteria.numberOfRoomsTo() != null)
-                    predicates.add(
-                            criteriaBuilder.lessThanOrEqualTo(
-                                    root.get("numberOfRooms"), houseCriteria.numberOfRoomsTo()));
-
-                if (houseCriteria.builtYearFrom() != null)
-                    predicates.add(
-                            criteriaBuilder.greaterThanOrEqualTo(
-                                    root.get("builtYear"), houseCriteria.builtYearFrom()));
-
-                if (houseCriteria.builtYearTo() != null)
-                    predicates.add(
-                            criteriaBuilder.lessThanOrEqualTo(
-                                    root.get("builtYear"), houseCriteria.builtYearTo()));
-
-                if (!isEmpty(houseCriteria.typeOfMarkets()))
-                    predicates.add(root.get("typeOfMarket").in(houseCriteria.typeOfMarkets()));
-            }
-
-            default -> {}
-        }
-
+        predicates.addAll(extraPredicates);
         return predicates;
     }
 
     @Nonnull
-    private static Class<? extends AdvertisementEntity> getAdvertisementEntityClazz(
+    private static List<Predicate> getBaseAdvertisementByCriteriaPredicates(
+            @Nonnull final CriteriaBuilder criteriaBuilder,
+            @Nonnull final Root<? extends AdvertisementEntity<?, ?>> root,
+            @Nonnull final SearchAdvertisementsCriteria criteria) {
+
+        final List<Predicate> predicates = new ArrayList<>();
+
+        predicates.add(
+                criteriaBuilder.equal(
+                        root.get(AdvertisementFields.LOCALITY_ID), criteria.localityId()));
+
+        getGreaterThanOrEqualToPredicate(
+                        criteriaBuilder, root.get(AdvertisementFields.PRICE), criteria.priceFrom())
+                .ifPresent(predicates::add);
+
+        getLessThanOrEqualToPredicate(
+                        criteriaBuilder, root.get(AdvertisementFields.PRICE), criteria.priceTo())
+                .ifPresent(predicates::add);
+
+        getGreaterThanOrEqualToPredicate(
+                        criteriaBuilder, root.get(AdvertisementFields.DATE), criteria.dateFrom())
+                .ifPresent(predicates::add);
+
+        getLessThanOrEqualToPredicate(
+                        criteriaBuilder, root.get(AdvertisementFields.DATE), criteria.dateTo())
+                .ifPresent(predicates::add);
+
+        getGreaterThanOrEqualToPredicate(
+                        criteriaBuilder, root.get(AdvertisementFields.AREA), criteria.areaFrom())
+                .ifPresent(predicates::add);
+
+        getLessThanOrEqualToPredicate(
+                        criteriaBuilder, root.get(AdvertisementFields.AREA), criteria.areaTo())
+                .ifPresent(predicates::add);
+
+        getGreaterThanOrEqualToPredicate(
+                        criteriaBuilder,
+                        root.get(AdvertisementFields.PRICE_PER_SQUARE_METER),
+                        criteria.pricePerSquareMeterFrom())
+                .ifPresent(predicates::add);
+
+        getLessThanOrEqualToPredicate(
+                        criteriaBuilder,
+                        root.get(AdvertisementFields.PRICE_PER_SQUARE_METER),
+                        criteria.pricePerSquareMeterTo())
+                .ifPresent(predicates::add);
+
+        getInPredicate(
+                        root.get(AdvertisementFields.OFFER_FROM),
+                        criteria.offerFrom() != null ? criteria.offerFrom() : null)
+                .ifPresent(predicates::add);
+
+        getInPredicate(
+                        root.get(
+                                criteria instanceof SearchPlotAdvertisementsCriteria
+                                        ? AdvertisementFields.PLOT_TYPE
+                                        : AdvertisementFields.BUILDING_TYPE),
+                        criteria.types() != null ? criteria.types() : null)
+                .ifPresent(predicates::add);
+
+        return predicates;
+    }
+
+    @SuppressWarnings("CPD-START")
+    private static List<Predicate> getFlatAdvertisementByCriteriaPredicates(
+            final CriteriaBuilder criteriaBuilder,
+            final Root<? extends AdvertisementEntity<?, ?>> root,
+            final SearchFlatAdvertisementsCriteria criteria) {
+
+        final List<Predicate> predicates = new ArrayList<>();
+
+        getGreaterThanOrEqualToPredicate(
+                        criteriaBuilder, root.get(AdvertisementFields.FLOOR), criteria.floorFrom())
+                .ifPresent(predicates::add);
+
+        getLessThanOrEqualToPredicate(
+                        criteriaBuilder, root.get(AdvertisementFields.FLOOR), criteria.floorTo())
+                .ifPresent(predicates::add);
+
+        getGreaterThanOrEqualToPredicate(
+                        criteriaBuilder,
+                        root.get(AdvertisementFields.FLOORS),
+                        criteria.floorsFrom())
+                .ifPresent(predicates::add);
+
+        getLessThanOrEqualToPredicate(
+                        criteriaBuilder, root.get(AdvertisementFields.FLOORS), criteria.floorsTo())
+                .ifPresent(predicates::add);
+
+        getGreaterThanOrEqualToPredicate(
+                        criteriaBuilder,
+                        root.get(AdvertisementFields.NUMBER_OF_ROOMS),
+                        criteria.numberOfRoomsFrom())
+                .ifPresent(predicates::add);
+
+        getLessThanOrEqualToPredicate(
+                        criteriaBuilder,
+                        root.get(AdvertisementFields.NUMBER_OF_ROOMS),
+                        criteria.numberOfRoomsTo())
+                .ifPresent(predicates::add);
+
+        getGreaterThanOrEqualToPredicate(
+                        criteriaBuilder,
+                        root.get(AdvertisementFields.BUILT_YEAR),
+                        criteria.builtYearFrom())
+                .ifPresent(predicates::add);
+
+        getLessThanOrEqualToPredicate(
+                        criteriaBuilder,
+                        root.get(AdvertisementFields.BUILT_YEAR),
+                        criteria.builtYearTo())
+                .ifPresent(predicates::add);
+
+        getInPredicate(root.get(AdvertisementFields.TYPE_OF_MARKET), criteria.typeOfMarkets())
+                .ifPresent(predicates::add);
+
+        return predicates;
+    }
+
+    private static List<Predicate> getCommercialAdvertisementByCriteriaPredicates(
+            final CriteriaBuilder criteriaBuilder,
+            final Root<? extends AdvertisementEntity<?, ?>> root,
+            final SearchCommercialAdvertisementsCriteria criteria) {
+
+        final List<Predicate> predicates = new ArrayList<>();
+
+        getGreaterThanOrEqualToPredicate(
+                        criteriaBuilder, root.get(AdvertisementFields.FLOOR), criteria.floorFrom())
+                .ifPresent(predicates::add);
+
+        getLessThanOrEqualToPredicate(
+                        criteriaBuilder, root.get(AdvertisementFields.FLOOR), criteria.floorTo())
+                .ifPresent(predicates::add);
+
+        getGreaterThanOrEqualToPredicate(
+                        criteriaBuilder,
+                        root.get(AdvertisementFields.FLOORS),
+                        criteria.floorsFrom())
+                .ifPresent(predicates::add);
+
+        getLessThanOrEqualToPredicate(
+                        criteriaBuilder, root.get(AdvertisementFields.FLOORS), criteria.floorsTo())
+                .ifPresent(predicates::add);
+
+        getGreaterThanOrEqualToPredicate(
+                        criteriaBuilder,
+                        root.get(AdvertisementFields.NUMBER_OF_ROOMS),
+                        criteria.numberOfRoomsFrom())
+                .ifPresent(predicates::add);
+
+        getLessThanOrEqualToPredicate(
+                        criteriaBuilder,
+                        root.get(AdvertisementFields.NUMBER_OF_ROOMS),
+                        criteria.numberOfRoomsTo())
+                .ifPresent(predicates::add);
+
+        getGreaterThanOrEqualToPredicate(
+                        criteriaBuilder,
+                        root.get(AdvertisementFields.BUILT_YEAR),
+                        criteria.builtYearFrom())
+                .ifPresent(predicates::add);
+
+        getLessThanOrEqualToPredicate(
+                        criteriaBuilder,
+                        root.get(AdvertisementFields.BUILT_YEAR),
+                        criteria.builtYearTo())
+                .ifPresent(predicates::add);
+
+        getInPredicate(root.get(AdvertisementFields.TYPE_OF_MARKET), criteria.typeOfMarkets())
+                .ifPresent(predicates::add);
+
+        return predicates;
+    }
+
+    @SuppressWarnings("CPD-END")
+    private static List<Predicate> getHouseAdvertisementByCriteriaPredicates(
+            final CriteriaBuilder criteriaBuilder,
+            final Root<? extends AdvertisementEntity<?, ?>> root,
+            final SearchHouseAdvertisementsCriteria criteria) {
+
+        final List<Predicate> predicates = new ArrayList<>();
+
+        getGreaterThanOrEqualToPredicate(
+                        criteriaBuilder,
+                        root.get(AdvertisementFields.FLOORS),
+                        criteria.floorsFrom())
+                .ifPresent(predicates::add);
+
+        getLessThanOrEqualToPredicate(
+                        criteriaBuilder, root.get(AdvertisementFields.FLOORS), criteria.floorsTo())
+                .ifPresent(predicates::add);
+
+        getGreaterThanOrEqualToPredicate(
+                        criteriaBuilder,
+                        root.get(AdvertisementFields.NUMBER_OF_ROOMS),
+                        criteria.numberOfRoomsFrom())
+                .ifPresent(predicates::add);
+
+        getLessThanOrEqualToPredicate(
+                        criteriaBuilder,
+                        root.get(AdvertisementFields.NUMBER_OF_ROOMS),
+                        criteria.numberOfRoomsTo())
+                .ifPresent(predicates::add);
+
+        getGreaterThanOrEqualToPredicate(
+                        criteriaBuilder,
+                        root.get(AdvertisementFields.BUILT_YEAR),
+                        criteria.builtYearFrom())
+                .ifPresent(predicates::add);
+
+        getLessThanOrEqualToPredicate(
+                        criteriaBuilder,
+                        root.get(AdvertisementFields.BUILT_YEAR),
+                        criteria.builtYearTo())
+                .ifPresent(predicates::add);
+
+        getInPredicate(root.get(AdvertisementFields.TYPE_OF_MARKET), criteria.typeOfMarkets())
+                .ifPresent(predicates::add);
+
+        return predicates;
+    }
+
+    private static <T extends Comparable<? super T>>
+            Optional<Predicate> getGreaterThanOrEqualToPredicate(
+                    final CriteriaBuilder criteriaBuilder, final Path<T> path, final T value) {
+
+        return Optional.ofNullable(value).map(v -> criteriaBuilder.greaterThanOrEqualTo(path, v));
+    }
+
+    private static <T extends Comparable<? super T>>
+            Optional<Predicate> getLessThanOrEqualToPredicate(
+                    final CriteriaBuilder criteriaBuilder, final Path<T> path, final T value) {
+
+        return Optional.ofNullable(value).map(v -> criteriaBuilder.lessThanOrEqualTo(path, v));
+    }
+
+    private static <T extends Comparable<? super T>> Optional<Predicate> getInPredicate(
+            final Path<T> path, final Collection<T> value) {
+
+        return Optional.ofNullable(value).filter(negate(CollectionUtils::isEmpty)).map(path::in);
+    }
+
+    @Nonnull
+    private static Class<? extends AdvertisementEntity<?, ?>> getAdvertisementEntityClazz(
             @Nonnull final SearchAdvertisementsCriteria criteria) {
 
         return switch (criteria) {

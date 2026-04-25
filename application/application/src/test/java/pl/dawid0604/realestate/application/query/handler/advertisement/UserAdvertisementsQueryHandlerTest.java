@@ -42,9 +42,9 @@ import pl.dawid0604.realestate.application.dto.advertisement.UserPlotAdvertiseme
 import pl.dawid0604.realestate.application.mapper.advertisement.AdvertisementMapper;
 import pl.dawid0604.realestate.application.query.UserAdvertisementsQuery;
 import pl.dawid0604.realestate.domain.AdvertisementStatus;
+import pl.dawid0604.realestate.domain.port.out.AdvertisementPhotoRepository;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
 import pl.dawid0604.realestate.domain.port.out.LocalityRepository;
-import pl.dawid0604.realestate.domain.port.out.PhotoRepository;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.Page;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserAdvertisementCardProjection;
@@ -58,7 +58,7 @@ import pl.dawid0604.realestate.domain.shared.photo.projection.PhotoProjection;
 class UserAdvertisementsQueryHandlerTest {
     @Mock private AdvertisementRepository advertisementRepository;
     @Mock private AdvertisementMapper advertisementMapper;
-    @Mock private PhotoRepository photoRepository;
+    @Mock private AdvertisementPhotoRepository advertisementPhotoRepository;
     @Mock private LocalityRepository localityRepository;
     @Captor private ArgumentCaptor<Set<AdvertisementStatus>> advertisementStatusArgumentCaptor;
     private UserAdvertisementsQueryHandler handler;
@@ -68,7 +68,7 @@ class UserAdvertisementsQueryHandlerTest {
         handler =
                 new UserAdvertisementsQueryHandler(
                         advertisementRepository,
-                        photoRepository,
+                        advertisementPhotoRepository,
                         localityRepository,
                         advertisementMapper);
     }
@@ -109,7 +109,7 @@ class UserAdvertisementsQueryHandlerTest {
         Assertions.assertThat(result.getPageNumber()).isEqualTo(pageNumber);
         Assertions.assertThat(result.getPageSize()).isEqualTo(pageSize);
         Assertions.assertThat(result.getTotalElements()).isEqualTo(totalElements);
-        verifyNoInteractions(advertisementMapper, photoRepository, localityRepository);
+        verifyNoInteractions(advertisementMapper, advertisementPhotoRepository, localityRepository);
     }
 
     @Test
@@ -265,7 +265,7 @@ class UserAdvertisementsQueryHandlerTest {
                                 secondLocalityId, secondLocalityFullName));
 
         given(
-                        photoRepository.findAdvertisementsPhotosInBatch(
+                        advertisementPhotoRepository.findPhotosInBatch(
                                 Set.of(firstCardId, secondCardId), AdvertisementType.FLAT))
                 .willReturn(
                         Map.of(
@@ -273,17 +273,17 @@ class UserAdvertisementsQueryHandlerTest {
                                 secondCardId, secondCardPhotos));
 
         given(
-                        photoRepository.findAdvertisementsPhotosInBatch(
+                        advertisementPhotoRepository.findPhotosInBatch(
                                 Set.of(thirdCardId), AdvertisementType.HOUSE))
                 .willReturn(Map.of(thirdCardId, thirdCardPhotos));
 
         given(
-                        photoRepository.findAdvertisementsPhotosInBatch(
+                        advertisementPhotoRepository.findPhotosInBatch(
                                 Set.of(forthCardId), AdvertisementType.COMMERCIAL))
                 .willReturn(Map.of(forthCardId, forthCardPhotos));
 
         given(
-                        photoRepository.findAdvertisementsPhotosInBatch(
+                        advertisementPhotoRepository.findPhotosInBatch(
                                 Set.of(fifthCardId), AdvertisementType.PLOT))
                 .willReturn(Map.of(fifthCardId, fifthCardPhotos));
 
@@ -375,7 +375,7 @@ class UserAdvertisementsQueryHandlerTest {
                                 secondLocalityId, secondLocalityFullName));
 
         given(
-                        photoRepository.findAdvertisementsPhotosInBatch(
+                        advertisementPhotoRepository.findPhotosInBatch(
                                 Set.of(firstCardId, secondCardId), AdvertisementType.FLAT))
                 .willReturn(
                         Map.of(

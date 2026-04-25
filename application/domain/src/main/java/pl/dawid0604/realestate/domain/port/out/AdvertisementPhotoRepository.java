@@ -8,8 +8,8 @@ import java.util.UUID;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.photo.projection.PhotoProjection;
 
-public interface PhotoRepository {
+public interface AdvertisementPhotoRepository {
 
-    Map<UUID, Set<PhotoProjection>> findAdvertisementsPhotosInBatch(
+    Map<UUID, Set<PhotoProjection>> findPhotosInBatch(
             Iterable<UUID> ids, AdvertisementType advertisementType);
 }

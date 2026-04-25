@@ -3,6 +3,8 @@ package pl.dawid0604.realestate.application.dto.advertisement;
 
 import static java.util.Collections.emptySet;
 
+import pl.dawid0604.realestate.domain.UserType;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Set;
@@ -18,7 +20,7 @@ public record CommercialAdvertisementCardDto(
         Instant createdAt,
         boolean isFeatured,
         Set<AdvertisementPhotoDto> photos,
-        String userType,
+        UserType userType,
         String buildingType,
         Integer numberOfRooms,
         Integer floor,

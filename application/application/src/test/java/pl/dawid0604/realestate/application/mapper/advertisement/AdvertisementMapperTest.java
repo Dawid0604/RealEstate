@@ -5,6 +5,11 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Set;
+import java.util.UUID;
+
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,11 +65,6 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserHouseA
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserPlotAdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.photo.projection.PhotoProjection;
 import pl.dawid0604.realestate.domain.shared.user.projection.AdvertisementUserProjection;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.Set;
-import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
 class AdvertisementMapperTest {
@@ -565,13 +565,14 @@ class AdvertisementMapperTest {
         given(photo2.getPosition()).willReturn(1);
 
         final Set<PhotoProjection> photos = Set.of(photo1, photo2);
+        final UserType userType = UserType.PRIVATE_OWNER;
 
         given(projection.getSlug()).willReturn("slug");
         given(projection.getTitle()).willReturn("title");
         given(projection.getPrice()).willReturn(BigDecimal.valueOf(450_000));
         given(projection.getArea()).willReturn(BigDecimal.valueOf(45));
         given(projection.getPricePerSquareMeter()).willReturn(BigDecimal.valueOf(4500));
-        given(projection.getStatus()).willReturn(AdvertisementStatus.ACTIVE.name());
+        given(projection.getStatus()).willReturn(AdvertisementStatus.ACTIVE);
         given(projection.getCreatedAt()).willReturn(Instant.now().minusMillis(25_000));
         given(projection.isFeatured()).willReturn(true);
 
@@ -626,23 +627,27 @@ class AdvertisementMapperTest {
                             advertisementMapper.toFlatCardDto(
                                     ((FlatAdvertisementCardProjection) projection),
                                     localityFullName,
-                                    photos);
+                                    photos,
+                                    userType);
 
                     case HOUSE ->
                             advertisementMapper.toHouseCardDto(
                                     ((HouseAdvertisementCardProjection) projection),
                                     localityFullName,
-                                    photos);
+                                    photos,
+                                    userType);
                     case COMMERCIAL ->
                             advertisementMapper.toCommercialCardDto(
                                     ((CommercialAdvertisementCardProjection) projection),
                                     localityFullName,
-                                    photos);
+                                    photos,
+                                    userType);
                     case PLOT ->
                             advertisementMapper.toPlotCardDto(
                                     ((PlotAdvertisementCardProjection) projection),
                                     localityFullName,
-                                    photos);
+                                    photos,
+                                    userType);
                 };
 
         // Then
@@ -655,7 +660,8 @@ class AdvertisementMapperTest {
                         projection.getPricePerSquareMeter(),
                         AdvertisementCardDto::pricePerSquareMeter)
                 .returns(projection.getCreatedAt(), AdvertisementCardDto::createdAt)
-                .returns(projection.isFeatured(), AdvertisementCardDto::isFeatured);
+                .returns(projection.isFeatured(), AdvertisementCardDto::isFeatured)
+                .returns(userType, AdvertisementCardDto::userType);
 
         switch (type) {
             case FLAT -> {

@@ -31,7 +31,6 @@ public sealed interface AdvertisementCardProjection
 
     UUID getLocalityId();
 
-    // TODO: to consider
     UUID getUserId();
 
     boolean isFeatured();

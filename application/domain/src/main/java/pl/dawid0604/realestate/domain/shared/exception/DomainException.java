@@ -4,6 +4,7 @@ package pl.dawid0604.realestate.domain.shared.exception;
 public abstract sealed class DomainException extends RuntimeException
         permits AdvertisementNotFoundException,
                 DifferentPasswordException,
+                InternalException,
                 InvalidArgumentValueException,
                 LocalityNotFoundException,
                 MaxPhotosExceededException,

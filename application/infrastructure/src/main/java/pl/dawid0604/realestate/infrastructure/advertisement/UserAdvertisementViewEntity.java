@@ -7,6 +7,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+
 import org.hibernate.annotations.Immutable;
 
 import pl.dawid0604.realestate.domain.AdvertisementStatus;
@@ -17,11 +20,14 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
+@Getter
 @Immutable
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "user_advertisements_view")
 class UserAdvertisementViewEntity {
 
-    @Id private UUID id;
+    @Id @EqualsAndHashCode.Include private UUID id;
+
     private String slug;
     private String title;
     private BigDecimal price;

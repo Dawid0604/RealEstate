@@ -177,6 +177,14 @@ public final class User extends AggregateRoot {
         return type;
     }
 
+    public UserRole getRole() {
+        return role;
+    }
+
+    public UserStatus getStatus() {
+        return status;
+    }
+
     public static Builder create() {
         return new Builder(true);
     }

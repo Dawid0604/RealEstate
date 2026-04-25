@@ -1,4 +1,22 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.infrastructure.advertisement;
 
-class PlotAdvertisementClaimEntity extends AdvertisementClaimEntity {}
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+
+import java.util.UUID;
+
+@Getter
+@Entity
+@EqualsAndHashCode(callSuper = true)
+@Table(name = "plot_advertisements_claims")
+non-sealed class PlotAdvertisementClaimEntity
+        extends AdvertisementClaimEntity<PlotAdvertisementEntity> {
+
+    PlotAdvertisementClaimEntity(final UUID id, final String claimKey, final String claimValue) {
+        super(id, claimKey, claimValue);
+    }
+}

@@ -1,16 +1,13 @@
 /* Copyright 2026 RealEstate */
-package pl.dawid0604.realestate.infrastructure.locality;
+package pl.dawid0604.realestate.infrastructure.advertisement;
 
-import static lombok.AccessLevel.PACKAGE;
 import static lombok.AccessLevel.PROTECTED;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.MappedSuperclass;
 
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,18 +20,15 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Getter
-@Entity
-@Table(name = "localities")
-@AllArgsConstructor(access = PACKAGE)
-@NoArgsConstructor(access = PROTECTED)
+@MappedSuperclass
 @SuppressWarnings("PMD.ImmutableField")
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@NoArgsConstructor(access = PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-class LocalityEntity {
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+abstract sealed class BaseEntity
+        permits AdvertisementClaimEntity, AdvertisementEntity, AdvertisementPhotoEntity {
 
     @Id @EqualsAndHashCode.Include private UUID id;
-
-    private String name;
 
     @CreatedDate
     @Column(updatable = false)
@@ -43,4 +37,8 @@ class LocalityEntity {
     @LastModifiedDate
     @Column(updatable = false)
     private Instant updatedAt;
+
+    protected BaseEntity(final UUID id) {
+        this.id = id;
+    }
 }

@@ -12,11 +12,11 @@ import java.util.UUID;
 @Getter
 @Entity
 @EqualsAndHashCode(callSuper = true)
-@Table(name = "house_advertisements_claims")
-non-sealed class HouseAdvertisementClaimEntity
-        extends AdvertisementClaimEntity<HouseAdvertisementEntity> {
+@Table(name = "house_advertisements_photos")
+non-sealed class HouseAdvertisementPhotoEntity
+        extends AdvertisementPhotoEntity<HouseAdvertisementEntity> {
 
-    HouseAdvertisementClaimEntity(final UUID id, final String claimKey, final String claimValue) {
-        super(id, claimKey, claimValue);
+    HouseAdvertisementPhotoEntity(final UUID id, final int position, final String url) {
+        super(id, position, url);
     }
 }

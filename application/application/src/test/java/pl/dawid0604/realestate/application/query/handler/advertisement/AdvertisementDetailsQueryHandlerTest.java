@@ -41,9 +41,9 @@ import pl.dawid0604.realestate.application.query.CommercialAdvertisementDetailsQ
 import pl.dawid0604.realestate.application.query.FlatAdvertisementDetailsQuery;
 import pl.dawid0604.realestate.application.query.HouseAdvertisementDetailsQuery;
 import pl.dawid0604.realestate.application.query.PlotAdvertisementDetailsQuery;
+import pl.dawid0604.realestate.domain.port.out.AdvertisementPhotoRepository;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
 import pl.dawid0604.realestate.domain.port.out.LocalityRepository;
-import pl.dawid0604.realestate.domain.port.out.PhotoRepository;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementClaimProjection;
@@ -60,7 +60,7 @@ import pl.dawid0604.realestate.domain.shared.user.projection.AdvertisementUserPr
 class AdvertisementDetailsQueryHandlerTest {
     @Mock private AdvertisementRepository advertisementRepository;
     @Mock private AdvertisementMapper advertisementMapper;
-    @Mock private PhotoRepository photoRepository;
+    @Mock private AdvertisementPhotoRepository advertisementPhotoRepository;
     @Mock private LocalityRepository localityRepository;
     @Mock private UserRepository userRepository;
     private AdvertisementDetailsQueryHandler handler;
@@ -70,7 +70,7 @@ class AdvertisementDetailsQueryHandlerTest {
         handler =
                 new AdvertisementDetailsQueryHandler(
                         advertisementRepository,
-                        photoRepository,
+                        advertisementPhotoRepository,
                         localityRepository,
                         userRepository,
                         advertisementMapper);
@@ -126,7 +126,7 @@ class AdvertisementDetailsQueryHandlerTest {
                 .willReturn(Optional.of(user));
 
         given(
-                        photoRepository.findAdvertisementsPhotosInBatch(
+                        advertisementPhotoRepository.findPhotosInBatch(
                                 List.of(detailsId), AdvertisementType.FLAT))
                 .willReturn(Map.of(detailsId, Set.of()));
 
@@ -172,7 +172,7 @@ class AdvertisementDetailsQueryHandlerTest {
                 .willReturn(Map.of(localityId, localityFullName));
 
         given(
-                        photoRepository.findAdvertisementsPhotosInBatch(
+                        advertisementPhotoRepository.findPhotosInBatch(
                                 List.of(detailsId), AdvertisementType.FLAT))
                 .willReturn(Map.of(detailsId, Set.of()));
 
@@ -225,9 +225,7 @@ class AdvertisementDetailsQueryHandlerTest {
         given(localityRepository.getFullNamesInBatch(Set.of(localityId)))
                 .willReturn(Map.of(localityId, localityFullName));
 
-        given(
-                        photoRepository.findAdvertisementsPhotosInBatch(
-                                List.of(detailsId), advertisementType))
+        given(advertisementPhotoRepository.findPhotosInBatch(List.of(detailsId), advertisementType))
                 .willReturn(Map.of(detailsId, photos));
 
         switch (advertisementType) {

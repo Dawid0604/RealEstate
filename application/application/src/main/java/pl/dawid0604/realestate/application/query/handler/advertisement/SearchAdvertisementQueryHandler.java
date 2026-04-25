@@ -14,9 +14,11 @@ import pl.dawid0604.realestate.application.dto.advertisement.AdvertisementCardDt
 import pl.dawid0604.realestate.application.mapper.advertisement.AdvertisementMapper;
 import pl.dawid0604.realestate.application.port.in.QueryHandler;
 import pl.dawid0604.realestate.application.query.SearchAdvertisementsQuery;
+import pl.dawid0604.realestate.domain.UserType;
+import pl.dawid0604.realestate.domain.port.out.AdvertisementPhotoRepository;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
 import pl.dawid0604.realestate.domain.port.out.LocalityRepository;
-import pl.dawid0604.realestate.domain.port.out.PhotoRepository;
+import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.Page;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementCardProjection;
@@ -42,8 +44,9 @@ class SearchAdvertisementQueryHandler
 
     private final AdvertisementRepository advertisementRepository;
     private final AdvertisementMapper advertisementMapper;
-    private final PhotoRepository photoRepository;
+    private final AdvertisementPhotoRepository advertisementPhotoRepository;
     private final LocalityRepository localityRepository;
+    private final UserRepository userRepository;
 
     @Override
     public Page<AdvertisementCardDto> handle(final SearchAdvertisementsQuery query) {
@@ -70,46 +73,55 @@ class SearchAdvertisementQueryHandler
 
         final var localityFullNames = getLocalityFullNames(page.getItems(), executorService);
         final var photos = findPhotos(page.getItems(), executorService);
+        final var userTypes = getUserTypes(page.getItems(), executorService);
 
-        CompletableFuture.allOf(localityFullNames, photos).join();
+        CompletableFuture.allOf(localityFullNames, photos, userTypes).join();
 
         return page.getItems().stream()
                 .map(
                         projection ->
                                 mapAdvertisement(
-                                        projection, localityFullNames.join(), photos.join()))
+                                        projection,
+                                        localityFullNames.join(),
+                                        photos.join(),
+                                        userTypes.join()))
                 .toList();
     }
 
     private AdvertisementCardDto mapAdvertisement(
             final AdvertisementCardProjection projection,
             final Map<UUID, String> localityIds,
-            final Map<UUID, Set<PhotoProjection>> photos) {
+            final Map<UUID, Set<PhotoProjection>> photos,
+            final Map<UUID, UserType> userTypes) {
 
         return switch (projection) {
             case CommercialAdvertisementCardProjection commercialAdvertisement ->
                     advertisementMapper.toCommercialCardDto(
                             commercialAdvertisement,
                             localityIds.get(commercialAdvertisement.getLocalityId()),
-                            photos.get(commercialAdvertisement.getId()));
+                            photos.get(commercialAdvertisement.getId()),
+                            userTypes.get(commercialAdvertisement.getUserId()));
 
             case FlatAdvertisementCardProjection flatAdvertisement ->
                     advertisementMapper.toFlatCardDto(
                             flatAdvertisement,
                             localityIds.get(flatAdvertisement.getLocalityId()),
-                            photos.get(flatAdvertisement.getId()));
+                            photos.get(flatAdvertisement.getId()),
+                            userTypes.get(flatAdvertisement.getUserId()));
 
             case HouseAdvertisementCardProjection houseAdvertisement ->
                     advertisementMapper.toHouseCardDto(
                             houseAdvertisement,
                             localityIds.get(houseAdvertisement.getLocalityId()),
-                            photos.get(houseAdvertisement.getId()));
+                            photos.get(houseAdvertisement.getId()),
+                            userTypes.get(houseAdvertisement.getUserId()));
 
             case PlotAdvertisementCardProjection plotAdvertisement ->
                     advertisementMapper.toPlotCardDto(
                             plotAdvertisement,
                             localityIds.get(plotAdvertisement.getLocalityId()),
-                            photos.get(plotAdvertisement.getId()));
+                            photos.get(plotAdvertisement.getId()),
+                            userTypes.get(plotAdvertisement.getUserId()));
         };
     }
 
@@ -128,6 +140,25 @@ class SearchAdvertisementQueryHandler
                                     .collect(toSet());
 
                     return localityRepository.getFullNamesInBatch(localityIds);
+                },
+                executorService);
+    }
+
+    private CompletableFuture<Map<UUID, UserType>> getUserTypes(
+            final List<AdvertisementCardProjection> items, final ExecutorService executorService) {
+
+        if (items.isEmpty()) {
+            return CompletableFuture.completedFuture(emptyMap());
+        }
+
+        return CompletableFuture.supplyAsync(
+                () -> {
+                    final Set<UUID> userIds =
+                            items.stream()
+                                    .map(AdvertisementCardProjection::getUserId)
+                                    .collect(toSet());
+
+                    return userRepository.getUserTypesInBatch(userIds);
                 },
                 executorService);
     }
@@ -154,7 +185,7 @@ class SearchAdvertisementQueryHandler
 
         return CompletableFuture.supplyAsync(
                         () ->
-                                photoRepository.findAdvertisementsPhotosInBatch(
+                                advertisementPhotoRepository.findPhotosInBatch(
                                         ids, advertisementType),
                         executorService)
                 .thenApply(v -> v);

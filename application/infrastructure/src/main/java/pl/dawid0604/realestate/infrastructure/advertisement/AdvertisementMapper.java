@@ -1,14 +1,300 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.infrastructure.advertisement;
 
-import org.mapstruct.Mapper;
+import static lombok.AccessLevel.PACKAGE;
+
+import static java.util.stream.Collectors.toSet;
+
+import lombok.NoArgsConstructor;
+
+import org.springframework.stereotype.Component;
 
 import pl.dawid0604.realestate.domain.Advertisement;
+import pl.dawid0604.realestate.domain.AdvertisementClaim;
+import pl.dawid0604.realestate.domain.AdvertisementDetails;
+import pl.dawid0604.realestate.domain.AdvertisementPhoto;
+import pl.dawid0604.realestate.domain.Area;
+import pl.dawid0604.realestate.domain.BuiltYear;
+import pl.dawid0604.realestate.domain.CommercialDetails;
+import pl.dawid0604.realestate.domain.Description;
+import pl.dawid0604.realestate.domain.FlatDetails;
+import pl.dawid0604.realestate.domain.Floor;
+import pl.dawid0604.realestate.domain.HouseDetails;
+import pl.dawid0604.realestate.domain.Identifier;
+import pl.dawid0604.realestate.domain.Locality;
+import pl.dawid0604.realestate.domain.MoneyCurrency;
+import pl.dawid0604.realestate.domain.NumberOfRooms;
+import pl.dawid0604.realestate.domain.PlotDetails;
+import pl.dawid0604.realestate.domain.Price;
+import pl.dawid0604.realestate.domain.PricePerSquareMeter;
+import pl.dawid0604.realestate.domain.Slug;
+import pl.dawid0604.realestate.domain.Title;
+import pl.dawid0604.realestate.domain.Url;
 
-@Mapper(componentModel = "spring")
-interface AdvertisementMapper {
+import java.util.Set;
+import java.util.stream.Stream;
 
-    Advertisement toDomain(AdvertisementEntity entity);
+@Component
+@NoArgsConstructor(access = PACKAGE)
+class AdvertisementMapper {
 
-    AdvertisementEntity toEntity(Advertisement advertisement);
+    Advertisement toDomain(final AdvertisementEntity<?, ?> entity) {
+        if (entity == null) {
+            return null;
+        }
+
+        return Advertisement.reconstitute()
+                .id(Identifier.of(entity.getId()))
+                .slug(Slug.of(entity.getSlug()))
+                .title(new Title(entity.getTitle()))
+                .description(new Description(entity.getDescription()))
+                .price(new Price(entity.getPrice(), MoneyCurrency.PLN))
+                .area(new Area(entity.getArea()))
+                .pricePerSquareMeter(
+                        PricePerSquareMeter.reconstitute(
+                                entity.getPricePerSquareMeter(), MoneyCurrency.PLN))
+                .locality(new Locality(Identifier.of(entity.getLocalityId())))
+                .details(mapDetails(entity))
+                .status(entity.getStatus())
+                .userId(Identifier.of(entity.getUserId()))
+                .photos(mapToDomainPhotos(entity))
+                .createdAt(entity.getCreatedAt())
+                .featured(entity.isFeatured())
+                .build();
+    }
+
+    AdvertisementEntity<?, ?> toEntity(final Advertisement advertisement) {
+        if (advertisement == null) {
+            return null;
+        }
+
+        return switch (advertisement.getAdvertisementType()) {
+            case FLAT -> mapToFlatEntity(advertisement);
+            case HOUSE -> mapToHouseEntity(advertisement);
+            case COMMERCIAL -> mapToCommercialEntity(advertisement);
+            case PLOT -> mapToPlotEntity(advertisement);
+        };
+    }
+
+    @SuppressWarnings("CPD-START")
+    private static AdvertisementEntity<?, ?> mapToFlatEntity(final Advertisement advertisement) {
+        final FlatDetails details = (FlatDetails) advertisement.getDetails();
+
+        return new FlatAdvertisementEntity(
+                advertisement.getId().getValue(),
+                advertisement.getSlug().getValue(),
+                advertisement.getTitle().value(),
+                advertisement.getDescription().value(),
+                advertisement.getPrice().value(),
+                advertisement.getArea().value(),
+                advertisement.getPricePerSquareMeter().getValue(),
+                advertisement.getLocality().id().getValue(),
+                advertisement.getOwner().getValue(),
+                advertisement.isFeatured(),
+                advertisement.getStatus(),
+                mapToEntityClaims(details, FlatAdvertisementClaimEntity.class),
+                mapToEntityPhotos(advertisement, FlatAdvertisementPhotoEntity.class),
+                details.getBuildingType(),
+                details.getNumberOfRooms().value(),
+                details.getFloor().value(),
+                details.getFloors().value(),
+                details.getBuiltYear().value(),
+                details.getTypeOfMarket());
+    }
+
+    private static AdvertisementEntity<?, ?> mapToCommercialEntity(
+            final Advertisement advertisement) {
+
+        final CommercialDetails details = (CommercialDetails) advertisement.getDetails();
+
+        return new CommercialAdvertisementEntity(
+                advertisement.getId().getValue(),
+                advertisement.getSlug().getValue(),
+                advertisement.getTitle().value(),
+                advertisement.getDescription().value(),
+                advertisement.getPrice().value(),
+                advertisement.getArea().value(),
+                advertisement.getPricePerSquareMeter().getValue(),
+                advertisement.getLocality().id().getValue(),
+                advertisement.getOwner().getValue(),
+                advertisement.isFeatured(),
+                advertisement.getStatus(),
+                mapToEntityClaims(details, CommercialAdvertisementClaimEntity.class),
+                mapToEntityPhotos(advertisement, CommercialAdvertisementPhotoEntity.class),
+                details.getBuildingType(),
+                details.getNumberOfRooms().value(),
+                details.getFloor().value(),
+                details.getFloors().value(),
+                details.getBuiltYear().value(),
+                details.getTypeOfMarket());
+    }
+
+    private static AdvertisementEntity<?, ?> mapToHouseEntity(final Advertisement advertisement) {
+        final HouseDetails details = (HouseDetails) advertisement.getDetails();
+
+        return new HouseAdvertisementEntity(
+                advertisement.getId().getValue(),
+                advertisement.getSlug().getValue(),
+                advertisement.getTitle().value(),
+                advertisement.getDescription().value(),
+                advertisement.getPrice().value(),
+                advertisement.getArea().value(),
+                advertisement.getPricePerSquareMeter().getValue(),
+                advertisement.getLocality().id().getValue(),
+                advertisement.getOwner().getValue(),
+                advertisement.isFeatured(),
+                advertisement.getStatus(),
+                mapToEntityClaims(details, HouseAdvertisementClaimEntity.class),
+                mapToEntityPhotos(advertisement, HouseAdvertisementPhotoEntity.class),
+                details.getBuildingType(),
+                details.getNumberOfRooms().value(),
+                details.getFloors().value(),
+                details.getBuiltYear().value(),
+                details.getTypeOfMarket());
+    }
+
+    private static AdvertisementEntity<?, ?> mapToPlotEntity(final Advertisement advertisement) {
+        final PlotDetails details = (PlotDetails) advertisement.getDetails();
+
+        return new PlotAdvertisementEntity(
+                advertisement.getId().getValue(),
+                advertisement.getSlug().getValue(),
+                advertisement.getTitle().value(),
+                advertisement.getDescription().value(),
+                advertisement.getPrice().value(),
+                advertisement.getArea().value(),
+                advertisement.getPricePerSquareMeter().getValue(),
+                advertisement.getLocality().id().getValue(),
+                advertisement.getOwner().getValue(),
+                advertisement.isFeatured(),
+                advertisement.getStatus(),
+                mapToEntityClaims(details, PlotAdvertisementClaimEntity.class),
+                mapToEntityPhotos(advertisement, PlotAdvertisementPhotoEntity.class),
+                details.getBuildingType());
+    }
+
+    @SuppressWarnings("CPD-END")
+    private static <T extends AdvertisementPhotoEntity<?>> Set<T> mapToEntityPhotos(
+            final Advertisement advertisement, final Class<T> type) {
+
+        return Stream.of(advertisement.getPhotos())
+                .flatMap(Set::stream)
+                .map(
+                        p ->
+                                switch (advertisement.getAdvertisementType()) {
+                                    case FLAT ->
+                                            new FlatAdvertisementPhotoEntity(
+                                                    p.getId().getValue(),
+                                                    p.getPosition(),
+                                                    p.getUrl().value());
+
+                                    case HOUSE ->
+                                            new HouseAdvertisementPhotoEntity(
+                                                    p.getId().getValue(),
+                                                    p.getPosition(),
+                                                    p.getUrl().value());
+
+                                    case COMMERCIAL ->
+                                            new CommercialAdvertisementPhotoEntity(
+                                                    p.getId().getValue(),
+                                                    p.getPosition(),
+                                                    p.getUrl().value());
+
+                                    case PLOT ->
+                                            new PlotAdvertisementPhotoEntity(
+                                                    p.getId().getValue(),
+                                                    p.getPosition(),
+                                                    p.getUrl().value());
+                                })
+                .map(type::cast)
+                .collect(toSet());
+    }
+
+    private static <T extends AdvertisementClaimEntity<?>> Set<T> mapToEntityClaims(
+            final AdvertisementDetails<?> details, final Class<T> type) {
+
+        return Stream.ofNullable(details.getClaims())
+                .flatMap(Set::stream)
+                .map(
+                        c ->
+                                switch (details) {
+                                    case FlatDetails ignored ->
+                                            new FlatAdvertisementClaimEntity(
+                                                    c.id().getValue(), c.key(), c.value());
+
+                                    case CommercialDetails ignored ->
+                                            new CommercialAdvertisementClaimEntity(
+                                                    c.id().getValue(), c.key(), c.value());
+
+                                    case HouseDetails ignored ->
+                                            new HouseAdvertisementClaimEntity(
+                                                    c.id().getValue(), c.key(), c.value());
+
+                                    case PlotDetails ignored ->
+                                            new PlotAdvertisementClaimEntity(
+                                                    c.id().getValue(), c.key(), c.value());
+                                })
+                .map(type::cast)
+                .collect(toSet());
+    }
+
+    private static Set<AdvertisementPhoto> mapToDomainPhotos(
+            final AdvertisementEntity<?, ?> entity) {
+
+        return Stream.ofNullable(entity.getPhotos())
+                .flatMap(Set::stream)
+                .map(
+                        p ->
+                                AdvertisementPhoto.of(
+                                        Identifier.of(p.getId()),
+                                        new Url(p.getUrl()),
+                                        p.getPosition()))
+                .collect(toSet());
+    }
+
+    private static Set<AdvertisementClaim> mapToDomainClaims(
+            final Set<? extends AdvertisementClaimEntity<?>> claims) {
+
+        return Stream.ofNullable(claims)
+                .flatMap(Set::stream)
+                .map(c -> new AdvertisementClaim(c.getClaimKey(), c.getClaimValue()))
+                .collect(toSet());
+    }
+
+    private static AdvertisementDetails<?> mapDetails(final AdvertisementEntity<?, ?> entity) {
+        return switch (entity) {
+            case CommercialAdvertisementEntity commercialEntity ->
+                    new CommercialDetails(
+                            commercialEntity.getBuildingType(),
+                            mapToDomainClaims(commercialEntity.getClaims()),
+                            new NumberOfRooms(commercialEntity.getNumberOfRooms()),
+                            new Floor(commercialEntity.getFloor()),
+                            new Floor(commercialEntity.getFloors()),
+                            new BuiltYear(commercialEntity.getBuiltYear()),
+                            commercialEntity.getTypeOfMarket());
+
+            case FlatAdvertisementEntity flatEntity ->
+                    new FlatDetails(
+                            flatEntity.getBuildingType(),
+                            mapToDomainClaims(flatEntity.getClaims()),
+                            new NumberOfRooms(flatEntity.getNumberOfRooms()),
+                            new Floor(flatEntity.getFloor()),
+                            new Floor(flatEntity.getFloors()),
+                            new BuiltYear(flatEntity.getBuiltYear()),
+                            flatEntity.getTypeOfMarket());
+
+            case HouseAdvertisementEntity houseEntity ->
+                    new HouseDetails(
+                            houseEntity.getBuildingType(),
+                            mapToDomainClaims(houseEntity.getClaims()),
+                            new NumberOfRooms(houseEntity.getNumberOfRooms()),
+                            new Floor(houseEntity.getFloors()),
+                            new BuiltYear(houseEntity.getBuiltYear()),
+                            houseEntity.getTypeOfMarket());
+
+            case PlotAdvertisementEntity plotEntity ->
+                    new PlotDetails(
+                            plotEntity.getPlotType(), mapToDomainClaims(plotEntity.getClaims()));
+        };
+    }
 }

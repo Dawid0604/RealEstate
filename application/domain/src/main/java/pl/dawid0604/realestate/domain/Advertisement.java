@@ -253,6 +253,10 @@ public final class Advertisement extends AggregateRoot {
         return area;
     }
 
+    public AdvertisementStatus getStatus() {
+        return status;
+    }
+
     public Locality getLocality() {
         return locality;
     }

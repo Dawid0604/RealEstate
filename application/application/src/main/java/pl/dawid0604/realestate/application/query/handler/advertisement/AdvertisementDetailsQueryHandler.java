@@ -15,9 +15,9 @@ import pl.dawid0604.realestate.application.query.CommercialAdvertisementDetailsQ
 import pl.dawid0604.realestate.application.query.FlatAdvertisementDetailsQuery;
 import pl.dawid0604.realestate.application.query.HouseAdvertisementDetailsQuery;
 import pl.dawid0604.realestate.application.query.PlotAdvertisementDetailsQuery;
+import pl.dawid0604.realestate.domain.port.out.AdvertisementPhotoRepository;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
 import pl.dawid0604.realestate.domain.port.out.LocalityRepository;
-import pl.dawid0604.realestate.domain.port.out.PhotoRepository;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementClaimProjection;
@@ -45,7 +45,7 @@ class AdvertisementDetailsQueryHandler
         implements QueryHandler<AdvertisementDetailsQuery, AdvertisementDetailsDto> {
 
     private final AdvertisementRepository advertisementRepository;
-    private final PhotoRepository photoRepository;
+    private final AdvertisementPhotoRepository advertisementPhotoRepository;
     private final LocalityRepository localityRepository;
     private final UserRepository userRepository;
     private final AdvertisementMapper advertisementMapper;
@@ -162,8 +162,8 @@ class AdvertisementDetailsQueryHandler
 
         return CompletableFuture.supplyAsync(
                 () ->
-                        photoRepository
-                                .findAdvertisementsPhotosInBatch(
+                        advertisementPhotoRepository
+                                .findPhotosInBatch(
                                         List.of(projection.getId()),
                                         getAdvertisementType(projection))
                                 .get(projection.getId()),
