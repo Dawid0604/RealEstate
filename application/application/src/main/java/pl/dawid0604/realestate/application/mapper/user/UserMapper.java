@@ -11,10 +11,10 @@ import pl.dawid0604.realestate.domain.shared.user.projection.UserProfileProjecti
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
-    @Mapping(target = "userId", source = "projection.userId")
+    @Mapping(target = "userId", source = "projection.id")
     @Mapping(target = "email", source = "projection.email")
-    @Mapping(target = "contactPhoneNumber", source = "projection.contactPhoneNumber")
-    @Mapping(target = "contactEmail", source = "projection.contactEmail")
+    @Mapping(target = "contactPhoneNumber", source = "projection.notificationPhoneNumber")
+    @Mapping(target = "contactEmail", source = "projection.notificationEmail")
     @Mapping(target = "role", source = "projection.role")
     @Mapping(target = "type", source = "projection.type")
     @Mapping(target = "status", source = "projection.status")

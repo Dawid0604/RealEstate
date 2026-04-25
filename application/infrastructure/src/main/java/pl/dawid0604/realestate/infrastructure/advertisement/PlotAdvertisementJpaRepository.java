@@ -1,39 +1,20 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.infrastructure.advertisement;
 
-import java.util.Optional;
-import java.util.UUID;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementDetailsProjection;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.PlotAdvertisementDetailsProjection;
+
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 interface PlotAdvertisementJpaRepository extends JpaRepository<PlotAdvertisementEntity, UUID> {
 
     Optional<PlotAdvertisementEntity> findBySlug(String slug);
 
-    @Query(
-            """
-                        SELECT
-                            e.id,
-                            e.slug,
-                            e.title,
-                            e.description,
-                            e.price,
-                            e.area,
-                            e.pricePerSquareMeter,
-                            e.localityId,
-                            e.status,
-                            u.email,
-                            e.createdAt,
-                            e.featured,
-                            e.plotType
-                        FROM #{#entityName} e
-                        JOIN e.user u
-                        WHERE e.slug = :slug
-                    """)
-    Optional<AdvertisementDetailsProjection> findDetailsBySlug(String slug);
+    @Query("SELECT e FROM #{#entityName} e WHERE e.slug = :slug")
+    Optional<PlotAdvertisementDetailsProjection> findDetailsBySlug(String slug);
 }

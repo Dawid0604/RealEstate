@@ -177,11 +177,9 @@ class AdvertisementDetailsQueryHandler
         return CompletableFuture.supplyAsync(
                 () ->
                         userRepository
-                                .findAdvertisementUser(projection.getOwnerEmail())
+                                .findAdvertisementUser(projection.getUserId())
                                 .orElseThrow(
-                                        () ->
-                                                new UserNotFoundException(
-                                                        projection.getOwnerEmail())),
+                                        () -> new UserNotFoundException(projection.getUserId())),
                 executorService);
     }
 

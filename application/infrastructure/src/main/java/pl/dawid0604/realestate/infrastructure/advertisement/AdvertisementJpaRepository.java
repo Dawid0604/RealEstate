@@ -113,7 +113,7 @@ class AdvertisementJpaRepository {
     }
 
     @Nonnull
-    Optional<AdvertisementDetailsProjection> findDetails(
+    Optional<? extends AdvertisementDetailsProjection> findDetails(
             @Nonnull final String slug, @Nonnull final AdvertisementType advertisementType) {
 
         return switch (advertisementType) {
@@ -162,7 +162,7 @@ class AdvertisementJpaRepository {
                         selectRoot.get(AdvertisementFields.TYPE)));
 
         selectQuery.where(getUserAdvertisementsPredicates(selectRoot, statuses, email));
-        selectQuery.orderBy(criteriaBuilder.desc(selectRoot.get("createdAt")));
+        selectQuery.orderBy(criteriaBuilder.desc(selectRoot.get(AdvertisementFields.CREATED_AT)));
 
         countQuery.select(criteriaBuilder.count(countRoot));
         countQuery.where(getUserAdvertisementsPredicates(countRoot, statuses, email));
@@ -220,7 +220,7 @@ class AdvertisementJpaRepository {
 
         selectQuery.select(criteriaBuilder.tuple(selectFields));
         selectQuery.where(selectPredicates);
-        selectQuery.orderBy(criteriaBuilder.desc(selectRoot.get("createdAt")));
+        selectQuery.orderBy(criteriaBuilder.desc(selectRoot.get(AdvertisementFields.CREATED_AT)));
 
         countQuery.select(criteriaBuilder.count(countRoot));
         countQuery.where(countPredicates);

@@ -4,8 +4,6 @@ package pl.dawid0604.realestate.application.mapper.user;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-import java.util.UUID;
-
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,6 +22,8 @@ import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.UserType;
 import pl.dawid0604.realestate.domain.shared.user.projection.UserProfileProjection;
 
+import java.util.UUID;
+
 @ExtendWith(MockitoExtension.class)
 class UserMapperTest {
     private UserMapper userMapper;
@@ -40,25 +40,26 @@ class UserMapperTest {
         final UserProfileProjection projection = mock(UserProfileProjection.class);
 
         // When
-        given(projection.getUserId()).willReturn(UUID.randomUUID());
+        given(projection.getId()).willReturn(UUID.randomUUID());
         given(projection.getEmail()).willReturn(UserFixture.getDummyEmail());
         given(projection.getFirstName()).willReturn("John");
         given(projection.getLastName()).willReturn("Doe");
-        given(projection.getContactPhoneNumber()).willReturn("123456789");
-        given(projection.getContactEmail()).willReturn("anyemail@mail.com");
+        given(projection.getNotificationPhoneNumber()).willReturn("123456789");
+        given(projection.getNotificationEmail()).willReturn("anyemail@mail.com");
         given(projection.getAvatarUrl()).willReturn("https://xyz");
-        given(projection.getRole()).willReturn(UserRole.ADMIN_ROLE.name());
-        given(projection.getType()).willReturn(UserType.AGENCY.name());
-        given(projection.getStatus()).willReturn(UserStatus.ACTIVE.name());
+        given(projection.getRole()).willReturn(UserRole.ADMIN_ROLE);
+        given(projection.getType()).willReturn(UserType.AGENCY);
+        given(projection.getStatus()).willReturn(UserStatus.ACTIVE);
 
         final UserProfileDto result = userMapper.toUserProfileDto(projection);
 
         // Then
         Assertions.assertThat(result)
-                .returns(projection.getUserId(), UserProfileDto::userId)
+                .returns(projection.getId(), UserProfileDto::userId)
                 .returns(projection.getEmail(), UserProfileDto::email)
-                .returns(projection.getContactPhoneNumber(), UserProfileDto::contactPhoneNumber)
-                .returns(projection.getContactEmail(), UserProfileDto::contactEmail)
+                .returns(
+                        projection.getNotificationPhoneNumber(), UserProfileDto::contactPhoneNumber)
+                .returns(projection.getNotificationEmail(), UserProfileDto::contactEmail)
                 .returns(projection.getRole(), UserProfileDto::role)
                 .returns(projection.getType(), UserProfileDto::type)
                 .returns(projection.getStatus(), UserProfileDto::status)

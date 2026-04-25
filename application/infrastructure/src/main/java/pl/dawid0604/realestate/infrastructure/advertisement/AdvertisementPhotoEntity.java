@@ -2,8 +2,9 @@
 package pl.dawid0604.realestate.infrastructure.advertisement;
 
 import static jakarta.persistence.FetchType.LAZY;
-
 import static lombok.AccessLevel.PROTECTED;
+
+import java.util.UUID;
 
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -12,8 +13,6 @@ import jakarta.persistence.MappedSuperclass;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.UUID;
 
 @Getter
 @MappedSuperclass

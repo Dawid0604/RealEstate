@@ -14,7 +14,7 @@ import pl.dawid0604.realestate.domain.shared.user.projection.UserProfileProjecti
 public interface UserRepository {
     Optional<UserProfileProjection> findUserProfile(String email);
 
-    Optional<AdvertisementUserProjection> findAdvertisementUser(String email);
+    Optional<AdvertisementUserProjection> findAdvertisementUser(UUID id);
 
     Optional<User> findByEmail(String email);
 

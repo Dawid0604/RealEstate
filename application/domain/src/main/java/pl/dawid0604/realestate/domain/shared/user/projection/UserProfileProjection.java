@@ -3,8 +3,12 @@ package pl.dawid0604.realestate.domain.shared.user.projection;
 
 import java.util.UUID;
 
+import pl.dawid0604.realestate.domain.UserRole;
+import pl.dawid0604.realestate.domain.UserStatus;
+import pl.dawid0604.realestate.domain.UserType;
+
 public interface UserProfileProjection {
-    UUID getUserId();
+    UUID getId();
 
     String getEmail();
 
@@ -12,15 +16,15 @@ public interface UserProfileProjection {
 
     String getLastName();
 
-    String getContactPhoneNumber();
+    String getNotificationPhoneNumber();
 
-    String getContactEmail();
+    String getNotificationEmail();
 
     String getAvatarUrl();
 
-    String getRole();
+    UserRole getRole();
 
-    String getType();
+    UserType getType();
 
-    String getStatus();
+    UserStatus getStatus();
 }

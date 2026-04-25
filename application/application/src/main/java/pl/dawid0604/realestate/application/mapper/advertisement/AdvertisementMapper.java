@@ -305,10 +305,10 @@ public interface AdvertisementMapper {
         return new AdvertisementDetailsDto.Owner(
                 user.getId(),
                 fullName,
-                user.getUserAvatarUrl(),
-                user.getType(),
-                user.getContactPhoneNumber(),
-                user.getContactEmail());
+                user.getAvatarUrl(),
+                user.getType().name(),
+                user.getNotificationPhoneNumber(),
+                user.getNotificationEmail());
     }
 
     @Named("toPhoto")

@@ -6,7 +6,6 @@ import static jakarta.persistence.EnumType.STRING;
 import static lombok.AccessLevel.PROTECTED;
 
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.OneToMany;
 
@@ -46,11 +45,9 @@ abstract sealed class AdvertisementEntity<
     @Enumerated(STRING)
     private AdvertisementStatus status;
 
-    @JoinColumn(name = "advertisement_id")
     @OneToMany(mappedBy = "advertisement", orphanRemoval = true)
     private Set<T> claims;
 
-    @JoinColumn(name = "advertisement_id")
     @OneToMany(mappedBy = "advertisement", orphanRemoval = true)
     private Set<Y> photos;
 

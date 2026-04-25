@@ -39,10 +39,10 @@ interface UserJpaRepository extends JpaRepository<UserEntity, UUID> {
 
     Optional<UserProfileProjection> findUserProfileByEmail(String email);
 
-    Optional<AdvertisementUserProjection> findAdvertisementUserByEmail(String email);
+    Optional<AdvertisementUserProjection> findAdvertisementUserById(UUID id);
 
     int deleteByEmail(String email);
 
-    @Query("SELECT u.id, u.type FROM #{#entityName} u WHERE u.id IN :userIds")
-    List<UserTypeProjection> findUserTypesByIdIn(Iterable<UUID> userIds);
+    @Query("SELECT u FROM #{#entityName} u WHERE u.id IN :ids")
+    List<UserTypeProjection> findUserTypesByIdIn(@Param("ids") Iterable<UUID> userIds);
 }

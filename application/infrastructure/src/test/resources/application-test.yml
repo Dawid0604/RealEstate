@@ -1,0 +1,11 @@
+spring:
+  flyway:
+    enabled: true
+    locations: classpath:migrations
+    clean-on-validation-error: true
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  output.ansi.enabled: ALWAYS
