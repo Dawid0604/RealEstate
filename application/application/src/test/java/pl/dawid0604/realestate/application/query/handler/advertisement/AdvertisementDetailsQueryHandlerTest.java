@@ -34,7 +34,6 @@ import pl.dawid0604.realestate.application.dto.advertisement.CommercialAdvertise
 import pl.dawid0604.realestate.application.dto.advertisement.FlatAdvertisementDetailsDto;
 import pl.dawid0604.realestate.application.dto.advertisement.HouseAdvertisementDetailsDto;
 import pl.dawid0604.realestate.application.dto.advertisement.PlotAdvertisementDetailsDto;
-import pl.dawid0604.realestate.application.fixture.UserFixture;
 import pl.dawid0604.realestate.application.mapper.advertisement.AdvertisementMapper;
 import pl.dawid0604.realestate.application.query.AdvertisementDetailsQuery;
 import pl.dawid0604.realestate.application.query.CommercialAdvertisementDetailsQuery;
@@ -111,7 +110,7 @@ class AdvertisementDetailsQueryHandlerTest {
 
         given(advertisementDetails.getLocalityId()).willReturn(localityId);
         given(advertisementDetails.getId()).willReturn(detailsId);
-        given(advertisementDetails.getOwnerEmail()).willReturn(UserFixture.getDummyEmail());
+        given(advertisementDetails.getUserId()).willReturn(UUID.randomUUID());
 
         given(advertisementRepository.findDetails(query.slug(), AdvertisementType.FLAT))
                 .willReturn(Optional.of(advertisementDetails));
@@ -122,7 +121,7 @@ class AdvertisementDetailsQueryHandlerTest {
         given(localityRepository.getFullNamesInBatch(Set.of(localityId)))
                 .willReturn(Map.of(localityId, localityFullName));
 
-        given(userRepository.findAdvertisementUser(advertisementDetails.getOwnerEmail()))
+        given(userRepository.findAdvertisementUser(advertisementDetails.getUserId()))
                 .willReturn(Optional.of(user));
 
         given(
@@ -160,7 +159,7 @@ class AdvertisementDetailsQueryHandlerTest {
 
         given(advertisementDetails.getLocalityId()).willReturn(localityId);
         given(advertisementDetails.getId()).willReturn(detailsId);
-        given(advertisementDetails.getOwnerEmail()).willReturn(UserFixture.getDummyEmail());
+        given(advertisementDetails.getUserId()).willReturn(UUID.randomUUID());
 
         given(advertisementRepository.findDetails(query.slug(), AdvertisementType.FLAT))
                 .willReturn(Optional.of(advertisementDetails));
@@ -181,7 +180,7 @@ class AdvertisementDetailsQueryHandlerTest {
         Assertions.assertThatThrownBy(() -> handler.handle(query))
                 .isExactlyInstanceOf(CompletionException.class);
 
-        verify(userRepository).findAdvertisementUser(advertisementDetails.getOwnerEmail());
+        verify(userRepository).findAdvertisementUser(advertisementDetails.getUserId());
     }
 
     @ParameterizedTest
@@ -213,12 +212,12 @@ class AdvertisementDetailsQueryHandlerTest {
 
         given(advertisementDetails.getLocalityId()).willReturn(localityId);
         given(advertisementDetails.getId()).willReturn(detailsId);
-        given(advertisementDetails.getOwnerEmail()).willReturn(UserFixture.getDummyEmail());
+        given(advertisementDetails.getUserId()).willReturn(UUID.randomUUID());
 
         given(advertisementRepository.findDetails(query.slug(), advertisementType))
                 .willReturn(Optional.of(advertisementDetails));
 
-        given(userRepository.findAdvertisementUser(advertisementDetails.getOwnerEmail()))
+        given(userRepository.findAdvertisementUser(advertisementDetails.getUserId()))
                 .willReturn(Optional.of(user));
 
         given(advertisementRepository.findClaims(detailsId, advertisementType)).willReturn(claims);

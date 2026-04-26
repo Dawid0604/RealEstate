@@ -4,6 +4,8 @@ package pl.dawid0604.realestate.application.mapper.user;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
+import java.util.UUID;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,8 +23,6 @@ import pl.dawid0604.realestate.domain.UserRole;
 import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.UserType;
 import pl.dawid0604.realestate.domain.shared.user.projection.UserProfileProjection;
-
-import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
 class UserMapperTest {
@@ -60,9 +60,9 @@ class UserMapperTest {
                 .returns(
                         projection.getNotificationPhoneNumber(), UserProfileDto::contactPhoneNumber)
                 .returns(projection.getNotificationEmail(), UserProfileDto::contactEmail)
-                .returns(projection.getRole(), UserProfileDto::role)
-                .returns(projection.getType(), UserProfileDto::type)
-                .returns(projection.getStatus(), UserProfileDto::status)
+                .returns(projection.getRole().name(), UserProfileDto::role)
+                .returns(projection.getType().name(), UserProfileDto::type)
+                .returns(projection.getStatus().name(), UserProfileDto::status)
                 .returns(
                         projection.getFirstName() + " " + projection.getLastName(),
                         UserProfileDto::fullName)

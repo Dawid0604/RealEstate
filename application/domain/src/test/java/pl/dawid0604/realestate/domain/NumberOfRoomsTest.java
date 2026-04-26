@@ -36,14 +36,24 @@ class NumberOfRoomsTest {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {-100, -1})
-    @DisplayName("Should throw exception when value is negative")
-    void shouldThrowExceptionWhenValueIsNegative(final int value) {
+    @ValueSource(ints = {1, 100})
+    @DisplayName("Should create instance successfully with boundary values")
+    void shouldCreateInstanceSuccessfullyWithBoundaryValues(final int value) {
+        // Given
+        // When
+        // Then
+        Assertions.assertThatCode(() -> new NumberOfRooms(value)).doesNotThrowAnyException();
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {-100, -1, 0, 101})
+    @DisplayName("Should throw exception when value is invalid")
+    void shouldThrowExceptionWhenValueIsInvalid(final int value) {
         // Given
         // When
         // Then
         Assertions.assertThatThrownBy(() -> new NumberOfRooms(value))
                 .isExactlyInstanceOf(InvalidArgumentValueException.class)
-                .hasMessage("NumberOfRooms cannot be negative");
+                .hasMessageStartingWith("NumberOfRooms must be between");
     }
 }

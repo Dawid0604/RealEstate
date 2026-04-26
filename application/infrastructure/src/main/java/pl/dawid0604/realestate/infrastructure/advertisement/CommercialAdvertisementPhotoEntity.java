@@ -1,7 +1,7 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.infrastructure.advertisement;
 
-import java.util.UUID;
+import static lombok.AccessLevel.PACKAGE;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import static lombok.AccessLevel.PACKAGE;
+import java.util.UUID;
 
 @Getter
 @Entity

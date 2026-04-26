@@ -5,6 +5,11 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Set;
+import java.util.UUID;
+
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,11 +66,6 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserPlotAd
 import pl.dawid0604.realestate.domain.shared.photo.projection.PhotoProjection;
 import pl.dawid0604.realestate.domain.shared.user.projection.AdvertisementUserProjection;
 
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.Set;
-import java.util.UUID;
-
 @ExtendWith(MockitoExtension.class)
 class AdvertisementMapperTest {
     private AdvertisementMapper advertisementMapper;
@@ -115,7 +115,7 @@ class AdvertisementMapperTest {
         given(user.getId()).willReturn(UUID.randomUUID());
         given(user.getFirstName()).willReturn("John");
         given(user.getLastName()).willReturn("Doe");
-        given(user.getType()).willReturn(UserType.AGENCY.name());
+        given(user.getType()).willReturn(UserType.AGENCY);
         given(user.getNotificationEmail()).willReturn(UserFixture.getDummyEmail());
         given(user.getNotificationPhoneNumber()).willReturn("123456789");
 
@@ -302,11 +302,13 @@ class AdvertisementMapperTest {
         Assertions.assertThat(result.owner())
                 .returns(user.getId(), FlatAdvertisementDetailsDto.Owner::id)
                 .returns(user.getAvatarUrl(), FlatAdvertisementDetailsDto.Owner::avatarUrl)
-                .returns(user.getType(), FlatAdvertisementDetailsDto.Owner::type)
+                .returns(user.getType().name(), FlatAdvertisementDetailsDto.Owner::type)
                 .returns(
                         user.getNotificationPhoneNumber(),
                         FlatAdvertisementDetailsDto.Owner::contactPhoneNumber)
-                .returns(user.getNotificationEmail(), FlatAdvertisementDetailsDto.Owner::contactEmail)
+                .returns(
+                        user.getNotificationEmail(),
+                        FlatAdvertisementDetailsDto.Owner::contactEmail)
                 .returns(
                         user.getFirstName() + " " + user.getLastName(),
                         FlatAdvertisementDetailsDto.Owner::fullName);
@@ -814,7 +816,7 @@ class AdvertisementMapperTest {
             given(projection.getId()).willReturn(UUID.randomUUID());
             given(projection.getFirstName()).willReturn(firstName);
             given(projection.getLastName()).willReturn(lastName);
-            given(projection.getType()).willReturn(UserType.DEVELOPER.name());
+            given(projection.getType()).willReturn(UserType.DEVELOPER);
             given(projection.getNotificationPhoneNumber()).willReturn("123456789");
             given(projection.getNotificationEmail()).willReturn(UserFixture.getDummyEmail());
 
@@ -825,9 +827,8 @@ class AdvertisementMapperTest {
             Assertions.assertThat(result)
                     .returns(projection.getId(), AdvertisementDetailsDto.Owner::id)
                     .returns(expectedFullName, AdvertisementDetailsDto.Owner::fullName)
-                    .returns(
-                            projection.getAvatarUrl(), AdvertisementDetailsDto.Owner::avatarUrl)
-                    .returns(projection.getType(), AdvertisementDetailsDto.Owner::type)
+                    .returns(projection.getAvatarUrl(), AdvertisementDetailsDto.Owner::avatarUrl)
+                    .returns(projection.getType().name(), AdvertisementDetailsDto.Owner::type)
                     .returns(
                             projection.getNotificationPhoneNumber(),
                             AdvertisementDetailsDto.Owner::contactPhoneNumber)

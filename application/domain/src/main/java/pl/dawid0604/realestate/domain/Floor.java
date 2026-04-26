@@ -7,7 +7,6 @@ public record Floor(Integer value) {
     private static final int MIN_VALUE = 1;
     private static final int MAX_VALUE = 100;
 
-    // TODO: test it
     public Floor {
         if (value != null && (value < MIN_VALUE || value > MAX_VALUE)) {
             throw new InvalidArgumentValueException(

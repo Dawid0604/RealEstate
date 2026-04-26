@@ -1,5 +1,7 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.infrastructure.user;
 
+import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.mock;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 
@@ -22,15 +24,94 @@ import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserRole;
 import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.UserType;
+import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 import pl.dawid0604.realestate.domain.shared.user.projection.AdvertisementUserProjection;
 import pl.dawid0604.realestate.domain.shared.user.projection.UserProfileProjection;
 import pl.dawid0604.realestate.infrastructure.IntegrationTest;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 class UserAdapterTest {
+
+    @Nested
+    final class UserEntityTests extends IntegrationTest {
+        @Autowired private UserJpaRepository repository;
+
+        @Test
+        @DisplayName("Should save and assign values to audit fields")
+        @Sql(scripts = "/scripts/clear_database.sql", executionPhase = BEFORE_TEST_METHOD)
+        void shouldSaveAndAssignValuesToAuditFields() {
+            // Given
+            final UserEntity user =
+                    new UserEntity(
+                            Identifier.generate().getValue(),
+                            "anyEmail@mail.com",
+                            "anyPassword",
+                            "John",
+                            "Doe",
+                            "abc",
+                            "cde",
+                            "anyImage",
+                            UserRole.USER_ROLE,
+                            UserStatus.ACTIVE,
+                            UserType.AGENCY,
+                            null);
+
+            // When
+            final UserEntity savedEntity = repository.save(user);
+
+            // Then
+            Assertions.assertThat(user.getCreatedAt()).isNull();
+            Assertions.assertThat(user.getUpdatedAt()).isNull();
+
+            Assertions.assertThat(savedEntity.getCreatedAt()).isNotNull();
+            Assertions.assertThat(savedEntity.getUpdatedAt()).isNotNull();
+            Assertions.assertThat(savedEntity.getCreatedAt()).isEqualTo(savedEntity.getUpdatedAt());
+        }
+
+        @Test
+        @DisplayName("Should update updatedAt while update")
+        @Sql(scripts = "/scripts/clear_database.sql", executionPhase = BEFORE_TEST_METHOD)
+        void shouldUpdateUpdatedAtWhileUpdate() {
+            // Given
+            final UserEntity user =
+                    new UserEntity(
+                            Identifier.generate().getValue(),
+                            "anyEmail@mail.com",
+                            "anyPassword",
+                            "John",
+                            "Doe",
+                            "abc",
+                            "cde",
+                            "anyImage",
+                            UserRole.USER_ROLE,
+                            UserStatus.ACTIVE,
+                            UserType.AGENCY,
+                            null);
+
+            // When
+            final UserEntity savedEntity = repository.saveAndFlush(user);
+            final Instant savedEntityCreatedAt = savedEntity.getCreatedAt();
+            final Instant savedEntityUpdatedAt = savedEntity.getUpdatedAt();
+
+            // Then
+            await().atMost(Duration.ofSeconds(2))
+                    .untilAsserted(
+                            () -> {
+                                final UserEntity updatedEntity = repository.save(savedEntity);
+
+                                Assertions.assertThat(updatedEntity.getCreatedAt())
+                                        .isEqualTo(savedEntityCreatedAt);
+
+                                Assertions.assertThat(updatedEntity.getUpdatedAt())
+                                        .isAfter(savedEntityUpdatedAt);
+                            });
+        }
+    }
 
     @Nested
     final class FindUserProfileTests {
@@ -410,16 +491,90 @@ class UserAdapterTest {
             }
 
             @Test
-            @DisplayName("Should delete")
-            void shouldThrowException() {
+            @DisplayName("Should throw exception when number of deletions is equal 0")
+            void shouldThrowExceptionWhenNumberOfDeletionsIsEqualZero() {
                 // Given
                 final String email = "anyEmail@mail.com";
-                BDDMockito.given(repository.deleteByEmail(email)).willReturn(1);
+                BDDMockito.given(repository.deleteByEmail(email)).willReturn(0);
 
                 // When
                 // Then
-                Assertions.assertThatCode(() -> userAdapter.deleteByEmail(email))
-                        .doesNotThrowAnyException();
+                Assertions.assertThatThrownBy(() -> userAdapter.deleteByEmail(email))
+                        .isInstanceOf(UserNotFoundException.class);
+            }
+        }
+    }
+
+    @Nested
+    final class HasStatusTests {
+
+        @Nested
+        final class IntegrationTests extends IntegrationTest {
+            @Autowired private UserJpaRepository repository;
+            @Autowired private UserAdapter userAdapter;
+
+            @Test
+            @DisplayName("Should return true when user has given status")
+            @Sql(scripts = "/scripts/clear_database.sql", executionPhase = BEFORE_TEST_METHOD)
+            void shouldReturnTrueWhenUserHasGivenStatus() {
+                // Given
+                final String email = "anyEmail@mail.com";
+                final UserStatus status = UserStatus.ACTIVE;
+
+                final UserEntity user =
+                        new UserEntity(
+                                Identifier.generate().getValue(),
+                                email,
+                                "anyPassword",
+                                "John",
+                                "Doe",
+                                "abc",
+                                "cde",
+                                "anyImage",
+                                UserRole.USER_ROLE,
+                                status,
+                                UserType.AGENCY,
+                                null);
+
+                repository.save(user);
+
+                // When
+                final var result = userAdapter.hasStatus(email, status);
+
+                // Then
+                Assertions.assertThat(result).isTrue();
+            }
+
+            @Test
+            @DisplayName("Should return false when user does not has given status")
+            @Sql(scripts = "/scripts/clear_database.sql", executionPhase = BEFORE_TEST_METHOD)
+            void shouldReturnFalseWhenUserDoesNotHasGivenStatus() {
+                // Given
+                final String email = "anyEmail@mail.com";
+                final UserStatus status = UserStatus.ACTIVE;
+
+                final UserEntity user =
+                        new UserEntity(
+                                Identifier.generate().getValue(),
+                                email,
+                                "anyPassword",
+                                "John",
+                                "Doe",
+                                "abc",
+                                "cde",
+                                "anyImage",
+                                UserRole.USER_ROLE,
+                                UserStatus.BANNED,
+                                UserType.AGENCY,
+                                null);
+
+                repository.save(user);
+
+                // When
+                final var result = userAdapter.hasStatus(email, status);
+
+                // Then
+                Assertions.assertThat(result).isFalse();
             }
         }
     }

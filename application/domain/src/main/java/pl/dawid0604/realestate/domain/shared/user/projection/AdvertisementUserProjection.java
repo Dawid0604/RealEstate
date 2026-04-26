@@ -1,9 +1,9 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain.shared.user.projection;
 
-import pl.dawid0604.realestate.domain.UserType;
-
 import java.util.UUID;
+
+import pl.dawid0604.realestate.domain.UserType;
 
 public interface AdvertisementUserProjection {
     UUID getId();
