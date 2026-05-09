@@ -346,19 +346,18 @@ class AdvertisementAdapterTest {
                         new AdvertisementAdapter(advertisementMapper, advertisementJpaRepository);
             }
 
-            @ParameterizedTest
-            @NullAndEmptySource
-            @DisplayName("Should throw exception when email is blank")
-            void shouldThrowExceptionWhenEmailIsNull(final String email) {
+            @Test
+            @DisplayName("Should throw exception when userId is null")
+            void shouldThrowExceptionWhenUserIdIsNull() {
                 // Given
                 // When
                 // Then
                 Assertions.assertThatThrownBy(
                                 () ->
                                         advertisementAdapter.findAdvertisementsByUser(
-                                                emptySet(), email, 0, 1))
-                        .isExactlyInstanceOf(IllegalArgumentException.class)
-                        .hasMessage("Email cannot be blank");
+                                                emptySet(), null, 0, 1))
+                        .isExactlyInstanceOf(NullPointerException.class)
+                        .hasMessage("UserId cannot be null");
             }
 
             @ParameterizedTest
@@ -368,13 +367,13 @@ class AdvertisementAdapterTest {
                 // Given
                 final int page = 1;
                 final int pageSize = 25;
-                final String email = "anyMail@mail.com";
+                final UUID userId = UUID.randomUUID();
                 final PageImpl<UserAdvertisementCardProjection> pageResult = mock();
                 final UserFlatAdvertisementCardProjection projection = mock();
 
                 given(
                                 advertisementJpaRepository.findAdvertisementsByUser(
-                                        statuses, email, page, pageSize))
+                                        statuses, userId, page, pageSize))
                         .willReturn(pageResult);
 
                 given(pageResult.getContent()).willReturn(List.of(projection));
@@ -385,7 +384,7 @@ class AdvertisementAdapterTest {
                 // When
                 final var result =
                         advertisementAdapter.findAdvertisementsByUser(
-                                statuses, email, page, pageSize);
+                                statuses, userId, page, pageSize);
 
                 // Then
                 Assertions.assertThat(result.getItems()).containsExactly(projection);

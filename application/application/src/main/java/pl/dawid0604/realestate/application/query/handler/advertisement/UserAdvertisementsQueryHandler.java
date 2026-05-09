@@ -20,6 +20,7 @@ import pl.dawid0604.realestate.domain.AdvertisementStatus;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementPhotoRepository;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
 import pl.dawid0604.realestate.domain.port.out.LocalityRepository;
+import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.Page;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserAdvertisementCardProjection;
@@ -27,6 +28,7 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserCommer
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserFlatAdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserHouseAdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserPlotAdvertisementCardProjection;
+import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 import pl.dawid0604.realestate.domain.shared.photo.projection.PhotoProjection;
 
 import java.util.Collections;
@@ -48,18 +50,21 @@ class UserAdvertisementsQueryHandler
     private final AdvertisementPhotoRepository advertisementPhotoRepository;
     private final LocalityRepository localityRepository;
     private final AdvertisementMapper advertisementMapper;
+    private final UserRepository userRepository;
 
     @Override
     public Page<UserAdvertisementCardDto> handle(final UserAdvertisementsQuery query) {
         Objects.requireNonNull(query, "Query cannot be null");
 
         try (ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor()) {
+            final UUID userId =
+                    userRepository
+                            .findIdByEmail(query.email())
+                            .orElseThrow(() -> new UserNotFoundException(query.email()));
+
             final var advertisementsPage =
                     advertisementRepository.findAdvertisementsByUser(
-                            mapStatuses(query.statuses()),
-                            query.email(),
-                            query.page(),
-                            query.pageSize());
+                            mapStatuses(query.statuses()), userId, query.page(), query.pageSize());
 
             return Page.of(
                     mapPage(advertisementsPage, executorService),

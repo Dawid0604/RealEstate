@@ -2,17 +2,14 @@
 package pl.dawid0604.realestate.infrastructure.advertisement;
 
 import static lombok.AccessLevel.PACKAGE;
+
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lombok.RequiredArgsConstructor;
 import pl.dawid0604.realestate.domain.Advertisement;
 import pl.dawid0604.realestate.domain.AdvertisementStatus;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
@@ -23,6 +20,11 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.Advertisem
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementClaimProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementDetailsProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserAdvertisementCardProjection;
+
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor(access = PACKAGE)
@@ -51,7 +53,7 @@ class AdvertisementAdapter implements AdvertisementRepository {
     public Optional<Advertisement> findBySlug(
             final String slug, final AdvertisementType advertisementType) {
 
-        verifyNotBlank(slug, "Slug");
+        verifyValidSlug(slug);
         Objects.requireNonNull(advertisementType, "AdvertisementType cannot be null");
 
         return advertisementJpaRepository
@@ -64,7 +66,7 @@ class AdvertisementAdapter implements AdvertisementRepository {
     public Optional<AdvertisementDetailsProjection> findDetails(
             final String slug, final AdvertisementType advertisementType) {
 
-        verifyNotBlank(slug, "Slug");
+        verifyValidSlug(slug);
         Objects.requireNonNull(advertisementType, "AdvertisementType cannot be null");
         return advertisementJpaRepository.findDetails(slug, advertisementType);
     }
@@ -83,14 +85,14 @@ class AdvertisementAdapter implements AdvertisementRepository {
     @Transactional(readOnly = true)
     public Page<UserAdvertisementCardProjection> findAdvertisementsByUser(
             final Set<AdvertisementStatus> statuses,
-            final String email,
+            final UUID userId,
             final int page,
             final int pageSize) {
 
-        verifyNotBlank(email, "Email");
+        Objects.requireNonNull(userId, "UserId cannot be null");
         return asDomainPage(
                 advertisementJpaRepository.findAdvertisementsByUser(
-                        statuses, email, page, pageSize));
+                        statuses, userId, page, pageSize));
     }
 
     @Override
@@ -107,9 +109,9 @@ class AdvertisementAdapter implements AdvertisementRepository {
                 page.getContent(), page.getNumber(), page.getSize(), page.getTotalElements());
     }
 
-    private static void verifyNotBlank(final String value, final String label) {
+    private static void verifyValidSlug(final String value) {
         if (isBlank(value)) {
-            throw new IllegalArgumentException(label + " cannot be blank");
+            throw new IllegalArgumentException("Slug cannot be blank");
         }
     }
 }

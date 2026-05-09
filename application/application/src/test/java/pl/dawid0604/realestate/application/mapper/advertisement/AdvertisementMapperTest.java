@@ -137,8 +137,7 @@ class AdvertisementMapperTest {
                 final FlatAdvertisementDetailsProjection flatProjection =
                         (FlatAdvertisementDetailsProjection) projection;
 
-                given(flatProjection.getBuildingType())
-                        .willReturn(FlatBuildingType.APARTMENT.name());
+                given(flatProjection.getBuildingType()).willReturn(FlatBuildingType.APARTMENT);
 
                 given(flatProjection.getNumberOfRooms()).willReturn(3);
                 given(flatProjection.getFloor()).willReturn(4);
@@ -150,8 +149,7 @@ class AdvertisementMapperTest {
                 final HouseAdvertisementDetailsProjection houseProjection =
                         (HouseAdvertisementDetailsProjection) projection;
 
-                given(houseProjection.getBuildingType())
-                        .willReturn(HouseBuildingType.DETACHED.name());
+                given(houseProjection.getBuildingType()).willReturn(HouseBuildingType.DETACHED);
 
                 given(houseProjection.getNumberOfRooms()).willReturn(3);
                 given(houseProjection.getFloors()).willReturn(5);
@@ -163,7 +161,7 @@ class AdvertisementMapperTest {
                         (CommercialAdvertisementDetailsProjection) projection;
 
                 given(commercialProjection.getBuildingType())
-                        .willReturn(CommercialBuildingType.HALL.name());
+                        .willReturn(CommercialBuildingType.HALL);
 
                 given(commercialProjection.getNumberOfRooms()).willReturn(3);
                 given(commercialProjection.getFloor()).willReturn(4);
@@ -173,7 +171,7 @@ class AdvertisementMapperTest {
 
             case PLOT ->
                     given(((PlotAdvertisementDetailsProjection) projection).getPlotType())
-                            .willReturn(PlotBuildingType.FOREST.name());
+                            .willReturn(PlotBuildingType.FOREST);
         }
 
         // When
@@ -233,7 +231,7 @@ class AdvertisementMapperTest {
                         .asInstanceOf(
                                 InstanceOfAssertFactories.type(FlatAdvertisementDetailsDto.class))
                         .returns(
-                                flatProjection.getBuildingType(),
+                                flatProjection.getBuildingType().name(),
                                 FlatAdvertisementDetailsDto::buildingType)
                         .returns(
                                 flatProjection.getNumberOfRooms(),
@@ -254,7 +252,7 @@ class AdvertisementMapperTest {
                                 InstanceOfAssertFactories.type(
                                         CommercialAdvertisementDetailsDto.class))
                         .returns(
-                                commercialProjection.getBuildingType(),
+                                commercialProjection.getBuildingType().name(),
                                 CommercialAdvertisementDetailsDto::buildingType)
                         .returns(
                                 commercialProjection.getNumberOfRooms(),
@@ -278,7 +276,7 @@ class AdvertisementMapperTest {
                         .asInstanceOf(
                                 InstanceOfAssertFactories.type(HouseAdvertisementDetailsDto.class))
                         .returns(
-                                houseProjection.getBuildingType(),
+                                houseProjection.getBuildingType().name(),
                                 HouseAdvertisementDetailsDto::buildingType)
                         .returns(
                                 houseProjection.getNumberOfRooms(),
@@ -295,7 +293,9 @@ class AdvertisementMapperTest {
                                     InstanceOfAssertFactories.type(
                                             PlotAdvertisementDetailsDto.class))
                             .returns(
-                                    ((PlotAdvertisementDetailsProjection) projection).getPlotType(),
+                                    ((PlotAdvertisementDetailsProjection) projection)
+                                            .getPlotType()
+                                            .name(),
                                     PlotAdvertisementDetailsDto::plotType);
         }
 
@@ -375,8 +375,7 @@ class AdvertisementMapperTest {
                 final UserFlatAdvertisementCardProjection flatProjection =
                         (UserFlatAdvertisementCardProjection) projection;
 
-                given(flatProjection.getBuildingType())
-                        .willReturn(FlatBuildingType.APARTMENT.name());
+                given(flatProjection.getBuildingType()).willReturn(FlatBuildingType.APARTMENT);
 
                 given(flatProjection.getNumberOfRooms()).willReturn(3);
                 given(flatProjection.getFloor()).willReturn(4);
@@ -388,8 +387,7 @@ class AdvertisementMapperTest {
                 final UserHouseAdvertisementCardProjection houseProjection =
                         (UserHouseAdvertisementCardProjection) projection;
 
-                given(houseProjection.getBuildingType())
-                        .willReturn(HouseBuildingType.DETACHED.name());
+                given(houseProjection.getBuildingType()).willReturn(HouseBuildingType.DETACHED);
 
                 given(houseProjection.getNumberOfRooms()).willReturn(3);
                 given(houseProjection.getFloors()).willReturn(5);
@@ -401,7 +399,7 @@ class AdvertisementMapperTest {
                         (UserCommercialAdvertisementCardProjection) projection;
 
                 given(commercialProjection.getBuildingType())
-                        .willReturn(CommercialBuildingType.HALL.name());
+                        .willReturn(CommercialBuildingType.HALL);
 
                 given(commercialProjection.getNumberOfRooms()).willReturn(3);
                 given(commercialProjection.getFloor()).willReturn(4);
@@ -411,7 +409,7 @@ class AdvertisementMapperTest {
 
             case PLOT ->
                     given(((UserPlotAdvertisementCardProjection) projection).getPlotType())
-                            .willReturn(PlotBuildingType.FOREST.name());
+                            .willReturn(PlotBuildingType.FOREST);
         }
 
         // When
@@ -462,7 +460,7 @@ class AdvertisementMapperTest {
                         .asInstanceOf(
                                 InstanceOfAssertFactories.type(UserFlatAdvertisementCardDto.class))
                         .returns(
-                                flatProjection.getBuildingType(),
+                                flatProjection.getBuildingType().name(),
                                 UserFlatAdvertisementCardDto::buildingType)
                         .returns(
                                 flatProjection.getNumberOfRooms(),
@@ -483,7 +481,7 @@ class AdvertisementMapperTest {
                                 InstanceOfAssertFactories.type(
                                         UserCommercialAdvertisementCardDto.class))
                         .returns(
-                                commercialProjection.getBuildingType(),
+                                commercialProjection.getBuildingType().name(),
                                 UserCommercialAdvertisementCardDto::buildingType)
                         .returns(
                                 commercialProjection.getNumberOfRooms(),
@@ -507,7 +505,7 @@ class AdvertisementMapperTest {
                         .asInstanceOf(
                                 InstanceOfAssertFactories.type(UserHouseAdvertisementCardDto.class))
                         .returns(
-                                houseProjection.getBuildingType(),
+                                houseProjection.getBuildingType().name(),
                                 UserHouseAdvertisementCardDto::buildingType)
                         .returns(
                                 houseProjection.getNumberOfRooms(),
@@ -525,7 +523,8 @@ class AdvertisementMapperTest {
                                             UserPlotAdvertisementCardDto.class))
                             .returns(
                                     ((UserPlotAdvertisementCardProjection) projection)
-                                            .getPlotType(),
+                                            .getPlotType()
+                                            .name(),
                                     UserPlotAdvertisementCardDto::plotType);
         }
 

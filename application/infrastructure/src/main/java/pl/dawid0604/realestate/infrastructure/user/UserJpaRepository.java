@@ -18,6 +18,9 @@ import java.util.UUID;
 @Repository
 interface UserJpaRepository extends JpaRepository<UserEntity, UUID> {
 
+    @Query("SELECT u.id FROM #{#entityName} u WHERE u.email = :email")
+    Optional<UUID> findIdByEmail(String email);
+
     interface UserTypeProjection {
         UUID getId();
 

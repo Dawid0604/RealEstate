@@ -27,4 +27,6 @@ public interface UserRepository {
     void deleteByEmail(String email);
 
     boolean hasStatus(String email, UserStatus userStatus);
+
+    Optional<UUID> findIdByEmail(String email);
 }

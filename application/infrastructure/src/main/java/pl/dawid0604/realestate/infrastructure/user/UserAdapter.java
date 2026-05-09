@@ -1,17 +1,15 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.infrastructure.user;
 
-import static java.util.stream.Collectors.toMap;
 import static lombok.AccessLevel.PACKAGE;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import static java.util.stream.Collectors.toMap;
+
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lombok.RequiredArgsConstructor;
 import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.UserType;
@@ -19,6 +17,10 @@ import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 import pl.dawid0604.realestate.domain.shared.user.projection.AdvertisementUserProjection;
 import pl.dawid0604.realestate.domain.shared.user.projection.UserProfileProjection;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor(access = PACKAGE)
@@ -72,6 +74,12 @@ class UserAdapter implements UserRepository {
         if (repository.deleteByEmail(email) == 0) {
             throw new UserNotFoundException(email);
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<UUID> findIdByEmail(final String email) {
+        return repository.findIdByEmail(email);
     }
 
     @Override

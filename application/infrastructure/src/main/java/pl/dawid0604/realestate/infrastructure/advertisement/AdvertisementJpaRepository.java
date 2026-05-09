@@ -1,32 +1,21 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.infrastructure.advertisement;
 
-import static java.util.stream.Collectors.toMap;
 import static lombok.AccessLevel.PACKAGE;
+
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.data.util.Predicates.negate;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
-import jakarta.persistence.TupleElement;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Selection;
+
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -36,7 +25,6 @@ import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
-import lombok.RequiredArgsConstructor;
 import pl.dawid0604.realestate.domain.AdvertisementStatus;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.advertisement.SearchAdvertisementsCriteria;
@@ -57,6 +45,19 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserFlatAd
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserHouseAdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserPlotAdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.exception.InternalException;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 @Repository
 @RequiredArgsConstructor(access = PACKAGE)
@@ -89,7 +90,7 @@ class AdvertisementJpaRepository {
     Optional<AdvertisementEntity<?, ?>> findBySlug(
             final String slug, final AdvertisementType type) {
 
-        verifyNotBlank(slug, "Slug");
+        requireValidSlug(slug);
         return switch (type) {
             case FLAT -> flatJpaRepository.findBySlug(slug).map(AdvertisementEntity.class::cast);
             case HOUSE -> houseJpaRepository.findBySlug(slug).map(AdvertisementEntity.class::cast);
@@ -114,7 +115,7 @@ class AdvertisementJpaRepository {
     Optional<AdvertisementDetailsProjection> findDetails(
             final String slug, final AdvertisementType advertisementType) {
 
-        verifyNotBlank(slug, "Slug");
+        requireValidSlug(slug);
         return switch (advertisementType) {
             case FLAT ->
                     flatJpaRepository
@@ -140,12 +141,12 @@ class AdvertisementJpaRepository {
 
     Page<UserAdvertisementCardProjection> findAdvertisementsByUser(
             final Set<AdvertisementStatus> statuses,
-            final String email,
+            final UUID userId,
             final int page,
             final int pageSize) {
 
-        verifyNotBlank(email, "Email");
-        Objects.requireNonNull(statuses, "Statuses");
+        Objects.requireNonNull(userId, "UserId cannot be null");
+        Objects.requireNonNull(statuses, "Statuses cannot be null");
 
         final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         final CriteriaQuery<Tuple> selectQuery = criteriaBuilder.createTupleQuery();
@@ -159,29 +160,52 @@ class AdvertisementJpaRepository {
 
         selectQuery.select(
                 criteriaBuilder.tuple(
-                        selectRoot.get(AdvertisementFields.ID),
-                        selectRoot.get(AdvertisementFields.SLUG),
-                        selectRoot.get(AdvertisementFields.TITLE),
-                        selectRoot.get(AdvertisementFields.PRICE),
-                        selectRoot.get(AdvertisementFields.AREA),
-                        selectRoot.get(AdvertisementFields.PRICE_PER_SQUARE_METER),
-                        selectRoot.get(AdvertisementFields.CREATED_AT),
-                        selectRoot.get(AdvertisementFields.LOCALITY_ID),
-                        selectRoot.get(AdvertisementFields.FEATURED),
-                        selectRoot.get(AdvertisementFields.BUILDING_TYPE),
-                        selectRoot.get(AdvertisementFields.NUMBER_OF_ROOMS),
-                        selectRoot.get(AdvertisementFields.FLOOR),
-                        selectRoot.get(AdvertisementFields.FLOORS),
-                        selectRoot.get(AdvertisementFields.BUILT_YEAR),
-                        selectRoot.get(AdvertisementFields.TYPE_OF_MARKET),
-                        selectRoot.get(AdvertisementFields.PLOT_TYPE),
-                        selectRoot.get(AdvertisementFields.TYPE)));
+                        selectRoot.get(AdvertisementFields.ID).alias(AdvertisementFields.ID),
+                        selectRoot.get(AdvertisementFields.SLUG).alias(AdvertisementFields.SLUG),
+                        selectRoot.get(AdvertisementFields.TITLE).alias(AdvertisementFields.TITLE),
+                        selectRoot.get(AdvertisementFields.PRICE).alias(AdvertisementFields.PRICE),
+                        selectRoot.get(AdvertisementFields.AREA).alias(AdvertisementFields.AREA),
+                        selectRoot
+                                .get(AdvertisementFields.PRICE_PER_SQUARE_METER)
+                                .alias(AdvertisementFields.PRICE_PER_SQUARE_METER),
+                        selectRoot
+                                .get(AdvertisementFields.CREATED_AT)
+                                .alias(AdvertisementFields.CREATED_AT),
+                        selectRoot
+                                .get(AdvertisementFields.STATUS)
+                                .alias(AdvertisementFields.STATUS),
+                        selectRoot
+                                .get(AdvertisementFields.LOCALITY_ID)
+                                .alias(AdvertisementFields.LOCALITY_ID),
+                        selectRoot
+                                .get(AdvertisementFields.FEATURED)
+                                .alias(AdvertisementFields.FEATURED),
+                        selectRoot
+                                .get(AdvertisementFields.BUILDING_TYPE)
+                                .alias(AdvertisementFields.BUILDING_TYPE),
+                        selectRoot
+                                .get(AdvertisementFields.NUMBER_OF_ROOMS)
+                                .alias(AdvertisementFields.NUMBER_OF_ROOMS),
+                        selectRoot.get(AdvertisementFields.FLOOR).alias(AdvertisementFields.FLOOR),
+                        selectRoot
+                                .get(AdvertisementFields.FLOORS)
+                                .alias(AdvertisementFields.FLOORS),
+                        selectRoot
+                                .get(AdvertisementFields.BUILT_YEAR)
+                                .alias(AdvertisementFields.BUILT_YEAR),
+                        selectRoot
+                                .get(AdvertisementFields.TYPE_OF_MARKET)
+                                .alias(AdvertisementFields.TYPE_OF_MARKET),
+                        selectRoot
+                                .get(AdvertisementFields.PLOT_TYPE)
+                                .alias(AdvertisementFields.PLOT_TYPE),
+                        selectRoot.get(AdvertisementFields.TYPE).alias(AdvertisementFields.TYPE)));
 
-        selectQuery.where(getUserAdvertisementsPredicates(selectRoot, statuses, email));
+        selectQuery.where(getUserAdvertisementsPredicates(selectRoot, statuses, userId));
         selectQuery.orderBy(criteriaBuilder.desc(selectRoot.get(AdvertisementFields.CREATED_AT)));
 
         countQuery.select(criteriaBuilder.count(countRoot));
-        countQuery.where(getUserAdvertisementsPredicates(countRoot, statuses, email));
+        countQuery.where(getUserAdvertisementsPredicates(countRoot, statuses, userId));
 
         try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
             final Future<Long> countFuture =
@@ -595,9 +619,9 @@ class AdvertisementJpaRepository {
     private static List<Predicate> getUserAdvertisementsPredicates(
             final Root<UserAdvertisementViewEntity> root,
             final Set<AdvertisementStatus> statuses,
-            final String email) {
+            final UUID userId) {
 
-        return List.of(root.get("status").in(statuses), root.get("email").equalTo(email));
+        return List.of(root.get("status").in(statuses), root.get("userId").equalTo(userId));
     }
 
     private UserAdvertisementCardProjection createUserAdvertisementCardProjection(
@@ -629,12 +653,15 @@ class AdvertisementJpaRepository {
 
     private static Map<String, Object> tupleToMap(final Tuple tuple) {
         return tuple.getElements().stream()
-                .collect(toMap(TupleElement::getAlias, e -> tuple.get(e.getAlias())));
+                .collect(
+                        HashMap::new,
+                        (map, element) -> map.put(element.getAlias(), tuple.get(element)),
+                        HashMap::putAll);
     }
 
-    private static void verifyNotBlank(final String value, final String label) {
+    private static void requireValidSlug(final String value) {
         if (isBlank(value)) {
-            throw new IllegalArgumentException(label + " cannot be blank");
+            throw new IllegalArgumentException("Slug cannot be blank");
         }
     }
 }

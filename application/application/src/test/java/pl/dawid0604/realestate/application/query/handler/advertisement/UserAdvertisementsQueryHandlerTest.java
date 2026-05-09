@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toSet;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -13,6 +14,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -39,12 +41,14 @@ import pl.dawid0604.realestate.application.dto.advertisement.UserCommercialAdver
 import pl.dawid0604.realestate.application.dto.advertisement.UserFlatAdvertisementCardDto;
 import pl.dawid0604.realestate.application.dto.advertisement.UserHouseAdvertisementCardDto;
 import pl.dawid0604.realestate.application.dto.advertisement.UserPlotAdvertisementCardDto;
+import pl.dawid0604.realestate.application.fixture.UserFixture;
 import pl.dawid0604.realestate.application.mapper.advertisement.AdvertisementMapper;
 import pl.dawid0604.realestate.application.query.UserAdvertisementsQuery;
 import pl.dawid0604.realestate.domain.AdvertisementStatus;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementPhotoRepository;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
 import pl.dawid0604.realestate.domain.port.out.LocalityRepository;
+import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.Page;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserAdvertisementCardProjection;
@@ -52,6 +56,7 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserCommer
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserFlatAdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserHouseAdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserPlotAdvertisementCardProjection;
+import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 import pl.dawid0604.realestate.domain.shared.photo.projection.PhotoProjection;
 
 @ExtendWith(MockitoExtension.class)
@@ -60,6 +65,7 @@ class UserAdvertisementsQueryHandlerTest {
     @Mock private AdvertisementMapper advertisementMapper;
     @Mock private AdvertisementPhotoRepository advertisementPhotoRepository;
     @Mock private LocalityRepository localityRepository;
+    @Mock private UserRepository userRepository;
     @Captor private ArgumentCaptor<Set<AdvertisementStatus>> advertisementStatusArgumentCaptor;
     private UserAdvertisementsQueryHandler handler;
 
@@ -70,7 +76,8 @@ class UserAdvertisementsQueryHandlerTest {
                         advertisementRepository,
                         advertisementPhotoRepository,
                         localityRepository,
-                        advertisementMapper);
+                        advertisementMapper,
+                        userRepository);
     }
 
     @Test
@@ -85,6 +92,19 @@ class UserAdvertisementsQueryHandlerTest {
     }
 
     @Test
+    @DisplayName("Should throw exception when user not found")
+    void shouldThrowExceptionWhenUserNotFound() {
+        // Given
+        final UserAdvertisementsQuery query = mock();
+        given(query.email()).willReturn(UserFixture.getDummyEmail());
+
+        // When
+        // Then
+        Assertions.assertThatThrownBy(() -> handler.handle(query))
+                .isExactlyInstanceOf(UserNotFoundException.class);
+    }
+
+    @Test
     @DisplayName("Should find by and return empty page")
     void shouldFindAndReturnEmptyPage() {
         // Given
@@ -94,6 +114,7 @@ class UserAdvertisementsQueryHandlerTest {
         final Page<UserAdvertisementCardProjection> page = mock();
         final UserAdvertisementsQuery query = mock();
 
+        given(userRepository.findIdByEmail(any())).willReturn(Optional.of(UUID.randomUUID()));
         given(page.getItems()).willReturn(List.of());
         given(page.getPageNumber()).willReturn(pageNumber);
         given(page.getPageSize()).willReturn(pageSize);
@@ -122,6 +143,7 @@ class UserAdvertisementsQueryHandlerTest {
         final Page<UserAdvertisementCardProjection> page = mock();
         final UserAdvertisementsQuery query = mock();
 
+        given(userRepository.findIdByEmail(any())).willReturn(Optional.of(UUID.randomUUID()));
         given(page.getItems()).willReturn(List.of());
         given(page.getPageNumber()).willReturn(pageNumber);
         given(page.getPageSize()).willReturn(pageSize);
@@ -155,6 +177,7 @@ class UserAdvertisementsQueryHandlerTest {
         final Page<UserAdvertisementCardProjection> page = mock();
         final UserAdvertisementsQuery query = mock();
 
+        given(userRepository.findIdByEmail(any())).willReturn(Optional.of(UUID.randomUUID()));
         given(query.statuses()).willReturn(statuses);
         given(page.getItems()).willReturn(List.of());
         given(page.getPageNumber()).willReturn(pageNumber);
@@ -197,6 +220,7 @@ class UserAdvertisementsQueryHandlerTest {
         final int pageSize = 10;
         final Page<UserAdvertisementCardProjection> page = mock();
         final UserAdvertisementsQuery query = mock();
+        final UUID userId = UUID.randomUUID();
 
         final UserFlatAdvertisementCardProjection firstCard =
                 mock(UserFlatAdvertisementCardProjection.class);
@@ -242,6 +266,8 @@ class UserAdvertisementsQueryHandlerTest {
         final Set<PhotoProjection> forthCardPhotos = Set.of(mock(PhotoProjection.class));
         final Set<PhotoProjection> fifthCardPhotos = Set.of(mock(PhotoProjection.class));
 
+        given(query.email()).willReturn(UserFixture.getDummyEmail());
+        given(userRepository.findIdByEmail(query.email())).willReturn(Optional.of(userId));
         given(firstCard.getId()).willReturn(firstCardId);
         given(secondCard.getId()).willReturn(secondCardId);
         given(thirdCard.getId()).willReturn(thirdCardId);
@@ -316,7 +342,9 @@ class UserAdvertisementsQueryHandlerTest {
         given(page.getPageNumber()).willReturn(pageNumber);
         given(page.getPageSize()).willReturn(pageSize);
         given(page.getTotalElements()).willReturn((long) items.size());
-        given(advertisementRepository.findAdvertisementsByUser(anySet(), any(), anyInt(), anyInt()))
+        given(
+                        advertisementRepository.findAdvertisementsByUser(
+                                anySet(), eq(userId), anyInt(), anyInt()))
                 .willReturn(page);
 
         // When
@@ -334,6 +362,7 @@ class UserAdvertisementsQueryHandlerTest {
         final int pageSize = 10;
         final Page<UserAdvertisementCardProjection> page = mock();
         final UserAdvertisementsQuery query = mock();
+        final UUID userId = UUID.randomUUID();
 
         final UserFlatAdvertisementCardProjection firstCard =
                 mock(UserFlatAdvertisementCardProjection.class);
@@ -361,6 +390,8 @@ class UserAdvertisementsQueryHandlerTest {
         final Set<PhotoProjection> secondCardPhotos =
                 Set.of(mock(PhotoProjection.class), mock(PhotoProjection.class));
 
+        given(query.email()).willReturn(UserFixture.getDummyEmail());
+        given(userRepository.findIdByEmail(query.email())).willReturn(Optional.of(userId));
         given(firstCard.getId()).willReturn(firstCardId);
         given(secondCard.getId()).willReturn(secondCardId);
 
@@ -396,7 +427,9 @@ class UserAdvertisementsQueryHandlerTest {
         given(page.getPageNumber()).willReturn(pageNumber);
         given(page.getPageSize()).willReturn(pageSize);
         given(page.getTotalElements()).willReturn((long) items.size());
-        given(advertisementRepository.findAdvertisementsByUser(anySet(), any(), anyInt(), anyInt()))
+        given(
+                        advertisementRepository.findAdvertisementsByUser(
+                                anySet(), eq(userId), anyInt(), anyInt()))
                 .willReturn(page);
 
         // When

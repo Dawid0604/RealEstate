@@ -410,9 +410,8 @@ SELECT f.id,
        f.built_year,
        f.type_of_market,
        NULL::varchar(20)   as plot_type,
-       u.email
+       f.user_id
 FROM flat_advertisements f
-         JOIN users u ON f.user_id = u.id
 
 UNION ALL
 
@@ -434,9 +433,8 @@ SELECT f.id,
        f.built_year,
        f.type_of_market,
        NULL::varchar(20)    as plot_type,
-       u.email
+       f.user_id
 FROM house_advertisements f
-         JOIN users u ON f.user_id = u.id
 
 UNION ALL
 
@@ -458,9 +456,8 @@ SELECT f.id,
        f.built_year,
        f.type_of_market,
        NULL::varchar(20)         as plot_type,
-       u.email
+       f.user_id
 FROM commercial_advertisements f
-         JOIN users u ON f.user_id = u.id
 
 UNION ALL
 
@@ -482,6 +479,5 @@ SELECT f.id,
        null::int           as built_year,
        null::varchar(20)   as type_of_market,
        plot_type,
-       u.email
+       f.user_id
 FROM plot_advertisements f
-         JOIN users u ON f.user_id = u.id

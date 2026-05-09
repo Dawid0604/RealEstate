@@ -578,4 +578,45 @@ class UserAdapterTest {
             }
         }
     }
+
+    @Nested
+    final class FindIdByEmailTests {
+
+        @Nested
+        final class IntegrationTests extends IntegrationTest {
+            @Autowired private UserJpaRepository repository;
+            @Autowired private UserAdapter userAdapter;
+
+            @Test
+            @DisplayName("Should return id")
+            @Sql(scripts = "/scripts/clear_database.sql", executionPhase = BEFORE_TEST_METHOD)
+            void shouldReturnId() {
+                // Given
+                final String email = "anyEmail@mail.com";
+
+                final UserEntity user =
+                        new UserEntity(
+                                Identifier.generate().getValue(),
+                                email,
+                                "anyPassword",
+                                "John",
+                                "Doe",
+                                "abc",
+                                "cde",
+                                "anyImage",
+                                UserRole.USER_ROLE,
+                                UserStatus.ACTIVE,
+                                UserType.AGENCY,
+                                null);
+
+                repository.save(user);
+
+                // When
+                final var result = userAdapter.findIdByEmail(email);
+
+                // Then
+                Assertions.assertThat(result).isPresent().hasValue(user.getId());
+            }
+        }
+    }
 }

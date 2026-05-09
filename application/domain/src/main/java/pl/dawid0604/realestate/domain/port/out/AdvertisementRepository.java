@@ -26,7 +26,7 @@ public interface AdvertisementRepository {
     Set<AdvertisementClaimProjection> findClaims(UUID id, AdvertisementType advertisementType);
 
     Page<UserAdvertisementCardProjection> findAdvertisementsByUser(
-            Set<AdvertisementStatus> statuses, String email, int page, int pageSize);
+            Set<AdvertisementStatus> statuses, UUID userId, int page, int pageSize);
 
     Page<AdvertisementCardProjection> findByCriteria(SearchAdvertisementsCriteria criteria);
 }

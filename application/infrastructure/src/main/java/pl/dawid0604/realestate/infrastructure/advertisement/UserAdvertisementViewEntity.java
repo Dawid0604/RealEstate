@@ -1,22 +1,24 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.infrastructure.advertisement;
 
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.UUID;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-import org.hibernate.annotations.Immutable;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+
+import org.hibernate.annotations.Immutable;
+
 import pl.dawid0604.realestate.domain.AdvertisementStatus;
+import pl.dawid0604.realestate.domain.TypeOfMarket;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -35,9 +37,19 @@ class UserAdvertisementViewEntity {
     private Instant createdAt;
     private UUID localityId;
     private boolean featured;
+    private Integer numberOfRooms;
+    private Integer floor;
+    private Integer floors;
+    private Integer builtYear;
+    private UUID userId;
+    private String plotType;
+    private String buildingType;
 
     @Enumerated(EnumType.STRING)
     private AdvertisementStatus status;
+
+    @Enumerated(EnumType.STRING)
+    private TypeOfMarket typeOfMarket;
 
     @Enumerated(EnumType.STRING)
     private AdvertisementType type;
