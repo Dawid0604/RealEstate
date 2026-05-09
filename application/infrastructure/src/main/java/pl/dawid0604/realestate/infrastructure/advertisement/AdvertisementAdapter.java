@@ -2,14 +2,17 @@
 package pl.dawid0604.realestate.infrastructure.advertisement;
 
 import static lombok.AccessLevel.PACKAGE;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import jakarta.annotation.Nonnull;
-
-import lombok.RequiredArgsConstructor;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.RequiredArgsConstructor;
 import pl.dawid0604.realestate.domain.Advertisement;
 import pl.dawid0604.realestate.domain.AdvertisementStatus;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
@@ -21,10 +24,6 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.Advertisem
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementDetailsProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserAdvertisementCardProjection;
 
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor(access = PACKAGE)
 class AdvertisementAdapter implements AdvertisementRepository {
@@ -33,69 +32,84 @@ class AdvertisementAdapter implements AdvertisementRepository {
 
     @Override
     @Transactional
-    public void save(@Nonnull final Advertisement advertisement) {
-        advertisementJpaRepository.save(advertisementMapper.toEntity(advertisement));
+    public void save(final Advertisement advertisement) {
+        Objects.requireNonNull(advertisement, "Advertisement cannot be null");
+
+        final AdvertisementEntity<?, ?> entity =
+                switch (advertisement.getAdvertisementType()) {
+                    case FLAT -> advertisementMapper.toFlatEntity(advertisement);
+                    case HOUSE -> advertisementMapper.toHouseEntity(advertisement);
+                    case COMMERCIAL -> advertisementMapper.toCommercialEntity(advertisement);
+                    case PLOT -> advertisementMapper.toPlotEntity(advertisement);
+                };
+
+        advertisementJpaRepository.save(entity);
     }
 
-    @Nonnull
     @Override
     @Transactional(readOnly = true)
     public Optional<Advertisement> findBySlug(
-            @Nonnull final String slug, @Nonnull final AdvertisementType advertisementType) {
+            final String slug, final AdvertisementType advertisementType) {
+
+        verifyNotBlank(slug, "Slug");
+        Objects.requireNonNull(advertisementType, "AdvertisementType cannot be null");
 
         return advertisementJpaRepository
                 .findBySlug(slug, advertisementType)
                 .map(advertisementMapper::toDomain);
     }
 
-    @Nonnull
     @Override
     @Transactional(readOnly = true)
     public Optional<AdvertisementDetailsProjection> findDetails(
-            @Nonnull final String slug, @Nonnull final AdvertisementType advertisementType) {
+            final String slug, final AdvertisementType advertisementType) {
 
-        return advertisementJpaRepository
-                .findDetails(slug, advertisementType)
-                .map(AdvertisementDetailsProjection.class::cast);
+        verifyNotBlank(slug, "Slug");
+        Objects.requireNonNull(advertisementType, "AdvertisementType cannot be null");
+        return advertisementJpaRepository.findDetails(slug, advertisementType);
     }
 
-    @Nonnull
     @Override
     @Transactional(readOnly = true)
     public Set<AdvertisementClaimProjection> findClaims(
-            @Nonnull final UUID id, @Nonnull final AdvertisementType advertisementType) {
+            final UUID id, final AdvertisementType advertisementType) {
 
+        Objects.requireNonNull(id, "Id cannot be null");
+        Objects.requireNonNull(advertisementType, "AdvertisementType cannot be null");
         return advertisementJpaRepository.findClaims(id, advertisementType);
     }
 
-    @Nonnull
     @Override
     @Transactional(readOnly = true)
     public Page<UserAdvertisementCardProjection> findAdvertisementsByUser(
-            @Nonnull final Set<AdvertisementStatus> statuses,
-            @Nonnull final String email,
+            final Set<AdvertisementStatus> statuses,
+            final String email,
             final int page,
             final int pageSize) {
 
+        verifyNotBlank(email, "Email");
         return asDomainPage(
                 advertisementJpaRepository.findAdvertisementsByUser(
                         statuses, email, page, pageSize));
     }
 
-    @Nonnull
     @Override
     @Transactional(readOnly = true)
     public Page<AdvertisementCardProjection> findByCriteria(
-            @Nonnull final SearchAdvertisementsCriteria criteria) {
+            final SearchAdvertisementsCriteria criteria) {
 
+        Objects.requireNonNull(criteria, "Criteria cannot be null");
         return asDomainPage(advertisementJpaRepository.findByCriteria(criteria));
     }
 
-    @Nonnull
-    private static <T> Page<T> asDomainPage(
-            @Nonnull final org.springframework.data.domain.Page<T> page) {
-
+    private static <T> Page<T> asDomainPage(final org.springframework.data.domain.Page<T> page) {
         return Page.of(
                 page.getContent(), page.getNumber(), page.getSize(), page.getTotalElements());
+    }
+
+    private static void verifyNotBlank(final String value, final String label) {
+        if (isBlank(value)) {
+            throw new IllegalArgumentException(label + " cannot be blank");
+        }
     }
 }

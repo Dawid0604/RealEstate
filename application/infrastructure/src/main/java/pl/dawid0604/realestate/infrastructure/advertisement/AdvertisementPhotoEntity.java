@@ -10,13 +10,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MappedSuperclass;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @MappedSuperclass
-@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = PROTECTED)
 @SuppressWarnings("PMD.ImmutableField")
 abstract sealed class AdvertisementPhotoEntity<T extends AdvertisementEntity<?, ?>>
@@ -29,6 +28,7 @@ abstract sealed class AdvertisementPhotoEntity<T extends AdvertisementEntity<?, 
     private String url;
     private int position;
 
+    @Setter
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "advertisement_id")
     private T advertisement;

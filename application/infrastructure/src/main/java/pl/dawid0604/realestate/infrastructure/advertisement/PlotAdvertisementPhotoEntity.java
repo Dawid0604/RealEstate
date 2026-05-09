@@ -6,7 +6,6 @@ import static lombok.AccessLevel.PACKAGE;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -15,7 +14,6 @@ import java.util.UUID;
 @Getter
 @Entity
 @NoArgsConstructor(access = PACKAGE)
-@EqualsAndHashCode(callSuper = true)
 @Table(name = "plot_advertisements_photos")
 non-sealed class PlotAdvertisementPhotoEntity
         extends AdvertisementPhotoEntity<PlotAdvertisementEntity> {

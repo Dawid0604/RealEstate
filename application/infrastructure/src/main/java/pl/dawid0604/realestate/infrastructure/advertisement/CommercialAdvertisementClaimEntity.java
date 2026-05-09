@@ -3,19 +3,17 @@ package pl.dawid0604.realestate.infrastructure.advertisement;
 
 import static lombok.AccessLevel.PACKAGE;
 
+import java.util.UUID;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.UUID;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = PACKAGE)
-@EqualsAndHashCode(callSuper = true)
 @Table(name = "commercial_advertisements_claims")
 non-sealed class CommercialAdvertisementClaimEntity
         extends AdvertisementClaimEntity<CommercialAdvertisementEntity> {

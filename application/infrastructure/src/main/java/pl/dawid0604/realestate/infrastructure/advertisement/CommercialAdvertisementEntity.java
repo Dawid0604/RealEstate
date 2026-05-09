@@ -2,28 +2,24 @@
 package pl.dawid0604.realestate.infrastructure.advertisement;
 
 import static jakarta.persistence.EnumType.STRING;
-
 import static lombok.AccessLevel.PROTECTED;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Table;
-
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-import pl.dawid0604.realestate.domain.AdvertisementStatus;
-import pl.dawid0604.realestate.domain.CommercialBuildingType;
-import pl.dawid0604.realestate.domain.TypeOfMarket;
 
 import java.math.BigDecimal;
 import java.util.Set;
 import java.util.UUID;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import pl.dawid0604.realestate.domain.AdvertisementStatus;
+import pl.dawid0604.realestate.domain.CommercialBuildingType;
+import pl.dawid0604.realestate.domain.TypeOfMarket;
+
 @Getter
 @Entity
-@EqualsAndHashCode(callSuper = true)
 @SuppressWarnings("PMD.ImmutableField")
 @NoArgsConstructor(access = PROTECTED)
 @Table(name = "commercial_advertisements")

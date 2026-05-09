@@ -1,27 +1,24 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.infrastructure.advertisement;
 
+import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.EnumType.STRING;
-
 import static lombok.AccessLevel.PROTECTED;
-
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.OneToMany;
-
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-import pl.dawid0604.realestate.domain.AdvertisementStatus;
 
 import java.math.BigDecimal;
 import java.util.Set;
 import java.util.UUID;
 
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.OneToMany;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import pl.dawid0604.realestate.domain.AdvertisementStatus;
+
 @Getter
 @MappedSuperclass
-@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = PROTECTED)
 @SuppressWarnings("PMD.ImmutableField")
 abstract sealed class AdvertisementEntity<
@@ -45,10 +42,10 @@ abstract sealed class AdvertisementEntity<
     @Enumerated(STRING)
     private AdvertisementStatus status;
 
-    @OneToMany(mappedBy = "advertisement", orphanRemoval = true)
+    @OneToMany(mappedBy = "advertisement", orphanRemoval = true, cascade = ALL)
     private Set<T> claims;
 
-    @OneToMany(mappedBy = "advertisement", orphanRemoval = true)
+    @OneToMany(mappedBy = "advertisement", orphanRemoval = true, cascade = ALL)
     private Set<Y> photos;
 
     @SuppressWarnings("PMD.ExcessiveParameterList")

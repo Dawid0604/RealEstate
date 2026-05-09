@@ -31,6 +31,7 @@ import pl.dawid0604.realestate.domain.PricePerSquareMeter;
 import pl.dawid0604.realestate.domain.Slug;
 import pl.dawid0604.realestate.domain.Title;
 import pl.dawid0604.realestate.domain.Url;
+import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 
 @Component
 @NoArgsConstructor(access = PACKAGE)
@@ -61,23 +62,13 @@ class AdvertisementMapper {
                 .build();
     }
 
-    AdvertisementEntity<?, ?> toEntity(final Advertisement advertisement) {
-        if (advertisement == null) {
-            return null;
+    @SuppressWarnings("CPD-START")
+    FlatAdvertisementEntity toFlatEntity(final Advertisement advertisement) {
+        if (advertisement.getAdvertisementType() != AdvertisementType.FLAT) {
+            throw new IllegalArgumentException("Invalid advertisement type, expected flat");
         }
 
-        return switch (advertisement.getAdvertisementType()) {
-            case FLAT -> mapToFlatEntity(advertisement);
-            case HOUSE -> mapToHouseEntity(advertisement);
-            case COMMERCIAL -> mapToCommercialEntity(advertisement);
-            case PLOT -> mapToPlotEntity(advertisement);
-        };
-    }
-
-    @SuppressWarnings("CPD-START")
-    private static AdvertisementEntity<?, ?> mapToFlatEntity(final Advertisement advertisement) {
         final FlatDetails details = (FlatDetails) advertisement.getDetails();
-
         return new FlatAdvertisementEntity(
                 advertisement.getId().getValue(),
                 advertisement.getSlug().getValue(),
@@ -100,11 +91,12 @@ class AdvertisementMapper {
                 details.getTypeOfMarket());
     }
 
-    private static AdvertisementEntity<?, ?> mapToCommercialEntity(
-            final Advertisement advertisement) {
+    CommercialAdvertisementEntity toCommercialEntity(final Advertisement advertisement) {
+        if (advertisement.getAdvertisementType() != AdvertisementType.COMMERCIAL) {
+            throw new IllegalArgumentException("Invalid advertisement type, expected commercial");
+        }
 
         final CommercialDetails details = (CommercialDetails) advertisement.getDetails();
-
         return new CommercialAdvertisementEntity(
                 advertisement.getId().getValue(),
                 advertisement.getSlug().getValue(),
@@ -127,9 +119,12 @@ class AdvertisementMapper {
                 details.getTypeOfMarket());
     }
 
-    private static AdvertisementEntity<?, ?> mapToHouseEntity(final Advertisement advertisement) {
-        final HouseDetails details = (HouseDetails) advertisement.getDetails();
+    HouseAdvertisementEntity toHouseEntity(final Advertisement advertisement) {
+        if (advertisement.getAdvertisementType() != AdvertisementType.HOUSE) {
+            throw new IllegalArgumentException("Invalid advertisement type, expected house");
+        }
 
+        final HouseDetails details = (HouseDetails) advertisement.getDetails();
         return new HouseAdvertisementEntity(
                 advertisement.getId().getValue(),
                 advertisement.getSlug().getValue(),
@@ -151,9 +146,12 @@ class AdvertisementMapper {
                 details.getTypeOfMarket());
     }
 
-    private static AdvertisementEntity<?, ?> mapToPlotEntity(final Advertisement advertisement) {
-        final PlotDetails details = (PlotDetails) advertisement.getDetails();
+    PlotAdvertisementEntity toPlotEntity(final Advertisement advertisement) {
+        if (advertisement.getAdvertisementType() != AdvertisementType.PLOT) {
+            throw new IllegalArgumentException("Invalid advertisement type, expected plot");
+        }
 
+        final PlotDetails details = (PlotDetails) advertisement.getDetails();
         return new PlotAdvertisementEntity(
                 advertisement.getId().getValue(),
                 advertisement.getSlug().getValue(),

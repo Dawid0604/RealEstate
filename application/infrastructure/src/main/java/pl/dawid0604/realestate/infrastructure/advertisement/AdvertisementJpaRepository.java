@@ -1,14 +1,23 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.infrastructure.advertisement;
 
+import static java.util.stream.Collectors.toMap;
 import static lombok.AccessLevel.PACKAGE;
-
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.data.util.Predicates.negate;
 
-import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toMap;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
-import jakarta.annotation.Nonnull;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.TupleElement;
@@ -19,8 +28,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Selection;
 
-import lombok.RequiredArgsConstructor;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -29,6 +36,7 @@ import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
+import lombok.RequiredArgsConstructor;
 import pl.dawid0604.realestate.domain.AdvertisementStatus;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.advertisement.SearchAdvertisementsCriteria;
@@ -50,17 +58,6 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserHouseA
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserPlotAdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.exception.InternalException;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 @Repository
 @RequiredArgsConstructor(access = PACKAGE)
 class AdvertisementJpaRepository {
@@ -77,7 +74,8 @@ class AdvertisementJpaRepository {
     private final EntityManager entityManager;
     private final ProjectionFactory projectionFactory = new SpelAwareProxyProjectionFactory();
 
-    void save(@Nonnull final AdvertisementEntity<?, ?> entity) {
+    void save(final AdvertisementEntity<?, ?> entity) {
+        Objects.requireNonNull(entity, "Entity cannot be null");
         switch (entity) {
             case CommercialAdvertisementEntity commercialEntity ->
                     commercialJpaRepository.save(commercialEntity);
@@ -88,22 +86,23 @@ class AdvertisementJpaRepository {
         }
     }
 
-    @Nonnull
-    Optional<? extends AdvertisementEntity<?, ?>> findBySlug(
-            @Nonnull final String slug, @Nonnull final AdvertisementType type) {
+    Optional<AdvertisementEntity<?, ?>> findBySlug(
+            final String slug, final AdvertisementType type) {
 
+        verifyNotBlank(slug, "Slug");
         return switch (type) {
-            case FLAT -> flatJpaRepository.findBySlug(slug);
-            case HOUSE -> houseJpaRepository.findBySlug(slug);
-            case COMMERCIAL -> commercialJpaRepository.findBySlug(slug);
-            case PLOT -> plotJpaRepository.findBySlug(slug);
+            case FLAT -> flatJpaRepository.findBySlug(slug).map(AdvertisementEntity.class::cast);
+            case HOUSE -> houseJpaRepository.findBySlug(slug).map(AdvertisementEntity.class::cast);
+            case PLOT -> plotJpaRepository.findBySlug(slug).map(AdvertisementEntity.class::cast);
+            case COMMERCIAL ->
+                    commercialJpaRepository.findBySlug(slug).map(AdvertisementEntity.class::cast);
         };
     }
 
-    @Nonnull
     Set<AdvertisementClaimProjection> findClaims(
-            @Nonnull final UUID id, @Nonnull final AdvertisementType advertisementType) {
+            final UUID id, final AdvertisementType advertisementType) {
 
+        Objects.requireNonNull(id, "Id cannot be null");
         return switch (advertisementType) {
             case FLAT -> flatClaimJpaRepository.findClaimsById(id);
             case HOUSE -> houseClaimJpaRepository.findClaimsById(id);
@@ -112,24 +111,41 @@ class AdvertisementJpaRepository {
         };
     }
 
-    @Nonnull
-    Optional<? extends AdvertisementDetailsProjection> findDetails(
-            @Nonnull final String slug, @Nonnull final AdvertisementType advertisementType) {
+    Optional<AdvertisementDetailsProjection> findDetails(
+            final String slug, final AdvertisementType advertisementType) {
 
+        verifyNotBlank(slug, "Slug");
         return switch (advertisementType) {
-            case FLAT -> flatJpaRepository.findDetailsBySlug(slug);
-            case HOUSE -> houseJpaRepository.findDetailsBySlug(slug);
-            case COMMERCIAL -> commercialJpaRepository.findDetailsBySlug(slug);
-            case PLOT -> plotJpaRepository.findDetailsBySlug(slug);
+            case FLAT ->
+                    flatJpaRepository
+                            .findDetailsBySlug(slug)
+                            .map(AdvertisementDetailsProjection.class::cast);
+
+            case HOUSE ->
+                    houseJpaRepository
+                            .findDetailsBySlug(slug)
+                            .map(AdvertisementDetailsProjection.class::cast);
+
+            case COMMERCIAL ->
+                    commercialJpaRepository
+                            .findDetailsBySlug(slug)
+                            .map(AdvertisementDetailsProjection.class::cast);
+
+            case PLOT ->
+                    plotJpaRepository
+                            .findDetailsBySlug(slug)
+                            .map(AdvertisementDetailsProjection.class::cast);
         };
     }
 
-    @Nonnull
     Page<UserAdvertisementCardProjection> findAdvertisementsByUser(
-            @Nonnull final Set<AdvertisementStatus> statuses,
-            @Nonnull final String email,
+            final Set<AdvertisementStatus> statuses,
+            final String email,
             final int page,
             final int pageSize) {
+
+        verifyNotBlank(email, "Email");
+        Objects.requireNonNull(statuses, "Statuses");
 
         final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         final CriteriaQuery<Tuple> selectQuery = criteriaBuilder.createTupleQuery();
@@ -196,9 +212,8 @@ class AdvertisementJpaRepository {
         }
     }
 
-    @Nonnull
-    Page<AdvertisementCardProjection> findByCriteria(
-            @Nonnull final SearchAdvertisementsCriteria criteria) {
+    Page<AdvertisementCardProjection> findByCriteria(final SearchAdvertisementsCriteria criteria) {
+        Objects.requireNonNull(criteria, "Criteria cannot be null");
 
         final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         final CriteriaQuery<Tuple> selectQuery = criteriaBuilder.createTupleQuery();
@@ -257,11 +272,10 @@ class AdvertisementJpaRepository {
         }
     }
 
-    @Nonnull
     private static Selection<Tuple> getAdvertisementByCriteriaSelectFields(
-            @Nonnull final Root<? extends AdvertisementEntity<?, ?>> root,
-            @Nonnull final CriteriaBuilder criteriaBuilder,
-            @Nonnull final Class<? extends AdvertisementEntity<?, ?>> clazz) {
+            final Root<? extends AdvertisementEntity<?, ?>> root,
+            final CriteriaBuilder criteriaBuilder,
+            final Class<? extends AdvertisementEntity<?, ?>> clazz) {
 
         final List<Selection<?>> fields = new ArrayList<>();
         fields.add(root.get(AdvertisementFields.ID));
@@ -294,11 +308,10 @@ class AdvertisementJpaRepository {
         return criteriaBuilder.tuple(fields);
     }
 
-    @Nonnull
     private static List<Predicate> getAdvertisementByCriteriaPredicates(
-            @Nonnull final Root<? extends AdvertisementEntity<?, ?>> root,
-            @Nonnull final CriteriaBuilder criteriaBuilder,
-            @Nonnull final SearchAdvertisementsCriteria criteria) {
+            final Root<? extends AdvertisementEntity<?, ?>> root,
+            final CriteriaBuilder criteriaBuilder,
+            final SearchAdvertisementsCriteria criteria) {
 
         final List<Predicate> predicates =
                 getBaseAdvertisementByCriteriaPredicates(criteriaBuilder, root, criteria);
@@ -317,18 +330,17 @@ class AdvertisementJpaRepository {
                             getHouseAdvertisementByCriteriaPredicates(
                                     criteriaBuilder, root, houseCriteria);
 
-                    default -> emptyList();
+                    default -> List.of();
                 };
 
         predicates.addAll(extraPredicates);
         return predicates;
     }
 
-    @Nonnull
     private static List<Predicate> getBaseAdvertisementByCriteriaPredicates(
-            @Nonnull final CriteriaBuilder criteriaBuilder,
-            @Nonnull final Root<? extends AdvertisementEntity<?, ?>> root,
-            @Nonnull final SearchAdvertisementsCriteria criteria) {
+            final CriteriaBuilder criteriaBuilder,
+            final Root<? extends AdvertisementEntity<?, ?>> root,
+            final SearchAdvertisementsCriteria criteria) {
 
         final List<Predicate> predicates = new ArrayList<>();
 
@@ -567,9 +579,8 @@ class AdvertisementJpaRepository {
         return Optional.ofNullable(value).filter(negate(CollectionUtils::isEmpty)).map(path::in);
     }
 
-    @Nonnull
     private static Class<? extends AdvertisementEntity<?, ?>> getAdvertisementEntityClazz(
-            @Nonnull final SearchAdvertisementsCriteria criteria) {
+            final SearchAdvertisementsCriteria criteria) {
 
         return switch (criteria) {
             case SearchCommercialAdvertisementsCriteria ignored ->
@@ -581,18 +592,16 @@ class AdvertisementJpaRepository {
         };
     }
 
-    @Nonnull
     private static List<Predicate> getUserAdvertisementsPredicates(
-            @Nonnull final Root<UserAdvertisementViewEntity> root,
-            @Nonnull final Set<AdvertisementStatus> statuses,
-            @Nonnull final String email) {
+            final Root<UserAdvertisementViewEntity> root,
+            final Set<AdvertisementStatus> statuses,
+            final String email) {
 
         return List.of(root.get("status").in(statuses), root.get("email").equalTo(email));
     }
 
-    @Nonnull
     private UserAdvertisementCardProjection createUserAdvertisementCardProjection(
-            @Nonnull final Tuple tuple) {
+            final Tuple tuple) {
 
         final Class<? extends UserAdvertisementCardProjection> projectionClazz =
                 switch (tuple.get("type", AdvertisementType.class)) {
@@ -605,9 +614,7 @@ class AdvertisementJpaRepository {
         return projectionFactory.createProjection(projectionClazz, tupleToMap(tuple));
     }
 
-    @Nonnull
-    private AdvertisementCardProjection createAdvertisementCardProjection(
-            @Nonnull final Tuple tuple) {
+    private AdvertisementCardProjection createAdvertisementCardProjection(final Tuple tuple) {
 
         final Class<? extends AdvertisementCardProjection> projectionClazz =
                 switch (tuple.get("type", AdvertisementType.class)) {
@@ -620,9 +627,14 @@ class AdvertisementJpaRepository {
         return projectionFactory.createProjection(projectionClazz, tupleToMap(tuple));
     }
 
-    @Nonnull
-    private static Map<String, Object> tupleToMap(@Nonnull final Tuple tuple) {
+    private static Map<String, Object> tupleToMap(final Tuple tuple) {
         return tuple.getElements().stream()
                 .collect(toMap(TupleElement::getAlias, e -> tuple.get(e.getAlias())));
+    }
+
+    private static void verifyNotBlank(final String value, final String label) {
+        if (isBlank(value)) {
+            throw new IllegalArgumentException(label + " cannot be blank");
+        }
     }
 }
