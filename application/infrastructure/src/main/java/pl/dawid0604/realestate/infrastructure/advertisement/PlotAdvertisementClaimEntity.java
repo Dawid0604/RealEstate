@@ -3,13 +3,13 @@ package pl.dawid0604.realestate.infrastructure.advertisement;
 
 import static lombok.AccessLevel.PACKAGE;
 
+import java.util.UUID;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.UUID;
 
 @Getter
 @Entity

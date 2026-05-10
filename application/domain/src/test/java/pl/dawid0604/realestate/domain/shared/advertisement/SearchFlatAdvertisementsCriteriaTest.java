@@ -1,14 +1,14 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain.shared.advertisement;
 
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
+
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 class SearchFlatAdvertisementsCriteriaTest {
 

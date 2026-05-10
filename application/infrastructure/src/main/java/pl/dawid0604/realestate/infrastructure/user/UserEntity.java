@@ -2,8 +2,10 @@
 package pl.dawid0604.realestate.infrastructure.user;
 
 import static jakarta.persistence.EnumType.STRING;
-
 import static lombok.AccessLevel.PACKAGE;
+
+import java.time.Instant;
+import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,20 +14,16 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import pl.dawid0604.realestate.domain.UserRole;
 import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.UserType;
-
-import java.time.Instant;
-import java.util.UUID;
 
 @Getter
 @Entity

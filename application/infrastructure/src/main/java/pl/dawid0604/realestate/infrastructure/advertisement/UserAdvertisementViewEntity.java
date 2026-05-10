@@ -1,24 +1,23 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.infrastructure.advertisement;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.UUID;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-
 import org.hibernate.annotations.Immutable;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import pl.dawid0604.realestate.domain.AdvertisementStatus;
 import pl.dawid0604.realestate.domain.TypeOfMarket;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.UUID;
 
 @Entity
 @Getter

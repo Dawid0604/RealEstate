@@ -1,19 +1,17 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.infrastructure.locality;
 
+import static java.util.stream.Collectors.toMap;
 import static lombok.AccessLevel.PACKAGE;
 
-import static java.util.stream.Collectors.toMap;
-
-import lombok.RequiredArgsConstructor;
+import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.RequiredArgsConstructor;
 import pl.dawid0604.realestate.domain.port.out.LocalityRepository;
-
-import java.util.Map;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor(access = PACKAGE)

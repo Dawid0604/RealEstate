@@ -1,14 +1,15 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.infrastructure.advertisement;
 
+import static java.util.stream.Collectors.toSet;
 import static lombok.AccessLevel.PACKAGE;
 
-import static java.util.stream.Collectors.toSet;
-
-import lombok.NoArgsConstructor;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import org.springframework.stereotype.Component;
 
+import lombok.NoArgsConstructor;
 import pl.dawid0604.realestate.domain.Advertisement;
 import pl.dawid0604.realestate.domain.AdvertisementClaim;
 import pl.dawid0604.realestate.domain.AdvertisementDetails;
@@ -31,9 +32,6 @@ import pl.dawid0604.realestate.domain.Slug;
 import pl.dawid0604.realestate.domain.Title;
 import pl.dawid0604.realestate.domain.Url;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
-
-import java.util.Set;
-import java.util.stream.Stream;
 
 @Component
 @NoArgsConstructor(access = PACKAGE)
@@ -75,26 +73,31 @@ class AdvertisementMapper {
         }
 
         final FlatDetails details = (FlatDetails) advertisement.getDetails();
-        return new FlatAdvertisementEntity(
-                advertisement.getId().getValue(),
-                advertisement.getSlug().getValue(),
-                advertisement.getTitle().value(),
-                advertisement.getDescription().value(),
-                advertisement.getPrice().value(),
-                advertisement.getArea().value(),
-                advertisement.getPricePerSquareMeter().getValue(),
-                advertisement.getLocality().id().getValue(),
-                advertisement.getOwner().getValue(),
-                advertisement.isFeatured(),
-                advertisement.getStatus(),
-                mapToEntityClaims(details, FlatAdvertisementClaimEntity.class),
-                mapToEntityPhotos(advertisement, FlatAdvertisementPhotoEntity.class),
-                details.getBuildingType(),
-                details.getNumberOfRooms().value(),
-                details.getFloor().value(),
-                details.getFloors().value(),
-                details.getBuiltYear().value(),
-                details.getTypeOfMarket());
+        final FlatAdvertisementEntity entity =
+                new FlatAdvertisementEntity(
+                        advertisement.getId().getValue(),
+                        advertisement.getSlug().getValue(),
+                        advertisement.getTitle().value(),
+                        advertisement.getDescription().value(),
+                        advertisement.getPrice().value(),
+                        advertisement.getArea().value(),
+                        advertisement.getPricePerSquareMeter().getValue(),
+                        advertisement.getLocality().id().getValue(),
+                        advertisement.getOwner().getValue(),
+                        advertisement.isFeatured(),
+                        advertisement.getStatus(),
+                        mapToEntityClaims(details, FlatAdvertisementClaimEntity.class),
+                        mapToEntityPhotos(advertisement, FlatAdvertisementPhotoEntity.class),
+                        details.getBuildingType(),
+                        details.getNumberOfRooms().value(),
+                        details.getFloor().value(),
+                        details.getFloors().value(),
+                        details.getBuiltYear().value(),
+                        details.getTypeOfMarket());
+
+        assignToClaims(entity.getClaims(), entity);
+        assignToPhotos(entity.getPhotos(), entity);
+        return entity;
     }
 
     CommercialAdvertisementEntity toCommercialEntity(final Advertisement advertisement) {
@@ -107,26 +110,31 @@ class AdvertisementMapper {
         }
 
         final CommercialDetails details = (CommercialDetails) advertisement.getDetails();
-        return new CommercialAdvertisementEntity(
-                advertisement.getId().getValue(),
-                advertisement.getSlug().getValue(),
-                advertisement.getTitle().value(),
-                advertisement.getDescription().value(),
-                advertisement.getPrice().value(),
-                advertisement.getArea().value(),
-                advertisement.getPricePerSquareMeter().getValue(),
-                advertisement.getLocality().id().getValue(),
-                advertisement.getOwner().getValue(),
-                advertisement.isFeatured(),
-                advertisement.getStatus(),
-                mapToEntityClaims(details, CommercialAdvertisementClaimEntity.class),
-                mapToEntityPhotos(advertisement, CommercialAdvertisementPhotoEntity.class),
-                details.getBuildingType(),
-                details.getNumberOfRooms().value(),
-                details.getFloor().value(),
-                details.getFloors().value(),
-                details.getBuiltYear().value(),
-                details.getTypeOfMarket());
+        final CommercialAdvertisementEntity entity =
+                new CommercialAdvertisementEntity(
+                        advertisement.getId().getValue(),
+                        advertisement.getSlug().getValue(),
+                        advertisement.getTitle().value(),
+                        advertisement.getDescription().value(),
+                        advertisement.getPrice().value(),
+                        advertisement.getArea().value(),
+                        advertisement.getPricePerSquareMeter().getValue(),
+                        advertisement.getLocality().id().getValue(),
+                        advertisement.getOwner().getValue(),
+                        advertisement.isFeatured(),
+                        advertisement.getStatus(),
+                        mapToEntityClaims(details, CommercialAdvertisementClaimEntity.class),
+                        mapToEntityPhotos(advertisement, CommercialAdvertisementPhotoEntity.class),
+                        details.getBuildingType(),
+                        details.getNumberOfRooms().value(),
+                        details.getFloor().value(),
+                        details.getFloors().value(),
+                        details.getBuiltYear().value(),
+                        details.getTypeOfMarket());
+
+        assignToClaims(entity.getClaims(), entity);
+        assignToPhotos(entity.getPhotos(), entity);
+        return entity;
     }
 
     HouseAdvertisementEntity toHouseEntity(final Advertisement advertisement) {
@@ -139,25 +147,30 @@ class AdvertisementMapper {
         }
 
         final HouseDetails details = (HouseDetails) advertisement.getDetails();
-        return new HouseAdvertisementEntity(
-                advertisement.getId().getValue(),
-                advertisement.getSlug().getValue(),
-                advertisement.getTitle().value(),
-                advertisement.getDescription().value(),
-                advertisement.getPrice().value(),
-                advertisement.getArea().value(),
-                advertisement.getPricePerSquareMeter().getValue(),
-                advertisement.getLocality().id().getValue(),
-                advertisement.getOwner().getValue(),
-                advertisement.isFeatured(),
-                advertisement.getStatus(),
-                mapToEntityClaims(details, HouseAdvertisementClaimEntity.class),
-                mapToEntityPhotos(advertisement, HouseAdvertisementPhotoEntity.class),
-                details.getBuildingType(),
-                details.getNumberOfRooms().value(),
-                details.getFloors().value(),
-                details.getBuiltYear().value(),
-                details.getTypeOfMarket());
+        final HouseAdvertisementEntity entity =
+                new HouseAdvertisementEntity(
+                        advertisement.getId().getValue(),
+                        advertisement.getSlug().getValue(),
+                        advertisement.getTitle().value(),
+                        advertisement.getDescription().value(),
+                        advertisement.getPrice().value(),
+                        advertisement.getArea().value(),
+                        advertisement.getPricePerSquareMeter().getValue(),
+                        advertisement.getLocality().id().getValue(),
+                        advertisement.getOwner().getValue(),
+                        advertisement.isFeatured(),
+                        advertisement.getStatus(),
+                        mapToEntityClaims(details, HouseAdvertisementClaimEntity.class),
+                        mapToEntityPhotos(advertisement, HouseAdvertisementPhotoEntity.class),
+                        details.getBuildingType(),
+                        details.getNumberOfRooms().value(),
+                        details.getFloors().value(),
+                        details.getBuiltYear().value(),
+                        details.getTypeOfMarket());
+
+        assignToClaims(entity.getClaims(), entity);
+        assignToPhotos(entity.getPhotos(), entity);
+        return entity;
     }
 
     PlotAdvertisementEntity toPlotEntity(final Advertisement advertisement) {
@@ -170,21 +183,38 @@ class AdvertisementMapper {
         }
 
         final PlotDetails details = (PlotDetails) advertisement.getDetails();
-        return new PlotAdvertisementEntity(
-                advertisement.getId().getValue(),
-                advertisement.getSlug().getValue(),
-                advertisement.getTitle().value(),
-                advertisement.getDescription().value(),
-                advertisement.getPrice().value(),
-                advertisement.getArea().value(),
-                advertisement.getPricePerSquareMeter().getValue(),
-                advertisement.getLocality().id().getValue(),
-                advertisement.getOwner().getValue(),
-                advertisement.isFeatured(),
-                advertisement.getStatus(),
-                mapToEntityClaims(details, PlotAdvertisementClaimEntity.class),
-                mapToEntityPhotos(advertisement, PlotAdvertisementPhotoEntity.class),
-                details.getBuildingType());
+        final PlotAdvertisementEntity entity =
+                new PlotAdvertisementEntity(
+                        advertisement.getId().getValue(),
+                        advertisement.getSlug().getValue(),
+                        advertisement.getTitle().value(),
+                        advertisement.getDescription().value(),
+                        advertisement.getPrice().value(),
+                        advertisement.getArea().value(),
+                        advertisement.getPricePerSquareMeter().getValue(),
+                        advertisement.getLocality().id().getValue(),
+                        advertisement.getOwner().getValue(),
+                        advertisement.isFeatured(),
+                        advertisement.getStatus(),
+                        mapToEntityClaims(details, PlotAdvertisementClaimEntity.class),
+                        mapToEntityPhotos(advertisement, PlotAdvertisementPhotoEntity.class),
+                        details.getBuildingType());
+
+        assignToClaims(entity.getClaims(), entity);
+        assignToPhotos(entity.getPhotos(), entity);
+        return entity;
+    }
+
+    private static <T extends AdvertisementEntity<?, ?>> void assignToPhotos(
+            final Set<? extends AdvertisementPhotoEntity<T>> photos, final T entity) {
+
+        photos.forEach(p -> p.setAdvertisement(entity));
+    }
+
+    private static <T extends AdvertisementEntity<?, ?>> void assignToClaims(
+            final Set<? extends AdvertisementClaimEntity<T>> claims, final T entity) {
+
+        claims.forEach(c -> c.setAdvertisement(entity));
     }
 
     @SuppressWarnings("CPD-END")
