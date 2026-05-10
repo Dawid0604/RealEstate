@@ -5,7 +5,6 @@ import static org.assertj.core.api.Fail.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static java.util.Collections.emptySet;
 
 import jakarta.persistence.EntityManager;
@@ -19,6 +18,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -32,6 +33,11 @@ import pl.dawid0604.realestate.domain.HouseBuildingType;
 import pl.dawid0604.realestate.domain.PlotBuildingType;
 import pl.dawid0604.realestate.domain.TypeOfMarket;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
+import pl.dawid0604.realestate.domain.shared.advertisement.SearchCommercialAdvertisementsCriteria;
+import pl.dawid0604.realestate.domain.shared.advertisement.SearchFlatAdvertisementsCriteria;
+import pl.dawid0604.realestate.domain.shared.advertisement.SearchHouseAdvertisementsCriteria;
+import pl.dawid0604.realestate.domain.shared.advertisement.SearchPlotAdvertisementsCriteria;
+import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementClaimProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.CommercialAdvertisementDetailsProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.FlatAdvertisementDetailsProjection;
@@ -42,10 +48,11 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserCommer
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserFlatAdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserHouseAdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserPlotAdvertisementCardProjection;
+import pl.dawid0604.realestate.infrastructure.ClearDatabase;
 import pl.dawid0604.realestate.infrastructure.IntegrationTest;
 
-import java.lang.annotation.Retention;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -53,6 +60,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @ClearDatabase
 @SqlMergeMode(SqlMergeMode.MergeMode.MERGE)
@@ -1187,22 +1195,7 @@ class AdvertisementJpaRepositoryTest {
 
         @Nested
         final class IntegrationTests extends IntegrationTest {
-            @Autowired private EntityManager entityManager;
             @Autowired private AdvertisementJpaRepository repository;
-            @Autowired private FlatAdvertisementJpaRepository flatAdvertisementJpaRepository;
-            @Autowired private HouseAdvertisementJpaRepository houseAdvertisementJpaRepository;
-
-            @Autowired
-            private CommercialAdvertisementJpaRepository commercialAdvertisementJpaRepository;
-
-            @Autowired private PlotAdvertisementJpaRepository plotAdvertisementJpaRepository;
-
-            @Retention(RUNTIME)
-            @DisableFlatConstraints
-            @DisablePlotConstraints
-            @DisableHouseConstraints
-            @DisableCommercialConstraints
-            @interface DisableConstraints {}
 
             @Test
             @DisableConstraints
@@ -1589,6 +1582,4702 @@ class AdvertisementJpaRepositoryTest {
                                 emptySet(),
                                 emptySet(),
                                 PlotBuildingType.FOREST));
+            }
+        }
+    }
+
+    @Nested
+    final class FindByCriteriaTests {
+
+        @Nested
+        @ExtendWith(MockitoExtension.class)
+        final class UnitTests {
+            @Mock private FlatAdvertisementJpaRepository flatJpaRepository;
+            @Mock private HouseAdvertisementJpaRepository houseJpaRepository;
+            @Mock private CommercialAdvertisementJpaRepository commercialJpaRepository;
+            @Mock private PlotAdvertisementJpaRepository plotJpaRepository;
+            @Mock private FlatAdvertisementClaimJpaRepository flatAdvertisementClaimJpaRepository;
+            @Mock private HouseAdvertisementClaimJpaRepository houseAdvertisementClaimJpaRepository;
+            @Mock private PlotAdvertisementClaimJpaRepository plotAdvertisementClaimJpaRepository;
+            @Mock private EntityManager entityManager;
+
+            @Mock
+            private CommercialAdvertisementClaimJpaRepository
+                    commercialAdvertisementClaimJpaRepository;
+
+            private AdvertisementJpaRepository advertisementJpaRepository;
+
+            @BeforeEach
+            void setUp() {
+                advertisementJpaRepository =
+                        new AdvertisementJpaRepository(
+                                flatJpaRepository,
+                                houseJpaRepository,
+                                commercialJpaRepository,
+                                plotJpaRepository,
+                                flatAdvertisementClaimJpaRepository,
+                                houseAdvertisementClaimJpaRepository,
+                                commercialAdvertisementClaimJpaRepository,
+                                plotAdvertisementClaimJpaRepository,
+                                entityManager);
+            }
+
+            @Test
+            @DisplayName("Should throw exception when userId is null")
+            void shouldThrowExceptionWhenUserIdIsNull() {
+                // Given
+                // When
+                // Then
+                Assertions.assertThatThrownBy(() -> advertisementJpaRepository.findByCriteria(null))
+                        .isExactlyInstanceOf(NullPointerException.class)
+                        .hasMessage("Criteria cannot be null");
+            }
+        }
+
+        @Nested
+        final class IntegrationTests extends IntegrationTest {
+            @Autowired private AdvertisementJpaRepository repository;
+
+            @Nested
+            @ClearDatabase
+            @DisableConstraints
+            final class AreaTests {
+
+                @Test
+                @DisplayName("Should find when criteria area is null")
+                void shouldFindWhenCriteriaAreaIsNull() {
+                    // Given
+                    final UUID localityId = getId();
+                    final SearchFlatAdvertisementsCriteria criteria =
+                            getCriteria(null, null, localityId);
+
+                    final FlatAdvertisementEntity entity =
+                            new FlatAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F",
+                                    getTitle() + "F",
+                                    getDescription() + "F",
+                                    getPrice(),
+                                    getArea(),
+                                    getPricePerSquareMeter(),
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    FlatBuildingType.APARTMENT,
+                                    getNumberOfRooms(),
+                                    getFloor(),
+                                    getFloors(),
+                                    getBuiltYear(),
+                                    TypeOfMarket.PRIMARY);
+
+                    repository.save(entity);
+
+                    // When
+                    final var result = repository.findByCriteria(criteria);
+
+                    // Then
+                    Assertions.assertThat(result.getContent())
+                            .hasSize(1)
+                            .extracting(AdvertisementCardProjection::getId)
+                            .containsExactly(entity.getId());
+                }
+
+                @ParameterizedTest
+                @DisplayName("Should find by areaFrom")
+                @MethodSource("shouldFindByAreaFromDataProvider")
+                void shouldFindByAreaFrom(final BigDecimal areaFrom, final BigDecimal area) {
+                    // Given
+                    final UUID localityId = getId();
+                    final SearchFlatAdvertisementsCriteria criteria =
+                            getCriteria(areaFrom, null, localityId);
+
+                    final FlatAdvertisementEntity entity =
+                            new FlatAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F",
+                                    getTitle() + "F",
+                                    getDescription() + "F",
+                                    getPrice(),
+                                    area,
+                                    getPricePerSquareMeter(),
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    FlatBuildingType.APARTMENT,
+                                    getNumberOfRooms(),
+                                    getFloor(),
+                                    getFloors(),
+                                    getBuiltYear(),
+                                    TypeOfMarket.PRIMARY);
+
+                    repository.save(entity);
+
+                    // When
+                    final var result = repository.findByCriteria(criteria);
+
+                    // Then
+                    Assertions.assertThat(result.getContent())
+                            .hasSize(1)
+                            .extracting(AdvertisementCardProjection::getId)
+                            .containsExactly(entity.getId());
+                }
+
+                @ParameterizedTest
+                @DisplayName("Should find by areaTo")
+                @MethodSource("shouldFindByAreaToDataProvider")
+                void shouldFindByAreaTo(final BigDecimal areaTo, final BigDecimal area) {
+                    // Given
+                    final UUID localityId = getId();
+                    final SearchFlatAdvertisementsCriteria criteria =
+                            getCriteria(null, areaTo, localityId);
+
+                    final FlatAdvertisementEntity entity =
+                            new FlatAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F",
+                                    getTitle() + "F",
+                                    getDescription() + "F",
+                                    getPrice(),
+                                    area,
+                                    getPricePerSquareMeter(),
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    FlatBuildingType.APARTMENT,
+                                    getNumberOfRooms(),
+                                    getFloor(),
+                                    getFloors(),
+                                    getBuiltYear(),
+                                    TypeOfMarket.PRIMARY);
+
+                    repository.save(entity);
+
+                    // When
+                    final var result = repository.findByCriteria(criteria);
+
+                    // Then
+                    Assertions.assertThat(result.getContent())
+                            .hasSize(1)
+                            .extracting(AdvertisementCardProjection::getId)
+                            .containsExactly(entity.getId());
+                }
+
+                @ParameterizedTest
+                @MethodSource("shouldFindByAreaFromTo")
+                @DisplayName("Should find by areaFromTo")
+                void shouldFindByAreaFromTo(
+                        final BigDecimal areaFrom, final BigDecimal areaTo, final BigDecimal area) {
+
+                    // Given
+                    final UUID localityId = getId();
+                    final SearchFlatAdvertisementsCriteria criteria =
+                            getCriteria(areaFrom, areaTo, localityId);
+
+                    final FlatAdvertisementEntity entity =
+                            new FlatAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F",
+                                    getTitle() + "F",
+                                    getDescription() + "F",
+                                    getPrice(),
+                                    area,
+                                    getPricePerSquareMeter(),
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    FlatBuildingType.APARTMENT,
+                                    getNumberOfRooms(),
+                                    getFloor(),
+                                    getFloors(),
+                                    getBuiltYear(),
+                                    TypeOfMarket.PRIMARY);
+
+                    repository.save(entity);
+
+                    // When
+                    final var result = repository.findByCriteria(criteria);
+
+                    // Then
+                    Assertions.assertThat(result.getContent())
+                            .hasSize(1)
+                            .extracting(AdvertisementCardProjection::getId)
+                            .containsExactly(entity.getId());
+                }
+
+                private static Stream<Arguments> shouldFindByAreaFromTo() {
+                    return Stream.of(
+                            Arguments.of(
+                                    BigDecimal.valueOf(25),
+                                    BigDecimal.valueOf(25),
+                                    BigDecimal.valueOf(25)),
+                            Arguments.of(
+                                    BigDecimal.valueOf(25),
+                                    BigDecimal.valueOf(25.55),
+                                    BigDecimal.valueOf(25.35)),
+                            Arguments.of(
+                                    BigDecimal.valueOf(1),
+                                    BigDecimal.valueOf(25),
+                                    BigDecimal.valueOf(1)),
+                            Arguments.of(
+                                    BigDecimal.valueOf(1),
+                                    BigDecimal.valueOf(25),
+                                    BigDecimal.valueOf(25)),
+                            Arguments.of(
+                                    BigDecimal.valueOf(1),
+                                    BigDecimal.valueOf(25),
+                                    BigDecimal.valueOf(16)));
+                }
+
+                private static Stream<Arguments> shouldFindByAreaFromDataProvider() {
+                    return Stream.of(
+                            Arguments.of(BigDecimal.valueOf(25), BigDecimal.valueOf(25)),
+                            Arguments.of(BigDecimal.valueOf(25), BigDecimal.valueOf(25.25)),
+                            Arguments.of(BigDecimal.valueOf(25.1), BigDecimal.valueOf(25.25)),
+                            Arguments.of(BigDecimal.valueOf(25), BigDecimal.valueOf(35.25)));
+                }
+
+                private static Stream<Arguments> shouldFindByAreaToDataProvider() {
+                    return Stream.of(
+                            Arguments.of(BigDecimal.valueOf(25), BigDecimal.valueOf(25)),
+                            Arguments.of(BigDecimal.valueOf(25), BigDecimal.valueOf(23.25)),
+                            Arguments.of(BigDecimal.valueOf(25.1), BigDecimal.valueOf(25)),
+                            Arguments.of(BigDecimal.valueOf(25), BigDecimal.valueOf(15.25)));
+                }
+
+                private static SearchFlatAdvertisementsCriteria getCriteria(
+                        final BigDecimal areaFrom, final BigDecimal areaTo, final UUID localityId) {
+
+                    return new SearchFlatAdvertisementsCriteria(
+                            areaFrom,
+                            areaTo,
+                            null,
+                            null,
+                            null,
+                            null,
+                            0,
+                            1,
+                            null,
+                            localityId,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null);
+                }
+            }
+
+            @Nested
+            @ClearDatabase
+            @DisableConstraints
+            final class PriceTests {
+
+                @Test
+                @DisplayName("Should find when criteria price is null")
+                void shouldFindWhenCriteriaPriceIsNull() {
+                    // Given
+                    final UUID localityId = getId();
+                    final SearchFlatAdvertisementsCriteria criteria =
+                            getCriteria(null, null, localityId);
+
+                    final FlatAdvertisementEntity entity =
+                            new FlatAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F",
+                                    getTitle() + "F",
+                                    getDescription() + "F",
+                                    getPrice(),
+                                    getArea(),
+                                    getPricePerSquareMeter(),
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    FlatBuildingType.APARTMENT,
+                                    getNumberOfRooms(),
+                                    getFloor(),
+                                    getFloors(),
+                                    getBuiltYear(),
+                                    TypeOfMarket.PRIMARY);
+
+                    repository.save(entity);
+
+                    // When
+                    final var result = repository.findByCriteria(criteria);
+
+                    // Then
+                    Assertions.assertThat(result.getContent())
+                            .hasSize(1)
+                            .extracting(AdvertisementCardProjection::getId)
+                            .containsExactly(entity.getId());
+                }
+
+                @ParameterizedTest
+                @DisplayName("Should find by priceFrom")
+                @MethodSource("shouldFindByPriceFromDataProvider")
+                void shouldFindByPriceFrom(final BigDecimal priceFrom, final BigDecimal price) {
+                    // Given
+                    final UUID localityId = getId();
+                    final SearchFlatAdvertisementsCriteria criteria =
+                            getCriteria(priceFrom, null, localityId);
+
+                    final FlatAdvertisementEntity entity =
+                            new FlatAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F",
+                                    getTitle() + "F",
+                                    getDescription() + "F",
+                                    price,
+                                    getArea(),
+                                    getPricePerSquareMeter(),
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    FlatBuildingType.APARTMENT,
+                                    getNumberOfRooms(),
+                                    getFloor(),
+                                    getFloors(),
+                                    getBuiltYear(),
+                                    TypeOfMarket.PRIMARY);
+
+                    repository.save(entity);
+
+                    // When
+                    final var result = repository.findByCriteria(criteria);
+
+                    // Then
+                    Assertions.assertThat(result.getContent())
+                            .hasSize(1)
+                            .extracting(AdvertisementCardProjection::getId)
+                            .containsExactly(entity.getId());
+                }
+
+                @ParameterizedTest
+                @DisplayName("Should find by priceTo")
+                @MethodSource("shouldFindByPriceToDataProvider")
+                void shouldFindByPriceTo(final BigDecimal priceTo, final BigDecimal price) {
+                    // Given
+                    final UUID localityId = getId();
+                    final SearchFlatAdvertisementsCriteria criteria =
+                            getCriteria(null, priceTo, localityId);
+
+                    final FlatAdvertisementEntity entity =
+                            new FlatAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F",
+                                    getTitle() + "F",
+                                    getDescription() + "F",
+                                    price,
+                                    getArea(),
+                                    getPricePerSquareMeter(),
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    FlatBuildingType.APARTMENT,
+                                    getNumberOfRooms(),
+                                    getFloor(),
+                                    getFloors(),
+                                    getBuiltYear(),
+                                    TypeOfMarket.PRIMARY);
+
+                    repository.save(entity);
+
+                    // When
+                    final var result = repository.findByCriteria(criteria);
+
+                    // Then
+                    Assertions.assertThat(result.getContent())
+                            .hasSize(1)
+                            .extracting(AdvertisementCardProjection::getId)
+                            .containsExactly(entity.getId());
+                }
+
+                @ParameterizedTest
+                @MethodSource("shouldFindByPriceFromTo")
+                @DisplayName("Should find by priceFromTo")
+                void shouldFindByPriceFromTo(
+                        final BigDecimal priceFrom,
+                        final BigDecimal priceTo,
+                        final BigDecimal price) {
+
+                    // Given
+                    final UUID localityId = getId();
+                    final SearchFlatAdvertisementsCriteria criteria =
+                            getCriteria(priceFrom, priceTo, localityId);
+
+                    final FlatAdvertisementEntity entity =
+                            new FlatAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F",
+                                    getTitle() + "F",
+                                    getDescription() + "F",
+                                    price,
+                                    getArea(),
+                                    getPricePerSquareMeter(),
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    FlatBuildingType.APARTMENT,
+                                    getNumberOfRooms(),
+                                    getFloor(),
+                                    getFloors(),
+                                    getBuiltYear(),
+                                    TypeOfMarket.PRIMARY);
+
+                    repository.save(entity);
+
+                    // When
+                    final var result = repository.findByCriteria(criteria);
+
+                    // Then
+                    Assertions.assertThat(result.getContent())
+                            .hasSize(1)
+                            .extracting(AdvertisementCardProjection::getId)
+                            .containsExactly(entity.getId());
+                }
+
+                private static Stream<Arguments> shouldFindByPriceFromTo() {
+                    return Stream.of(
+                            Arguments.of(
+                                    BigDecimal.valueOf(250000),
+                                    BigDecimal.valueOf(250000),
+                                    BigDecimal.valueOf(250000)),
+                            Arguments.of(
+                                    BigDecimal.valueOf(250000),
+                                    BigDecimal.valueOf(250000.55),
+                                    BigDecimal.valueOf(250000.35)),
+                            Arguments.of(
+                                    BigDecimal.valueOf(1),
+                                    BigDecimal.valueOf(250000),
+                                    BigDecimal.valueOf(1)),
+                            Arguments.of(
+                                    BigDecimal.valueOf(1),
+                                    BigDecimal.valueOf(250000),
+                                    BigDecimal.valueOf(250000)),
+                            Arguments.of(
+                                    BigDecimal.valueOf(1),
+                                    BigDecimal.valueOf(250000),
+                                    BigDecimal.valueOf(160000)));
+                }
+
+                private static Stream<Arguments> shouldFindByPriceFromDataProvider() {
+                    return Stream.of(
+                            Arguments.of(BigDecimal.valueOf(250000), BigDecimal.valueOf(250000)),
+                            Arguments.of(BigDecimal.valueOf(250000), BigDecimal.valueOf(250000.25)),
+                            Arguments.of(
+                                    BigDecimal.valueOf(250000.1), BigDecimal.valueOf(250000.25)),
+                            Arguments.of(
+                                    BigDecimal.valueOf(250000), BigDecimal.valueOf(350000.25)));
+                }
+
+                private static Stream<Arguments> shouldFindByPriceToDataProvider() {
+                    return Stream.of(
+                            Arguments.of(BigDecimal.valueOf(250000), BigDecimal.valueOf(250000)),
+                            Arguments.of(BigDecimal.valueOf(250000), BigDecimal.valueOf(230000.25)),
+                            Arguments.of(BigDecimal.valueOf(250000.1), BigDecimal.valueOf(250000)),
+                            Arguments.of(
+                                    BigDecimal.valueOf(250000), BigDecimal.valueOf(150000.25)));
+                }
+
+                private static SearchFlatAdvertisementsCriteria getCriteria(
+                        final BigDecimal priceFrom,
+                        final BigDecimal priceTo,
+                        final UUID localityId) {
+
+                    return new SearchFlatAdvertisementsCriteria(
+                            null,
+                            null,
+                            priceFrom,
+                            priceTo,
+                            null,
+                            null,
+                            0,
+                            1,
+                            null,
+                            localityId,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null);
+                }
+            }
+
+            @Nested
+            @ClearDatabase
+            @DisableConstraints
+            final class PricePerSquareMeterTests {
+
+                @Test
+                @DisplayName("Should find when criteria pricePerSquareMeter is null")
+                void shouldFindWhenCriteriaPerSquareMeterIsNull() {
+                    // Given
+                    final UUID localityId = getId();
+                    final SearchFlatAdvertisementsCriteria criteria =
+                            getCriteria(null, null, localityId);
+
+                    final FlatAdvertisementEntity entity =
+                            new FlatAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F",
+                                    getTitle() + "F",
+                                    getDescription() + "F",
+                                    getPrice(),
+                                    getArea(),
+                                    getPricePerSquareMeter(),
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    FlatBuildingType.APARTMENT,
+                                    getNumberOfRooms(),
+                                    getFloor(),
+                                    getFloors(),
+                                    getBuiltYear(),
+                                    TypeOfMarket.PRIMARY);
+
+                    repository.save(entity);
+
+                    // When
+                    final var result = repository.findByCriteria(criteria);
+
+                    // Then
+                    Assertions.assertThat(result.getContent())
+                            .hasSize(1)
+                            .extracting(AdvertisementCardProjection::getId)
+                            .containsExactly(entity.getId());
+                }
+
+                @ParameterizedTest
+                @DisplayName("Should find by pricePerSquareMeterFrom")
+                @MethodSource("shouldFindByPricePerSquareMeterFromDataProvider")
+                void shouldFindByPricePerSquareMeterFrom(
+                        final BigDecimal pricePerSquareMeterFrom,
+                        final BigDecimal pricePerSquareMeter) {
+
+                    // Given
+                    final UUID localityId = getId();
+                    final SearchFlatAdvertisementsCriteria criteria =
+                            getCriteria(pricePerSquareMeterFrom, null, localityId);
+
+                    final FlatAdvertisementEntity entity =
+                            new FlatAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F",
+                                    getTitle() + "F",
+                                    getDescription() + "F",
+                                    getPrice(),
+                                    getArea(),
+                                    pricePerSquareMeter,
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    FlatBuildingType.APARTMENT,
+                                    getNumberOfRooms(),
+                                    getFloor(),
+                                    getFloors(),
+                                    getBuiltYear(),
+                                    TypeOfMarket.PRIMARY);
+
+                    repository.save(entity);
+
+                    // When
+                    final var result = repository.findByCriteria(criteria);
+
+                    // Then
+                    Assertions.assertThat(result.getContent())
+                            .hasSize(1)
+                            .extracting(AdvertisementCardProjection::getId)
+                            .containsExactly(entity.getId());
+                }
+
+                @ParameterizedTest
+                @DisplayName("Should find by pricePerSquareMeterTo")
+                @MethodSource("shouldFindByPricePerSquareMeterToDataProvider")
+                void shouldFindByPricePerSquareMeterTo(
+                        final BigDecimal pricePerSquareMeterTo,
+                        final BigDecimal pricePerSquareMeter) {
+
+                    // Given
+                    final UUID localityId = getId();
+                    final SearchFlatAdvertisementsCriteria criteria =
+                            getCriteria(null, pricePerSquareMeterTo, localityId);
+
+                    final FlatAdvertisementEntity entity =
+                            new FlatAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F",
+                                    getTitle() + "F",
+                                    getDescription() + "F",
+                                    getPrice(),
+                                    getArea(),
+                                    pricePerSquareMeter,
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    FlatBuildingType.APARTMENT,
+                                    getNumberOfRooms(),
+                                    getFloor(),
+                                    getFloors(),
+                                    getBuiltYear(),
+                                    TypeOfMarket.PRIMARY);
+
+                    repository.save(entity);
+
+                    // When
+                    final var result = repository.findByCriteria(criteria);
+
+                    // Then
+                    Assertions.assertThat(result.getContent())
+                            .hasSize(1)
+                            .extracting(AdvertisementCardProjection::getId)
+                            .containsExactly(entity.getId());
+                }
+
+                @ParameterizedTest
+                @MethodSource("shouldFindByPricePerSquareMeterFromTo")
+                @DisplayName("Should find by pricePerSquareMeterFromTo")
+                void shouldFindByPricePerSquareMeterFromTo(
+                        final BigDecimal pricePerSquareMeterFrom,
+                        final BigDecimal pricePerSquareMeterTo,
+                        final BigDecimal pricePerSquareMeter) {
+
+                    // Given
+                    final UUID localityId = getId();
+                    final SearchFlatAdvertisementsCriteria criteria =
+                            getCriteria(pricePerSquareMeterFrom, pricePerSquareMeterTo, localityId);
+
+                    final FlatAdvertisementEntity entity =
+                            new FlatAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F",
+                                    getTitle() + "F",
+                                    getDescription() + "F",
+                                    getPrice(),
+                                    getArea(),
+                                    pricePerSquareMeter,
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    FlatBuildingType.APARTMENT,
+                                    getNumberOfRooms(),
+                                    getFloor(),
+                                    getFloors(),
+                                    getBuiltYear(),
+                                    TypeOfMarket.PRIMARY);
+
+                    repository.save(entity);
+
+                    // When
+                    final var result = repository.findByCriteria(criteria);
+
+                    // Then
+                    Assertions.assertThat(result.getContent())
+                            .hasSize(1)
+                            .extracting(AdvertisementCardProjection::getId)
+                            .containsExactly(entity.getId());
+                }
+
+                private static Stream<Arguments> shouldFindByPricePerSquareMeterFromTo() {
+                    return Stream.of(
+                            Arguments.of(
+                                    BigDecimal.valueOf(25000),
+                                    BigDecimal.valueOf(25000),
+                                    BigDecimal.valueOf(25000)),
+                            Arguments.of(
+                                    BigDecimal.valueOf(25000),
+                                    BigDecimal.valueOf(25000.55),
+                                    BigDecimal.valueOf(25000.35)),
+                            Arguments.of(
+                                    BigDecimal.valueOf(1),
+                                    BigDecimal.valueOf(25000),
+                                    BigDecimal.valueOf(1)),
+                            Arguments.of(
+                                    BigDecimal.valueOf(1),
+                                    BigDecimal.valueOf(25000),
+                                    BigDecimal.valueOf(25000)),
+                            Arguments.of(
+                                    BigDecimal.valueOf(1),
+                                    BigDecimal.valueOf(25000),
+                                    BigDecimal.valueOf(16000)));
+                }
+
+                private static Stream<Arguments> shouldFindByPricePerSquareMeterFromDataProvider() {
+                    return Stream.of(
+                            Arguments.of(BigDecimal.valueOf(25000), BigDecimal.valueOf(25000)),
+                            Arguments.of(BigDecimal.valueOf(25000), BigDecimal.valueOf(25000.25)),
+                            Arguments.of(BigDecimal.valueOf(25000.1), BigDecimal.valueOf(25000.25)),
+                            Arguments.of(BigDecimal.valueOf(25000), BigDecimal.valueOf(35000.25)));
+                }
+
+                private static Stream<Arguments> shouldFindByPricePerSquareMeterToDataProvider() {
+                    return Stream.of(
+                            Arguments.of(BigDecimal.valueOf(25000), BigDecimal.valueOf(25000)),
+                            Arguments.of(BigDecimal.valueOf(25000), BigDecimal.valueOf(23000.25)),
+                            Arguments.of(BigDecimal.valueOf(25000.1), BigDecimal.valueOf(25000)),
+                            Arguments.of(BigDecimal.valueOf(25000), BigDecimal.valueOf(15000.25)));
+                }
+
+                private static SearchFlatAdvertisementsCriteria getCriteria(
+                        final BigDecimal pricePerSquareMeterFrom,
+                        final BigDecimal pricePerSquareMeterTo,
+                        final UUID localityId) {
+
+                    return new SearchFlatAdvertisementsCriteria(
+                            null,
+                            null,
+                            null,
+                            null,
+                            pricePerSquareMeterFrom,
+                            pricePerSquareMeterTo,
+                            0,
+                            1,
+                            null,
+                            localityId,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null);
+                }
+            }
+
+            @Nested
+            @ClearDatabase
+            @DisableConstraints
+            final class DateTests {
+
+                @Test
+                @DisplayName("Should find when criteria date is null")
+                void shouldFindWhenCriteriaDateIsNull() {
+                    // Given
+                    final UUID localityId = getId();
+                    final SearchFlatAdvertisementsCriteria criteria =
+                            getCriteria(null, null, localityId);
+
+                    final FlatAdvertisementEntity entity =
+                            new FlatAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F",
+                                    getTitle() + "F",
+                                    getDescription() + "F",
+                                    getPrice(),
+                                    getArea(),
+                                    getPricePerSquareMeter(),
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    FlatBuildingType.APARTMENT,
+                                    getNumberOfRooms(),
+                                    getFloor(),
+                                    getFloors(),
+                                    getBuiltYear(),
+                                    TypeOfMarket.PRIMARY);
+
+                    repository.save(entity);
+
+                    // When
+                    final var result = repository.findByCriteria(criteria);
+
+                    // Then
+                    Assertions.assertThat(result.getContent())
+                            .hasSize(1)
+                            .extracting(AdvertisementCardProjection::getId)
+                            .containsExactly(entity.getId());
+                }
+
+                @ParameterizedTest
+                @DisplayName("Should find by dateFrom")
+                @MethodSource("shouldFindByDateFromDataProvider")
+                void shouldFindByDateFrom(final LocalDate dateFrom) {
+                    // Given
+                    final UUID localityId = getId();
+                    final SearchFlatAdvertisementsCriteria criteria =
+                            getCriteria(dateFrom, null, localityId);
+
+                    final FlatAdvertisementEntity entity =
+                            new FlatAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F",
+                                    getTitle() + "F",
+                                    getDescription() + "F",
+                                    getPrice(),
+                                    getArea(),
+                                    getPricePerSquareMeter(),
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    FlatBuildingType.APARTMENT,
+                                    getNumberOfRooms(),
+                                    getFloor(),
+                                    getFloors(),
+                                    getBuiltYear(),
+                                    TypeOfMarket.PRIMARY);
+
+                    repository.save(entity);
+
+                    // When
+                    final var result = repository.findByCriteria(criteria);
+
+                    // Then
+                    Assertions.assertThat(result.getContent())
+                            .hasSize(1)
+                            .extracting(AdvertisementCardProjection::getId)
+                            .containsExactly(entity.getId());
+                }
+
+                @ParameterizedTest
+                @DisplayName("Should find by dateTo")
+                @MethodSource("shouldFindByDateToDataProvider")
+                void shouldFindByDateTo(final LocalDate dateTo) {
+                    // Given
+                    final UUID localityId = getId();
+                    final SearchFlatAdvertisementsCriteria criteria =
+                            getCriteria(null, dateTo, localityId);
+
+                    final FlatAdvertisementEntity entity =
+                            new FlatAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F",
+                                    getTitle() + "F",
+                                    getDescription() + "F",
+                                    getPrice(),
+                                    getArea(),
+                                    getPricePerSquareMeter(),
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    FlatBuildingType.APARTMENT,
+                                    getNumberOfRooms(),
+                                    getFloor(),
+                                    getFloors(),
+                                    getBuiltYear(),
+                                    TypeOfMarket.PRIMARY);
+
+                    repository.save(entity);
+
+                    // When
+                    final var result = repository.findByCriteria(criteria);
+
+                    // Then
+                    Assertions.assertThat(result.getContent())
+                            .hasSize(1)
+                            .extracting(AdvertisementCardProjection::getId)
+                            .containsExactly(entity.getId());
+                }
+
+                @ParameterizedTest
+                @MethodSource("shouldFindByDateFromTo")
+                @DisplayName("Should find by dateFromTo")
+                void shouldFindByDateFromTo(final LocalDate dateFrom, final LocalDate dateTo) {
+                    // Given
+                    final UUID localityId = getId();
+                    final SearchFlatAdvertisementsCriteria criteria =
+                            getCriteria(dateFrom, dateTo, localityId);
+
+                    final FlatAdvertisementEntity entity =
+                            new FlatAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F",
+                                    getTitle() + "F",
+                                    getDescription() + "F",
+                                    getPrice(),
+                                    getArea(),
+                                    getPricePerSquareMeter(),
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    FlatBuildingType.APARTMENT,
+                                    getNumberOfRooms(),
+                                    getFloor(),
+                                    getFloors(),
+                                    getBuiltYear(),
+                                    TypeOfMarket.PRIMARY);
+
+                    repository.save(entity);
+
+                    // When
+                    final var result = repository.findByCriteria(criteria);
+
+                    // Then
+                    Assertions.assertThat(result.getContent())
+                            .hasSize(1)
+                            .extracting(AdvertisementCardProjection::getId)
+                            .containsExactly(entity.getId());
+                }
+
+                private static Stream<Arguments> shouldFindByDateFromTo() {
+                    return Stream.of(
+                            Arguments.of(LocalDate.now().minusDays(1), LocalDate.now()),
+                            Arguments.of(LocalDate.now().minusDays(15), LocalDate.now()));
+                }
+
+                private static Stream<Arguments> shouldFindByDateFromDataProvider() {
+                    return Stream.of(
+                            Arguments.of(LocalDate.now().minusDays(1)),
+                            Arguments.of(LocalDate.now().minusWeeks(1)));
+                }
+
+                private static Stream<Arguments> shouldFindByDateToDataProvider() {
+                    return Stream.of(Arguments.of(LocalDate.now()));
+                }
+
+                private static SearchFlatAdvertisementsCriteria getCriteria(
+                        final LocalDate dateFrom, final LocalDate dateTo, final UUID localityId) {
+
+                    return new SearchFlatAdvertisementsCriteria(
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            0,
+                            1,
+                            null,
+                            localityId,
+                            dateFrom,
+                            dateTo,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null);
+                }
+            }
+
+            @Nested
+            @ClearDatabase
+            @DisableConstraints
+            final class TypesTests {
+
+                @Test
+                @DisplayName("Should find when criteria types are empty")
+                void shouldFindWhenCriteriaTypesAreEmpty() {
+                    // Given
+                    final UUID localityId = getId();
+                    final SearchFlatAdvertisementsCriteria criteria =
+                            getCriteria(emptySet(), localityId);
+
+                    final FlatAdvertisementEntity entity =
+                            new FlatAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F",
+                                    getTitle() + "F",
+                                    getDescription() + "F",
+                                    getPrice(),
+                                    getArea(),
+                                    getPricePerSquareMeter(),
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    FlatBuildingType.APARTMENT,
+                                    getNumberOfRooms(),
+                                    getFloor(),
+                                    getFloors(),
+                                    getBuiltYear(),
+                                    TypeOfMarket.PRIMARY);
+
+                    repository.save(entity);
+
+                    // When
+                    final var result = repository.findByCriteria(criteria);
+
+                    // Then
+                    Assertions.assertThat(result.getContent())
+                            .hasSize(1)
+                            .extracting(AdvertisementCardProjection::getId)
+                            .containsExactly(entity.getId());
+                }
+
+                @Test
+                @DisplayName("Should find by type")
+                void shouldFindByType() {
+                    // Given
+                    final UUID localityId = getId();
+                    final SearchFlatAdvertisementsCriteria criteria =
+                            getCriteria(Set.of(FlatBuildingType.APARTMENT.name()), localityId);
+
+                    final FlatAdvertisementEntity entity =
+                            new FlatAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F",
+                                    getTitle() + "F",
+                                    getDescription() + "F",
+                                    getPrice(),
+                                    getArea(),
+                                    getPricePerSquareMeter(),
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    FlatBuildingType.APARTMENT,
+                                    getNumberOfRooms(),
+                                    getFloor(),
+                                    getFloors(),
+                                    getBuiltYear(),
+                                    TypeOfMarket.PRIMARY);
+
+                    repository.save(entity);
+
+                    // When
+                    final var result = repository.findByCriteria(criteria);
+
+                    // Then
+                    Assertions.assertThat(result.getContent())
+                            .hasSize(1)
+                            .extracting(AdvertisementCardProjection::getId)
+                            .containsExactly(entity.getId());
+                }
+
+                @Test
+                @DisplayName("Should find by multiple types")
+                void shouldFindByMultipleTypes() {
+                    // Given
+                    final UUID localityId = getId();
+                    final SearchFlatAdvertisementsCriteria criteria =
+                            getCriteria(
+                                    Set.of(
+                                            FlatBuildingType.APARTMENT.name(),
+                                            FlatBuildingType.LOFT.name()),
+                                    localityId);
+
+                    final FlatAdvertisementEntity entity =
+                            new FlatAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F",
+                                    getTitle() + "F",
+                                    getDescription() + "F",
+                                    getPrice(),
+                                    getArea(),
+                                    getPricePerSquareMeter(),
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    FlatBuildingType.APARTMENT,
+                                    getNumberOfRooms(),
+                                    getFloor(),
+                                    getFloors(),
+                                    getBuiltYear(),
+                                    TypeOfMarket.PRIMARY);
+
+                    final FlatAdvertisementEntity secondEntity =
+                            new FlatAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F2",
+                                    getTitle() + "F2",
+                                    getDescription() + "F2",
+                                    getPrice(),
+                                    getArea(),
+                                    getPricePerSquareMeter(),
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    FlatBuildingType.LOFT,
+                                    getNumberOfRooms(),
+                                    getFloor(),
+                                    getFloors(),
+                                    getBuiltYear(),
+                                    TypeOfMarket.PRIMARY);
+
+                    repository.save(entity);
+                    repository.save(secondEntity);
+
+                    // When
+                    final var result = repository.findByCriteria(criteria);
+
+                    // Then
+                    Assertions.assertThat(result.getContent())
+                            .hasSize(2)
+                            .extracting(AdvertisementCardProjection::getId)
+                            .containsExactlyInAnyOrder(entity.getId(), secondEntity.getId());
+                }
+
+                private static SearchFlatAdvertisementsCriteria getCriteria(
+                        final Set<String> types, final UUID localityId) {
+
+                    return new SearchFlatAdvertisementsCriteria(
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            0,
+                            25,
+                            types,
+                            localityId,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null);
+                }
+            }
+
+            @Nested
+            @ClearDatabase
+            @DisableConstraints
+            final class PaginationTests {
+
+                @Test
+                @DisplayName("Should find all")
+                void shouldFindAll() {
+                    // Given
+                    final UUID localityId = getId();
+                    final int page = 0;
+                    final int pageSize = 25;
+
+                    final SearchFlatAdvertisementsCriteria criteria =
+                            getCriteria(page, pageSize, localityId);
+
+                    final FlatAdvertisementEntity entity =
+                            new FlatAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F",
+                                    getTitle() + "F",
+                                    getDescription() + "F",
+                                    getPrice(),
+                                    getArea(),
+                                    getPricePerSquareMeter(),
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    FlatBuildingType.APARTMENT,
+                                    getNumberOfRooms(),
+                                    getFloor(),
+                                    getFloors(),
+                                    getBuiltYear(),
+                                    TypeOfMarket.PRIMARY);
+
+                    final FlatAdvertisementEntity secondEntity =
+                            new FlatAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F2",
+                                    getTitle() + "F2",
+                                    getDescription() + "F2",
+                                    getPrice(),
+                                    getArea(),
+                                    getPricePerSquareMeter(),
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    FlatBuildingType.APARTMENT,
+                                    getNumberOfRooms(),
+                                    getFloor(),
+                                    getFloors(),
+                                    getBuiltYear(),
+                                    TypeOfMarket.PRIMARY);
+
+                    repository.save(entity);
+                    repository.save(secondEntity);
+
+                    // When
+                    final var result = repository.findByCriteria(criteria);
+
+                    // Then
+                    Assertions.assertThat(result.getTotalElements()).isEqualTo(2);
+                    Assertions.assertThat(result.getNumber()).isEqualTo(page);
+                    Assertions.assertThat(result.getSize()).isEqualTo(pageSize);
+                    Assertions.assertThat(result.getTotalPages()).isEqualTo(1);
+                    Assertions.assertThat(result.hasNext()).isFalse();
+                    Assertions.assertThat(result.isFirst()).isTrue();
+                }
+
+                @Test
+                @DisplayName("Should find with more pages")
+                void shouldFindWithMorePages() {
+                    // Given
+                    final UUID localityId = getId();
+                    final int page = 0;
+                    final int pageSize = 1;
+
+                    final SearchFlatAdvertisementsCriteria criteria =
+                            getCriteria(page, pageSize, localityId);
+
+                    final FlatAdvertisementEntity entity =
+                            new FlatAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F",
+                                    getTitle() + "F",
+                                    getDescription() + "F",
+                                    getPrice(),
+                                    getArea(),
+                                    getPricePerSquareMeter(),
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    FlatBuildingType.APARTMENT,
+                                    getNumberOfRooms(),
+                                    getFloor(),
+                                    getFloors(),
+                                    getBuiltYear(),
+                                    TypeOfMarket.PRIMARY);
+
+                    final FlatAdvertisementEntity secondEntity =
+                            new FlatAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F2",
+                                    getTitle() + "F2",
+                                    getDescription() + "F2",
+                                    getPrice(),
+                                    getArea(),
+                                    getPricePerSquareMeter(),
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    FlatBuildingType.APARTMENT,
+                                    getNumberOfRooms(),
+                                    getFloor(),
+                                    getFloors(),
+                                    getBuiltYear(),
+                                    TypeOfMarket.PRIMARY);
+
+                    repository.save(entity);
+                    repository.save(secondEntity);
+
+                    // When
+                    final var result = repository.findByCriteria(criteria);
+
+                    // Then
+                    Assertions.assertThat(result.getTotalElements()).isEqualTo(2);
+                    Assertions.assertThat(result.getNumber()).isEqualTo(page);
+                    Assertions.assertThat(result.getSize()).isEqualTo(pageSize);
+                    Assertions.assertThat(result.getTotalPages()).isEqualTo(2);
+                    Assertions.assertThat(result.hasNext()).isTrue();
+                    Assertions.assertThat(result.isFirst()).isTrue();
+                }
+
+                @Test
+                @DisplayName("Should find with last page")
+                void shouldFindWithLastPage() {
+                    // Given
+                    final UUID localityId = getId();
+                    final int page = 1;
+                    final int pageSize = 1;
+
+                    final SearchFlatAdvertisementsCriteria criteria =
+                            getCriteria(page, pageSize, localityId);
+
+                    final FlatAdvertisementEntity entity =
+                            new FlatAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F",
+                                    getTitle() + "F",
+                                    getDescription() + "F",
+                                    getPrice(),
+                                    getArea(),
+                                    getPricePerSquareMeter(),
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    FlatBuildingType.APARTMENT,
+                                    getNumberOfRooms(),
+                                    getFloor(),
+                                    getFloors(),
+                                    getBuiltYear(),
+                                    TypeOfMarket.PRIMARY);
+
+                    final FlatAdvertisementEntity secondEntity =
+                            new FlatAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F2",
+                                    getTitle() + "F2",
+                                    getDescription() + "F2",
+                                    getPrice(),
+                                    getArea(),
+                                    getPricePerSquareMeter(),
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    FlatBuildingType.APARTMENT,
+                                    getNumberOfRooms(),
+                                    getFloor(),
+                                    getFloors(),
+                                    getBuiltYear(),
+                                    TypeOfMarket.PRIMARY);
+
+                    repository.save(entity);
+                    repository.save(secondEntity);
+
+                    // When
+                    final var result = repository.findByCriteria(criteria);
+
+                    // Then
+                    Assertions.assertThat(result.getTotalElements()).isEqualTo(2);
+                    Assertions.assertThat(result.getNumber()).isEqualTo(page);
+                    Assertions.assertThat(result.getSize()).isEqualTo(pageSize);
+                    Assertions.assertThat(result.getTotalPages()).isEqualTo(2);
+                    Assertions.assertThat(result.hasNext()).isFalse();
+                    Assertions.assertThat(result.isFirst()).isFalse();
+                }
+
+                private static SearchFlatAdvertisementsCriteria getCriteria(
+                        final int page, final int pageSize, final UUID localityId) {
+
+                    return new SearchFlatAdvertisementsCriteria(
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            page,
+                            pageSize,
+                            emptySet(),
+                            localityId,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null);
+                }
+            }
+
+            @Nested
+            @ClearDatabase
+            @DisableConstraints
+            final class CommercialTests {
+
+                @Nested
+                @ClearDatabase
+                @DisableConstraints
+                final class TypeOfMarketsTests {
+
+                    @Test
+                    @DisplayName("Should find when criteria types are empty")
+                    void shouldFindWhenCriteriaTypesAreEmpty() {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchCommercialAdvertisementsCriteria criteria =
+                                getCriteria(emptySet(), localityId);
+
+                        final CommercialAdvertisementEntity entity =
+                                new CommercialAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        CommercialBuildingType.WAREHOUSE,
+                                        getNumberOfRooms(),
+                                        getFloor(),
+                                        getFloors(),
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @Test
+                    @DisplayName("Should find by type")
+                    void shouldFindByType() {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchCommercialAdvertisementsCriteria criteria =
+                                getCriteria(Set.of(TypeOfMarket.PRIMARY.name()), localityId);
+
+                        final CommercialAdvertisementEntity entity =
+                                new CommercialAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        CommercialBuildingType.WAREHOUSE,
+                                        getNumberOfRooms(),
+                                        getFloor(),
+                                        getFloors(),
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @Test
+                    @DisplayName("Should find by multiple types")
+                    void shouldFindByMultipleTypes() {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchCommercialAdvertisementsCriteria criteria =
+                                getCriteria(
+                                        Set.of(
+                                                TypeOfMarket.PRIMARY.name(),
+                                                TypeOfMarket.SECONDARY.name()),
+                                        localityId);
+
+                        final CommercialAdvertisementEntity entity =
+                                new CommercialAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        CommercialBuildingType.WAREHOUSE,
+                                        getNumberOfRooms(),
+                                        getFloor(),
+                                        getFloors(),
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        final CommercialAdvertisementEntity secondEntity =
+                                new CommercialAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F2",
+                                        getTitle() + "F2",
+                                        getDescription() + "F2",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        CommercialBuildingType.HALL,
+                                        getNumberOfRooms(),
+                                        getFloor(),
+                                        getFloors(),
+                                        getBuiltYear(),
+                                        TypeOfMarket.SECONDARY);
+
+                        repository.save(entity);
+                        repository.save(secondEntity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(2)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactlyInAnyOrder(entity.getId(), secondEntity.getId());
+                    }
+
+                    private static SearchCommercialAdvertisementsCriteria getCriteria(
+                            final Set<String> typeOfMarkets, final UUID localityId) {
+
+                        return new SearchCommercialAdvertisementsCriteria(
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                0,
+                                25,
+                                emptySet(),
+                                localityId,
+                                null,
+                                null,
+                                typeOfMarkets,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null);
+                    }
+                }
+
+                @Nested
+                @ClearDatabase
+                @DisableConstraints
+                final class FloorTests {
+
+                    @Test
+                    @DisplayName("Should find when criteria floor is null")
+                    void shouldFindWhenCriteriaFloorIsNull() {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchCommercialAdvertisementsCriteria criteria =
+                                getCriteria(null, null, localityId);
+
+                        final CommercialAdvertisementEntity entity =
+                                new CommercialAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        CommercialBuildingType.WAREHOUSE,
+                                        getNumberOfRooms(),
+                                        getFloor(),
+                                        null,
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @DisplayName("Should find by floorFrom")
+                    @MethodSource("shouldFindByFloorFromDataProvider")
+                    void shouldFindByFloorFrom(final Integer floorFrom, final Integer floor) {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchCommercialAdvertisementsCriteria criteria =
+                                getCriteria(floorFrom, null, localityId);
+
+                        final CommercialAdvertisementEntity entity =
+                                new CommercialAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        CommercialBuildingType.WAREHOUSE,
+                                        getNumberOfRooms(),
+                                        floor,
+                                        null,
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @DisplayName("Should find by floorTo")
+                    @MethodSource("shouldFindByFloorToDataProvider")
+                    void shouldFindByFloorTo(final Integer floorTo, final Integer floor) {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchCommercialAdvertisementsCriteria criteria =
+                                getCriteria(null, floorTo, localityId);
+
+                        final CommercialAdvertisementEntity entity =
+                                new CommercialAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        CommercialBuildingType.WAREHOUSE,
+                                        getNumberOfRooms(),
+                                        floor,
+                                        null,
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @MethodSource("shouldFindByFloorFromTo")
+                    @DisplayName("Should find by floorFromTo")
+                    void shouldFindByFloorFromTo(
+                            final Integer floorFrom, final Integer floorTo, final Integer floor) {
+
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchCommercialAdvertisementsCriteria criteria =
+                                getCriteria(floorFrom, floorTo, localityId);
+
+                        final CommercialAdvertisementEntity entity =
+                                new CommercialAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        CommercialBuildingType.HALL,
+                                        getNumberOfRooms(),
+                                        floor,
+                                        null,
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    private static Stream<Arguments> shouldFindByFloorFromTo() {
+                        return Stream.of(
+                                Arguments.of(2, 2, 2),
+                                Arguments.of(1, 2, 1),
+                                Arguments.of(1, 5, 5),
+                                Arguments.of(1, 5, 3));
+                    }
+
+                    private static Stream<Arguments> shouldFindByFloorFromDataProvider() {
+                        return Stream.of(
+                                Arguments.of(2, 2), Arguments.of(2, 2), Arguments.of(5, 6));
+                    }
+
+                    private static Stream<Arguments> shouldFindByFloorToDataProvider() {
+                        return Stream.of(
+                                Arguments.of(5, 5), Arguments.of(5, 3), Arguments.of(2, 1));
+                    }
+
+                    private static SearchCommercialAdvertisementsCriteria getCriteria(
+                            final Integer floorFrom, final Integer floorTo, final UUID localityId) {
+
+                        return new SearchCommercialAdvertisementsCriteria(
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                0,
+                                1,
+                                null,
+                                localityId,
+                                null,
+                                null,
+                                null,
+                                floorFrom,
+                                floorTo,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null);
+                    }
+                }
+
+                @Nested
+                @ClearDatabase
+                @DisableConstraints
+                final class FloorsTests {
+
+                    @Test
+                    @DisplayName("Should find when criteria floors is null")
+                    void shouldFindWhenCriteriaFloorsIsNull() {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchCommercialAdvertisementsCriteria criteria =
+                                getCriteria(null, null, localityId);
+
+                        final CommercialAdvertisementEntity entity =
+                                new CommercialAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        CommercialBuildingType.WAREHOUSE,
+                                        getNumberOfRooms(),
+                                        getFloors(),
+                                        null,
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @DisplayName("Should find by floorsFrom")
+                    @MethodSource("shouldFindByFloorsFromDataProvider")
+                    void shouldFindByFloorsFrom(final Integer floorsFrom, final Integer floors) {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchCommercialAdvertisementsCriteria criteria =
+                                getCriteria(floorsFrom, null, localityId);
+
+                        final CommercialAdvertisementEntity entity =
+                                new CommercialAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        CommercialBuildingType.WAREHOUSE,
+                                        getNumberOfRooms(),
+                                        null,
+                                        floors,
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @DisplayName("Should find by floorsTo")
+                    @MethodSource("shouldFindByFloorsToDataProvider")
+                    void shouldFindByFloorsTo(final Integer floorsTo, final Integer floors) {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchCommercialAdvertisementsCriteria criteria =
+                                getCriteria(null, floorsTo, localityId);
+
+                        final CommercialAdvertisementEntity entity =
+                                new CommercialAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        CommercialBuildingType.WAREHOUSE,
+                                        getNumberOfRooms(),
+                                        null,
+                                        floors,
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @MethodSource("shouldFindByFloorsFromTo")
+                    @DisplayName("Should find by floorsFromTo")
+                    void shouldFindByFloorsFromTo(
+                            final Integer floorsFrom,
+                            final Integer floorsTo,
+                            final Integer floors) {
+
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchCommercialAdvertisementsCriteria criteria =
+                                getCriteria(floorsFrom, floorsTo, localityId);
+
+                        final CommercialAdvertisementEntity entity =
+                                new CommercialAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        CommercialBuildingType.HALL,
+                                        getNumberOfRooms(),
+                                        null,
+                                        floors,
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    private static Stream<Arguments> shouldFindByFloorsFromTo() {
+                        return Stream.of(
+                                Arguments.of(2, 2, 2),
+                                Arguments.of(1, 2, 1),
+                                Arguments.of(1, 5, 5),
+                                Arguments.of(1, 5, 3));
+                    }
+
+                    private static Stream<Arguments> shouldFindByFloorsFromDataProvider() {
+                        return Stream.of(
+                                Arguments.of(2, 2), Arguments.of(2, 2), Arguments.of(5, 6));
+                    }
+
+                    private static Stream<Arguments> shouldFindByFloorsToDataProvider() {
+                        return Stream.of(
+                                Arguments.of(5, 5), Arguments.of(5, 3), Arguments.of(2, 1));
+                    }
+
+                    private static SearchCommercialAdvertisementsCriteria getCriteria(
+                            final Integer floorsFrom,
+                            final Integer floorsTo,
+                            final UUID localityId) {
+
+                        return new SearchCommercialAdvertisementsCriteria(
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                0,
+                                1,
+                                null,
+                                localityId,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                floorsFrom,
+                                floorsTo,
+                                null,
+                                null,
+                                null,
+                                null);
+                    }
+                }
+
+                @Nested
+                @ClearDatabase
+                @DisableConstraints
+                final class NumberOfRoomsTests {
+
+                    @Test
+                    @DisplayName("Should find when criteria numberOfRooms is null")
+                    void shouldFindWhenCriteriaNumberOfRoomsIsNull() {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchCommercialAdvertisementsCriteria criteria =
+                                getCriteria(null, null, localityId);
+
+                        final CommercialAdvertisementEntity entity =
+                                new CommercialAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        CommercialBuildingType.WAREHOUSE,
+                                        getNumberOfRooms(),
+                                        getFloor(),
+                                        getFloors(),
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @DisplayName("Should find by numberOfRoomsFrom")
+                    @MethodSource("shouldFindByNumberOfRoomsFromDataProvider")
+                    void shouldFindByNumberOfRoomsFrom(
+                            final Integer numberOfRoomsFrom, final Integer numberOfRooms) {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchCommercialAdvertisementsCriteria criteria =
+                                getCriteria(numberOfRoomsFrom, null, localityId);
+
+                        final CommercialAdvertisementEntity entity =
+                                new CommercialAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        CommercialBuildingType.WAREHOUSE,
+                                        numberOfRooms,
+                                        getFloor(),
+                                        getFloors(),
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @DisplayName("Should find by numberOfRoomsTo")
+                    @MethodSource("shouldFindByNumberOfRoomsToDataProvider")
+                    void shouldFindByNumberOfRoomsTo(
+                            final Integer numberOfRoomsTo, final Integer numberOfRooms) {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchCommercialAdvertisementsCriteria criteria =
+                                getCriteria(null, numberOfRoomsTo, localityId);
+
+                        final CommercialAdvertisementEntity entity =
+                                new CommercialAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        CommercialBuildingType.WAREHOUSE,
+                                        numberOfRooms,
+                                        getFloor(),
+                                        getFloors(),
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @MethodSource("shouldFindByNumberOfRoomsFromTo")
+                    @DisplayName("Should find by numberOfRoomsFromTo")
+                    void shouldFindByNumberOfRoomsFromTo(
+                            final Integer numberOfRoomsFrom,
+                            final Integer numberOfRoomsTo,
+                            final Integer numberOfRooms) {
+
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchCommercialAdvertisementsCriteria criteria =
+                                getCriteria(numberOfRoomsFrom, numberOfRoomsTo, localityId);
+
+                        final CommercialAdvertisementEntity entity =
+                                new CommercialAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        CommercialBuildingType.WAREHOUSE,
+                                        numberOfRooms,
+                                        getFloor(),
+                                        getFloors(),
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    private static Stream<Arguments> shouldFindByNumberOfRoomsFromTo() {
+                        return Stream.of(
+                                Arguments.of(2, 2, 2),
+                                Arguments.of(1, 2, 1),
+                                Arguments.of(1, 5, 5),
+                                Arguments.of(1, 5, 3));
+                    }
+
+                    private static Stream<Arguments> shouldFindByNumberOfRoomsFromDataProvider() {
+                        return Stream.of(
+                                Arguments.of(2, 2), Arguments.of(2, 3), Arguments.of(5, 6));
+                    }
+
+                    private static Stream<Arguments> shouldFindByNumberOfRoomsToDataProvider() {
+                        return Stream.of(
+                                Arguments.of(5, 5), Arguments.of(5, 3), Arguments.of(2, 1));
+                    }
+
+                    private static SearchCommercialAdvertisementsCriteria getCriteria(
+                            final Integer numberOfRoomsFrom,
+                            final Integer numberOfRoomsTo,
+                            final UUID localityId) {
+
+                        return new SearchCommercialAdvertisementsCriteria(
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                0,
+                                1,
+                                null,
+                                localityId,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                numberOfRoomsFrom,
+                                numberOfRoomsTo,
+                                null,
+                                null);
+                    }
+                }
+
+                @Nested
+                @ClearDatabase
+                @DisableConstraints
+                final class BuiltYearTests {
+
+                    @Test
+                    @DisplayName("Should find when criteria builtYear is null")
+                    void shouldFindWhenCriteriaBuiltYearIsNull() {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchCommercialAdvertisementsCriteria criteria =
+                                getCriteria(null, null, localityId);
+
+                        final CommercialAdvertisementEntity entity =
+                                new CommercialAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        CommercialBuildingType.WAREHOUSE,
+                                        getNumberOfRooms(),
+                                        getFloor(),
+                                        getFloors(),
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @DisplayName("Should find by builtYearFrom")
+                    @MethodSource("shouldFindByBuiltYearFromDataProvider")
+                    void shouldFindByBuiltYearFrom(
+                            final Integer builtYearFrom, final Integer builtYear) {
+
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchCommercialAdvertisementsCriteria criteria =
+                                getCriteria(builtYearFrom, null, localityId);
+
+                        final CommercialAdvertisementEntity entity =
+                                new CommercialAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        CommercialBuildingType.WAREHOUSE,
+                                        getNumberOfRooms(),
+                                        getFloor(),
+                                        getFloors(),
+                                        builtYear,
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @DisplayName("Should find by builtYearTo")
+                    @MethodSource("shouldFindByBuiltYearToDataProvider")
+                    void shouldFindByBuiltYearTo(
+                            final Integer builtYearTo, final Integer builtYear) {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchCommercialAdvertisementsCriteria criteria =
+                                getCriteria(null, builtYearTo, localityId);
+
+                        final CommercialAdvertisementEntity entity =
+                                new CommercialAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        CommercialBuildingType.WAREHOUSE,
+                                        getNumberOfRooms(),
+                                        getFloor(),
+                                        getFloors(),
+                                        builtYear,
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @MethodSource("shouldFindByBuiltYearFromTo")
+                    @DisplayName("Should find by builtYearFromTo")
+                    void shouldFindByBuiltYearFromTo(
+                            final Integer builtYearFrom,
+                            final Integer builtYearTo,
+                            final Integer builtYear) {
+
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchCommercialAdvertisementsCriteria criteria =
+                                getCriteria(builtYearFrom, builtYearTo, localityId);
+
+                        final CommercialAdvertisementEntity entity =
+                                new CommercialAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        CommercialBuildingType.WAREHOUSE,
+                                        getNumberOfRooms(),
+                                        getFloor(),
+                                        getFloors(),
+                                        builtYear,
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    private static Stream<Arguments> shouldFindByBuiltYearFromTo() {
+                        return Stream.of(
+                                Arguments.of(2000, 2000, 2000),
+                                Arguments.of(2001, 2002, 2001),
+                                Arguments.of(2001, 2005, 2005),
+                                Arguments.of(2001, 2005, 2003));
+                    }
+
+                    private static Stream<Arguments> shouldFindByBuiltYearFromDataProvider() {
+                        return Stream.of(
+                                Arguments.of(2002, 2002),
+                                Arguments.of(2001, 2002),
+                                Arguments.of(2005, 2006));
+                    }
+
+                    private static Stream<Arguments> shouldFindByBuiltYearToDataProvider() {
+                        return Stream.of(
+                                Arguments.of(2005, 2005),
+                                Arguments.of(2005, 2003),
+                                Arguments.of(2002, 2001));
+                    }
+
+                    private static SearchCommercialAdvertisementsCriteria getCriteria(
+                            final Integer builtYearFrom,
+                            final Integer builtYearTo,
+                            final UUID localityId) {
+
+                        return new SearchCommercialAdvertisementsCriteria(
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                0,
+                                1,
+                                null,
+                                localityId,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                builtYearFrom,
+                                builtYearTo);
+                    }
+                }
+            }
+
+            @Nested
+            @ClearDatabase
+            @DisableConstraints
+            final class FlatTests {
+
+                @Nested
+                @ClearDatabase
+                @DisableConstraints
+                final class TypeOfMarketsTests {
+
+                    @Test
+                    @DisplayName("Should find when criteria types are empty")
+                    void shouldFindWhenCriteriaTypesAreEmpty() {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchFlatAdvertisementsCriteria criteria =
+                                getCriteria(emptySet(), localityId);
+
+                        final FlatAdvertisementEntity entity =
+                                new FlatAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        FlatBuildingType.LOFT,
+                                        getNumberOfRooms(),
+                                        getFloor(),
+                                        getFloors(),
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @Test
+                    @DisplayName("Should find by type")
+                    void shouldFindByType() {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchFlatAdvertisementsCriteria criteria =
+                                getCriteria(Set.of(TypeOfMarket.PRIMARY.name()), localityId);
+
+                        final FlatAdvertisementEntity entity =
+                                new FlatAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        FlatBuildingType.LOFT,
+                                        getNumberOfRooms(),
+                                        getFloor(),
+                                        getFloors(),
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @Test
+                    @DisplayName("Should find by multiple types")
+                    void shouldFindByMultipleTypes() {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchFlatAdvertisementsCriteria criteria =
+                                getCriteria(
+                                        Set.of(
+                                                TypeOfMarket.PRIMARY.name(),
+                                                TypeOfMarket.SECONDARY.name()),
+                                        localityId);
+
+                        final FlatAdvertisementEntity entity =
+                                new FlatAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        FlatBuildingType.LOFT,
+                                        getNumberOfRooms(),
+                                        getFloor(),
+                                        getFloors(),
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        final FlatAdvertisementEntity secondEntity =
+                                new FlatAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F2",
+                                        getTitle() + "F2",
+                                        getDescription() + "F2",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        FlatBuildingType.APARTMENT,
+                                        getNumberOfRooms(),
+                                        getFloor(),
+                                        getFloors(),
+                                        getBuiltYear(),
+                                        TypeOfMarket.SECONDARY);
+
+                        repository.save(entity);
+                        repository.save(secondEntity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(2)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactlyInAnyOrder(entity.getId(), secondEntity.getId());
+                    }
+
+                    private static SearchFlatAdvertisementsCriteria getCriteria(
+                            final Set<String> typeOfMarkets, final UUID localityId) {
+
+                        return new SearchFlatAdvertisementsCriteria(
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                0,
+                                25,
+                                emptySet(),
+                                localityId,
+                                null,
+                                null,
+                                typeOfMarkets,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null);
+                    }
+                }
+
+                @Nested
+                @ClearDatabase
+                @DisableConstraints
+                final class FloorTests {
+
+                    @Test
+                    @DisplayName("Should find when criteria floor is null")
+                    void shouldFindWhenCriteriaFloorIsNull() {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchFlatAdvertisementsCriteria criteria =
+                                getCriteria(null, null, localityId);
+
+                        final FlatAdvertisementEntity entity =
+                                new FlatAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        FlatBuildingType.LOFT,
+                                        getNumberOfRooms(),
+                                        getFloor(),
+                                        null,
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @DisplayName("Should find by floorFrom")
+                    @MethodSource("shouldFindByFloorFromDataProvider")
+                    void shouldFindByFloorFrom(final Integer floorFrom, final Integer floor) {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchFlatAdvertisementsCriteria criteria =
+                                getCriteria(floorFrom, null, localityId);
+
+                        final FlatAdvertisementEntity entity =
+                                new FlatAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        FlatBuildingType.LOFT,
+                                        getNumberOfRooms(),
+                                        floor,
+                                        null,
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @DisplayName("Should find by floorTo")
+                    @MethodSource("shouldFindByFloorToDataProvider")
+                    void shouldFindByFloorTo(final Integer floorTo, final Integer floor) {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchFlatAdvertisementsCriteria criteria =
+                                getCriteria(null, floorTo, localityId);
+
+                        final FlatAdvertisementEntity entity =
+                                new FlatAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        FlatBuildingType.LOFT,
+                                        getNumberOfRooms(),
+                                        floor,
+                                        null,
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @MethodSource("shouldFindByFloorFromTo")
+                    @DisplayName("Should find by floorFromTo")
+                    void shouldFindByFloorFromTo(
+                            final Integer floorFrom, final Integer floorTo, final Integer floor) {
+
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchFlatAdvertisementsCriteria criteria =
+                                getCriteria(floorFrom, floorTo, localityId);
+
+                        final FlatAdvertisementEntity entity =
+                                new FlatAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        FlatBuildingType.APARTMENT,
+                                        getNumberOfRooms(),
+                                        floor,
+                                        null,
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    private static Stream<Arguments> shouldFindByFloorFromTo() {
+                        return Stream.of(
+                                Arguments.of(2, 2, 2),
+                                Arguments.of(1, 2, 1),
+                                Arguments.of(1, 5, 5),
+                                Arguments.of(1, 5, 3));
+                    }
+
+                    private static Stream<Arguments> shouldFindByFloorFromDataProvider() {
+                        return Stream.of(
+                                Arguments.of(2, 2), Arguments.of(2, 2), Arguments.of(5, 6));
+                    }
+
+                    private static Stream<Arguments> shouldFindByFloorToDataProvider() {
+                        return Stream.of(
+                                Arguments.of(5, 5), Arguments.of(5, 3), Arguments.of(2, 1));
+                    }
+
+                    private static SearchFlatAdvertisementsCriteria getCriteria(
+                            final Integer floorFrom, final Integer floorTo, final UUID localityId) {
+
+                        return new SearchFlatAdvertisementsCriteria(
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                0,
+                                1,
+                                null,
+                                localityId,
+                                null,
+                                null,
+                                null,
+                                floorFrom,
+                                floorTo,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null);
+                    }
+                }
+
+                @Nested
+                @ClearDatabase
+                @DisableConstraints
+                final class FloorsTests {
+
+                    @Test
+                    @DisplayName("Should find when criteria floors is null")
+                    void shouldFindWhenCriteriaFloorsIsNull() {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchFlatAdvertisementsCriteria criteria =
+                                getCriteria(null, null, localityId);
+
+                        final FlatAdvertisementEntity entity =
+                                new FlatAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        FlatBuildingType.LOFT,
+                                        getNumberOfRooms(),
+                                        getFloors(),
+                                        null,
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @DisplayName("Should find by floorsFrom")
+                    @MethodSource("shouldFindByFloorsFromDataProvider")
+                    void shouldFindByFloorsFrom(final Integer floorsFrom, final Integer floors) {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchFlatAdvertisementsCriteria criteria =
+                                getCriteria(floorsFrom, null, localityId);
+
+                        final FlatAdvertisementEntity entity =
+                                new FlatAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        FlatBuildingType.LOFT,
+                                        getNumberOfRooms(),
+                                        null,
+                                        floors,
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @DisplayName("Should find by floorsTo")
+                    @MethodSource("shouldFindByFloorsToDataProvider")
+                    void shouldFindByFloorsTo(final Integer floorsTo, final Integer floors) {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchFlatAdvertisementsCriteria criteria =
+                                getCriteria(null, floorsTo, localityId);
+
+                        final FlatAdvertisementEntity entity =
+                                new FlatAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        FlatBuildingType.LOFT,
+                                        getNumberOfRooms(),
+                                        null,
+                                        floors,
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @MethodSource("shouldFindByFloorsFromTo")
+                    @DisplayName("Should find by floorsFromTo")
+                    void shouldFindByFloorsFromTo(
+                            final Integer floorsFrom,
+                            final Integer floorsTo,
+                            final Integer floors) {
+
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchFlatAdvertisementsCriteria criteria =
+                                getCriteria(floorsFrom, floorsTo, localityId);
+
+                        final FlatAdvertisementEntity entity =
+                                new FlatAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        FlatBuildingType.APARTMENT,
+                                        getNumberOfRooms(),
+                                        null,
+                                        floors,
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    private static Stream<Arguments> shouldFindByFloorsFromTo() {
+                        return Stream.of(
+                                Arguments.of(2, 2, 2),
+                                Arguments.of(1, 2, 1),
+                                Arguments.of(1, 5, 5),
+                                Arguments.of(1, 5, 3));
+                    }
+
+                    private static Stream<Arguments> shouldFindByFloorsFromDataProvider() {
+                        return Stream.of(
+                                Arguments.of(2, 2), Arguments.of(2, 2), Arguments.of(5, 6));
+                    }
+
+                    private static Stream<Arguments> shouldFindByFloorsToDataProvider() {
+                        return Stream.of(
+                                Arguments.of(5, 5), Arguments.of(5, 3), Arguments.of(2, 1));
+                    }
+
+                    private static SearchFlatAdvertisementsCriteria getCriteria(
+                            final Integer floorsFrom,
+                            final Integer floorsTo,
+                            final UUID localityId) {
+
+                        return new SearchFlatAdvertisementsCriteria(
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                0,
+                                1,
+                                null,
+                                localityId,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                floorsFrom,
+                                floorsTo,
+                                null,
+                                null,
+                                null,
+                                null);
+                    }
+                }
+
+                @Nested
+                @ClearDatabase
+                @DisableConstraints
+                final class NumberOfRoomsTests {
+
+                    @Test
+                    @DisplayName("Should find when criteria numberOfRooms is null")
+                    void shouldFindWhenCriteriaNumberOfRoomsIsNull() {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchFlatAdvertisementsCriteria criteria =
+                                getCriteria(null, null, localityId);
+
+                        final FlatAdvertisementEntity entity =
+                                new FlatAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        FlatBuildingType.LOFT,
+                                        getNumberOfRooms(),
+                                        getFloor(),
+                                        getFloors(),
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @DisplayName("Should find by numberOfRoomsFrom")
+                    @MethodSource("shouldFindByNumberOfRoomsFromDataProvider")
+                    void shouldFindByNumberOfRoomsFrom(
+                            final Integer numberOfRoomsFrom, final Integer numberOfRooms) {
+
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchFlatAdvertisementsCriteria criteria =
+                                getCriteria(numberOfRoomsFrom, null, localityId);
+
+                        final FlatAdvertisementEntity entity =
+                                new FlatAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        FlatBuildingType.LOFT,
+                                        numberOfRooms,
+                                        getFloor(),
+                                        getFloors(),
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @DisplayName("Should find by numberOfRoomsTo")
+                    @MethodSource("shouldFindByNumberOfRoomsToDataProvider")
+                    void shouldFindByNumberOfRoomsTo(
+                            final Integer numberOfRoomsTo, final Integer numberOfRooms) {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchFlatAdvertisementsCriteria criteria =
+                                getCriteria(null, numberOfRoomsTo, localityId);
+
+                        final FlatAdvertisementEntity entity =
+                                new FlatAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        FlatBuildingType.LOFT,
+                                        numberOfRooms,
+                                        getFloor(),
+                                        getFloors(),
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @MethodSource("shouldFindByNumberOfRoomsFromTo")
+                    @DisplayName("Should find by numberOfRoomsFromTo")
+                    void shouldFindByNumberOfRoomsFromTo(
+                            final Integer numberOfRoomsFrom,
+                            final Integer numberOfRoomsTo,
+                            final Integer numberOfRooms) {
+
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchFlatAdvertisementsCriteria criteria =
+                                getCriteria(numberOfRoomsFrom, numberOfRoomsTo, localityId);
+
+                        final FlatAdvertisementEntity entity =
+                                new FlatAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        FlatBuildingType.LOFT,
+                                        numberOfRooms,
+                                        getFloor(),
+                                        getFloors(),
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    private static Stream<Arguments> shouldFindByNumberOfRoomsFromTo() {
+                        return Stream.of(
+                                Arguments.of(2, 2, 2),
+                                Arguments.of(1, 2, 1),
+                                Arguments.of(1, 5, 5),
+                                Arguments.of(1, 5, 3));
+                    }
+
+                    private static Stream<Arguments> shouldFindByNumberOfRoomsFromDataProvider() {
+                        return Stream.of(
+                                Arguments.of(2, 2), Arguments.of(2, 3), Arguments.of(5, 6));
+                    }
+
+                    private static Stream<Arguments> shouldFindByNumberOfRoomsToDataProvider() {
+                        return Stream.of(
+                                Arguments.of(5, 5), Arguments.of(5, 3), Arguments.of(2, 1));
+                    }
+
+                    private static SearchFlatAdvertisementsCriteria getCriteria(
+                            final Integer numberOfRoomsFrom,
+                            final Integer numberOfRoomsTo,
+                            final UUID localityId) {
+
+                        return new SearchFlatAdvertisementsCriteria(
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                0,
+                                1,
+                                null,
+                                localityId,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                numberOfRoomsFrom,
+                                numberOfRoomsTo,
+                                null,
+                                null);
+                    }
+                }
+
+                @Nested
+                @ClearDatabase
+                @DisableConstraints
+                final class BuiltYearTests {
+
+                    @Test
+                    @DisplayName("Should find when criteria builtYear is null")
+                    void shouldFindWhenCriteriaBuiltYearIsNull() {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchFlatAdvertisementsCriteria criteria =
+                                getCriteria(null, null, localityId);
+
+                        final FlatAdvertisementEntity entity =
+                                new FlatAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        FlatBuildingType.LOFT,
+                                        getNumberOfRooms(),
+                                        getFloor(),
+                                        getFloors(),
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @DisplayName("Should find by builtYearFrom")
+                    @MethodSource("shouldFindByBuiltYearFromDataProvider")
+                    void shouldFindByBuiltYearFrom(
+                            final Integer builtYearFrom, final Integer builtYear) {
+
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchFlatAdvertisementsCriteria criteria =
+                                getCriteria(builtYearFrom, null, localityId);
+
+                        final FlatAdvertisementEntity entity =
+                                new FlatAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        FlatBuildingType.LOFT,
+                                        getNumberOfRooms(),
+                                        getFloor(),
+                                        getFloors(),
+                                        builtYear,
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @DisplayName("Should find by builtYearTo")
+                    @MethodSource("shouldFindByBuiltYearToDataProvider")
+                    void shouldFindByBuiltYearTo(
+                            final Integer builtYearTo, final Integer builtYear) {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchFlatAdvertisementsCriteria criteria =
+                                getCriteria(null, builtYearTo, localityId);
+
+                        final FlatAdvertisementEntity entity =
+                                new FlatAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        FlatBuildingType.LOFT,
+                                        getNumberOfRooms(),
+                                        getFloor(),
+                                        getFloors(),
+                                        builtYear,
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @MethodSource("shouldFindByBuiltYearFromTo")
+                    @DisplayName("Should find by builtYearFromTo")
+                    void shouldFindByBuiltYearFromTo(
+                            final Integer builtYearFrom,
+                            final Integer builtYearTo,
+                            final Integer builtYear) {
+
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchFlatAdvertisementsCriteria criteria =
+                                getCriteria(builtYearFrom, builtYearTo, localityId);
+
+                        final FlatAdvertisementEntity entity =
+                                new FlatAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        FlatBuildingType.LOFT,
+                                        getNumberOfRooms(),
+                                        getFloor(),
+                                        getFloors(),
+                                        builtYear,
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    private static Stream<Arguments> shouldFindByBuiltYearFromTo() {
+                        return Stream.of(
+                                Arguments.of(2000, 2000, 2000),
+                                Arguments.of(2001, 2002, 2001),
+                                Arguments.of(2001, 2005, 2005),
+                                Arguments.of(2001, 2005, 2003));
+                    }
+
+                    private static Stream<Arguments> shouldFindByBuiltYearFromDataProvider() {
+                        return Stream.of(
+                                Arguments.of(2002, 2002),
+                                Arguments.of(2001, 2002),
+                                Arguments.of(2005, 2006));
+                    }
+
+                    private static Stream<Arguments> shouldFindByBuiltYearToDataProvider() {
+                        return Stream.of(
+                                Arguments.of(2005, 2005),
+                                Arguments.of(2005, 2003),
+                                Arguments.of(2002, 2001));
+                    }
+
+                    private static SearchFlatAdvertisementsCriteria getCriteria(
+                            final Integer builtYearFrom,
+                            final Integer builtYearTo,
+                            final UUID localityId) {
+
+                        return new SearchFlatAdvertisementsCriteria(
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                0,
+                                1,
+                                null,
+                                localityId,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                builtYearFrom,
+                                builtYearTo);
+                    }
+                }
+            }
+
+            @Nested
+            @ClearDatabase
+            @DisableConstraints
+            final class HouseTests {
+
+                @Nested
+                @ClearDatabase
+                @DisableConstraints
+                final class TypeOfMarketsTests {
+
+                    @Test
+                    @DisplayName("Should find when criteria types are empty")
+                    void shouldFindWhenCriteriaTypesAreEmpty() {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchHouseAdvertisementsCriteria criteria =
+                                getCriteria(emptySet(), localityId);
+
+                        final HouseAdvertisementEntity entity =
+                                new HouseAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        HouseBuildingType.SEMI_DETACHED,
+                                        getNumberOfRooms(),
+                                        getFloors(),
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @Test
+                    @DisplayName("Should find by type")
+                    void shouldFindByType() {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchHouseAdvertisementsCriteria criteria =
+                                getCriteria(Set.of(TypeOfMarket.PRIMARY.name()), localityId);
+
+                        final HouseAdvertisementEntity entity =
+                                new HouseAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        HouseBuildingType.MANSION,
+                                        getNumberOfRooms(),
+                                        getFloors(),
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @Test
+                    @DisplayName("Should find by multiple types")
+                    void shouldFindByMultipleTypes() {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchHouseAdvertisementsCriteria criteria =
+                                getCriteria(
+                                        Set.of(
+                                                TypeOfMarket.PRIMARY.name(),
+                                                TypeOfMarket.SECONDARY.name()),
+                                        localityId);
+
+                        final HouseAdvertisementEntity entity =
+                                new HouseAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        HouseBuildingType.TERRACED,
+                                        getNumberOfRooms(),
+                                        getFloors(),
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        final HouseAdvertisementEntity secondEntity =
+                                new HouseAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F2",
+                                        getTitle() + "F2",
+                                        getDescription() + "F2",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        HouseBuildingType.MANSION,
+                                        getNumberOfRooms(),
+                                        getFloors(),
+                                        getBuiltYear(),
+                                        TypeOfMarket.SECONDARY);
+
+                        repository.save(entity);
+                        repository.save(secondEntity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(2)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactlyInAnyOrder(entity.getId(), secondEntity.getId());
+                    }
+
+                    private static SearchHouseAdvertisementsCriteria getCriteria(
+                            final Set<String> typeOfMarkets, final UUID localityId) {
+
+                        return new SearchHouseAdvertisementsCriteria(
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                0,
+                                25,
+                                emptySet(),
+                                localityId,
+                                null,
+                                null,
+                                typeOfMarkets,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null);
+                    }
+                }
+
+                @Nested
+                @ClearDatabase
+                @DisableConstraints
+                final class FloorsTests {
+
+                    @Test
+                    @DisplayName("Should find when criteria floors is null")
+                    void shouldFindWhenCriteriaFloorsIsNull() {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchHouseAdvertisementsCriteria criteria =
+                                getCriteria(null, null, localityId);
+
+                        final HouseAdvertisementEntity entity =
+                                new HouseAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        HouseBuildingType.DETACHED,
+                                        getNumberOfRooms(),
+                                        null,
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @DisplayName("Should find by floorsFrom")
+                    @MethodSource("shouldFindByFloorsFromDataProvider")
+                    void shouldFindByFloorsFrom(final Integer floorsFrom, final Integer floors) {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchHouseAdvertisementsCriteria criteria =
+                                getCriteria(floorsFrom, null, localityId);
+
+                        final HouseAdvertisementEntity entity =
+                                new HouseAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        HouseBuildingType.TERRACED,
+                                        getNumberOfRooms(),
+                                        floors,
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @DisplayName("Should find by floorsTo")
+                    @MethodSource("shouldFindByFloorsToDataProvider")
+                    void shouldFindByFloorsTo(final Integer floorsTo, final Integer floors) {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchHouseAdvertisementsCriteria criteria =
+                                getCriteria(null, floorsTo, localityId);
+
+                        final HouseAdvertisementEntity entity =
+                                new HouseAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        HouseBuildingType.SEMI_DETACHED,
+                                        getNumberOfRooms(),
+                                        floors,
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @MethodSource("shouldFindByFloorsFromTo")
+                    @DisplayName("Should find by floorsFromTo")
+                    void shouldFindByFloorsFromTo(
+                            final Integer floorsFrom,
+                            final Integer floorsTo,
+                            final Integer floors) {
+
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchHouseAdvertisementsCriteria criteria =
+                                getCriteria(floorsFrom, floorsTo, localityId);
+
+                        final HouseAdvertisementEntity entity =
+                                new HouseAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        HouseBuildingType.MANSION,
+                                        getNumberOfRooms(),
+                                        floors,
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    private static Stream<Arguments> shouldFindByFloorsFromTo() {
+                        return Stream.of(
+                                Arguments.of(2, 2, 2),
+                                Arguments.of(1, 2, 1),
+                                Arguments.of(1, 5, 5),
+                                Arguments.of(1, 5, 3));
+                    }
+
+                    private static Stream<Arguments> shouldFindByFloorsFromDataProvider() {
+                        return Stream.of(
+                                Arguments.of(2, 2), Arguments.of(2, 2), Arguments.of(5, 6));
+                    }
+
+                    private static Stream<Arguments> shouldFindByFloorsToDataProvider() {
+                        return Stream.of(
+                                Arguments.of(5, 5), Arguments.of(5, 3), Arguments.of(2, 1));
+                    }
+
+                    private static SearchHouseAdvertisementsCriteria getCriteria(
+                            final Integer floorsFrom,
+                            final Integer floorsTo,
+                            final UUID localityId) {
+
+                        return new SearchHouseAdvertisementsCriteria(
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                0,
+                                1,
+                                null,
+                                localityId,
+                                null,
+                                null,
+                                null,
+                                floorsFrom,
+                                floorsTo,
+                                null,
+                                null,
+                                null,
+                                null);
+                    }
+                }
+
+                @Nested
+                @ClearDatabase
+                @DisableConstraints
+                final class NumberOfRoomsTests {
+
+                    @Test
+                    @DisplayName("Should find when criteria numberOfRooms is null")
+                    void shouldFindWhenCriteriaNumberOfRoomsIsNull() {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchHouseAdvertisementsCriteria criteria =
+                                getCriteria(null, null, localityId);
+
+                        final HouseAdvertisementEntity entity =
+                                new HouseAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        HouseBuildingType.MANSION,
+                                        getNumberOfRooms(),
+                                        getFloors(),
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @DisplayName("Should find by numberOfRoomsFrom")
+                    @MethodSource("shouldFindByNumberOfRoomsFromDataProvider")
+                    void shouldFindByNumberOfRoomsFrom(
+                            final Integer numberOfRoomsFrom, final Integer numberOfRooms) {
+
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchHouseAdvertisementsCriteria criteria =
+                                getCriteria(numberOfRoomsFrom, null, localityId);
+
+                        final HouseAdvertisementEntity entity =
+                                new HouseAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        HouseBuildingType.SEMI_DETACHED,
+                                        numberOfRooms,
+                                        getFloors(),
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @DisplayName("Should find by numberOfRoomsTo")
+                    @MethodSource("shouldFindByNumberOfRoomsToDataProvider")
+                    void shouldFindByNumberOfRoomsTo(
+                            final Integer numberOfRoomsTo, final Integer numberOfRooms) {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchHouseAdvertisementsCriteria criteria =
+                                getCriteria(null, numberOfRoomsTo, localityId);
+
+                        final HouseAdvertisementEntity entity =
+                                new HouseAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        HouseBuildingType.MANSION,
+                                        numberOfRooms,
+                                        getFloors(),
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @MethodSource("shouldFindByNumberOfRoomsFromTo")
+                    @DisplayName("Should find by numberOfRoomsFromTo")
+                    void shouldFindByNumberOfRoomsFromTo(
+                            final Integer numberOfRoomsFrom,
+                            final Integer numberOfRoomsTo,
+                            final Integer numberOfRooms) {
+
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchHouseAdvertisementsCriteria criteria =
+                                getCriteria(numberOfRoomsFrom, numberOfRoomsTo, localityId);
+
+                        final HouseAdvertisementEntity entity =
+                                new HouseAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        HouseBuildingType.SEMI_DETACHED,
+                                        numberOfRooms,
+                                        getFloors(),
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    private static Stream<Arguments> shouldFindByNumberOfRoomsFromTo() {
+                        return Stream.of(
+                                Arguments.of(2, 2, 2),
+                                Arguments.of(1, 2, 1),
+                                Arguments.of(1, 5, 5),
+                                Arguments.of(1, 5, 3));
+                    }
+
+                    private static Stream<Arguments> shouldFindByNumberOfRoomsFromDataProvider() {
+                        return Stream.of(
+                                Arguments.of(2, 2), Arguments.of(2, 3), Arguments.of(5, 6));
+                    }
+
+                    private static Stream<Arguments> shouldFindByNumberOfRoomsToDataProvider() {
+                        return Stream.of(
+                                Arguments.of(5, 5), Arguments.of(5, 3), Arguments.of(2, 1));
+                    }
+
+                    private static SearchHouseAdvertisementsCriteria getCriteria(
+                            final Integer numberOfRoomsFrom,
+                            final Integer numberOfRoomsTo,
+                            final UUID localityId) {
+
+                        return new SearchHouseAdvertisementsCriteria(
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                0,
+                                1,
+                                null,
+                                localityId,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                numberOfRoomsFrom,
+                                numberOfRoomsTo,
+                                null,
+                                null);
+                    }
+                }
+
+                @Nested
+                @ClearDatabase
+                @DisableConstraints
+                final class BuiltYearTests {
+
+                    @Test
+                    @DisplayName("Should find when criteria builtYear is null")
+                    void shouldFindWhenCriteriaBuiltYearIsNull() {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchHouseAdvertisementsCriteria criteria =
+                                getCriteria(null, null, localityId);
+
+                        final HouseAdvertisementEntity entity =
+                                new HouseAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        HouseBuildingType.SEMI_DETACHED,
+                                        getNumberOfRooms(),
+                                        getFloors(),
+                                        getBuiltYear(),
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @DisplayName("Should find by builtYearFrom")
+                    @MethodSource("shouldFindByBuiltYearFromDataProvider")
+                    void shouldFindByBuiltYearFrom(
+                            final Integer builtYearFrom, final Integer builtYear) {
+
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchHouseAdvertisementsCriteria criteria =
+                                getCriteria(builtYearFrom, null, localityId);
+
+                        final HouseAdvertisementEntity entity =
+                                new HouseAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        HouseBuildingType.MANSION,
+                                        getNumberOfRooms(),
+                                        getFloors(),
+                                        builtYear,
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @DisplayName("Should find by builtYearTo")
+                    @MethodSource("shouldFindByBuiltYearToDataProvider")
+                    void shouldFindByBuiltYearTo(
+                            final Integer builtYearTo, final Integer builtYear) {
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchHouseAdvertisementsCriteria criteria =
+                                getCriteria(null, builtYearTo, localityId);
+
+                        final HouseAdvertisementEntity entity =
+                                new HouseAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        HouseBuildingType.DETACHED,
+                                        getNumberOfRooms(),
+                                        getFloors(),
+                                        builtYear,
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    @ParameterizedTest
+                    @MethodSource("shouldFindByBuiltYearFromTo")
+                    @DisplayName("Should find by builtYearFromTo")
+                    void shouldFindByBuiltYearFromTo(
+                            final Integer builtYearFrom,
+                            final Integer builtYearTo,
+                            final Integer builtYear) {
+
+                        // Given
+                        final UUID localityId = getId();
+                        final SearchHouseAdvertisementsCriteria criteria =
+                                getCriteria(builtYearFrom, builtYearTo, localityId);
+
+                        final HouseAdvertisementEntity entity =
+                                new HouseAdvertisementEntity(
+                                        getId(),
+                                        getSlug() + "F",
+                                        getTitle() + "F",
+                                        getDescription() + "F",
+                                        getPrice(),
+                                        getArea(),
+                                        getPricePerSquareMeter(),
+                                        localityId,
+                                        getId(),
+                                        true,
+                                        AdvertisementStatus.ACTIVE,
+                                        emptySet(),
+                                        emptySet(),
+                                        HouseBuildingType.MANSION,
+                                        getNumberOfRooms(),
+                                        getFloors(),
+                                        builtYear,
+                                        TypeOfMarket.PRIMARY);
+
+                        repository.save(entity);
+
+                        // When
+                        final var result = repository.findByCriteria(criteria);
+
+                        // Then
+                        Assertions.assertThat(result.getContent())
+                                .hasSize(1)
+                                .extracting(AdvertisementCardProjection::getId)
+                                .containsExactly(entity.getId());
+                    }
+
+                    private static Stream<Arguments> shouldFindByBuiltYearFromTo() {
+                        return Stream.of(
+                                Arguments.of(2000, 2000, 2000),
+                                Arguments.of(2001, 2002, 2001),
+                                Arguments.of(2001, 2005, 2005),
+                                Arguments.of(2001, 2005, 2003));
+                    }
+
+                    private static Stream<Arguments> shouldFindByBuiltYearFromDataProvider() {
+                        return Stream.of(
+                                Arguments.of(2002, 2002),
+                                Arguments.of(2001, 2002),
+                                Arguments.of(2005, 2006));
+                    }
+
+                    private static Stream<Arguments> shouldFindByBuiltYearToDataProvider() {
+                        return Stream.of(
+                                Arguments.of(2005, 2005),
+                                Arguments.of(2005, 2003),
+                                Arguments.of(2002, 2001));
+                    }
+
+                    private static SearchHouseAdvertisementsCriteria getCriteria(
+                            final Integer builtYearFrom,
+                            final Integer builtYearTo,
+                            final UUID localityId) {
+
+                        return new SearchHouseAdvertisementsCriteria(
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                0,
+                                1,
+                                null,
+                                localityId,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                builtYearFrom,
+                                builtYearTo);
+                    }
+                }
+            }
+
+            @Nested
+            @ClearDatabase
+            @DisableConstraints
+            final class PlotTests {
+
+                @Test
+                @DisplayName("Should find when criteria types are empty")
+                void shouldFindWhenCriteriaTypesAreEmpty() {
+                    // Given
+                    final UUID localityId = getId();
+                    final SearchPlotAdvertisementsCriteria criteria =
+                            getCriteria(emptySet(), localityId);
+
+                    final PlotAdvertisementEntity entity =
+                            new PlotAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F",
+                                    getTitle() + "F",
+                                    getDescription() + "F",
+                                    getPrice(),
+                                    getArea(),
+                                    getPricePerSquareMeter(),
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    PlotBuildingType.FOREST);
+
+                    repository.save(entity);
+
+                    // When
+                    final var result = repository.findByCriteria(criteria);
+
+                    // Then
+                    Assertions.assertThat(result.getContent())
+                            .hasSize(1)
+                            .extracting(AdvertisementCardProjection::getId)
+                            .containsExactly(entity.getId());
+                }
+
+                @Test
+                @DisplayName("Should find by type")
+                void shouldFindByType() {
+                    // Given
+                    final UUID localityId = getId();
+                    final SearchPlotAdvertisementsCriteria criteria =
+                            getCriteria(Set.of(PlotBuildingType.CONSTRUCTION.name()), localityId);
+
+                    final PlotAdvertisementEntity entity =
+                            new PlotAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F",
+                                    getTitle() + "F",
+                                    getDescription() + "F",
+                                    getPrice(),
+                                    getArea(),
+                                    getPricePerSquareMeter(),
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    PlotBuildingType.CONSTRUCTION);
+
+                    repository.save(entity);
+
+                    // When
+                    final var result = repository.findByCriteria(criteria);
+
+                    // Then
+                    Assertions.assertThat(result.getContent())
+                            .hasSize(1)
+                            .extracting(AdvertisementCardProjection::getId)
+                            .containsExactly(entity.getId());
+                }
+
+                @Test
+                @DisplayName("Should find by multiple types")
+                void shouldFindByMultipleTypes() {
+                    // Given
+                    final UUID localityId = getId();
+                    final SearchPlotAdvertisementsCriteria criteria =
+                            getCriteria(
+                                    Set.of(
+                                            PlotBuildingType.AGRICULTURAL.name(),
+                                            PlotBuildingType.FOREST.name()),
+                                    localityId);
+
+                    final PlotAdvertisementEntity entity =
+                            new PlotAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F",
+                                    getTitle() + "F",
+                                    getDescription() + "F",
+                                    getPrice(),
+                                    getArea(),
+                                    getPricePerSquareMeter(),
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    PlotBuildingType.FOREST);
+
+                    final PlotAdvertisementEntity secondEntity =
+                            new PlotAdvertisementEntity(
+                                    getId(),
+                                    getSlug() + "F2",
+                                    getTitle() + "F2",
+                                    getDescription() + "F2",
+                                    getPrice(),
+                                    getArea(),
+                                    getPricePerSquareMeter(),
+                                    localityId,
+                                    getId(),
+                                    true,
+                                    AdvertisementStatus.ACTIVE,
+                                    emptySet(),
+                                    emptySet(),
+                                    PlotBuildingType.AGRICULTURAL);
+
+                    repository.save(entity);
+                    repository.save(secondEntity);
+
+                    // When
+                    final var result = repository.findByCriteria(criteria);
+
+                    // Then
+                    Assertions.assertThat(result.getContent())
+                            .hasSize(2)
+                            .extracting(AdvertisementCardProjection::getId)
+                            .containsExactlyInAnyOrder(entity.getId(), secondEntity.getId());
+                }
+
+                private static SearchPlotAdvertisementsCriteria getCriteria(
+                        final Set<String> types, final UUID localityId) {
+
+                    return new SearchPlotAdvertisementsCriteria(
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            0,
+                            25,
+                            localityId,
+                            null,
+                            null,
+                            types);
+                }
             }
         }
     }

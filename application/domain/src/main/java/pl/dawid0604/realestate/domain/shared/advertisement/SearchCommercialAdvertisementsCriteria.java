@@ -17,7 +17,6 @@ public record SearchCommercialAdvertisementsCriteria(
         BigDecimal pricePerSquareMeterTo,
         int page,
         int pageSize,
-        Set<String> offerFrom,
         Set<String> types,
         UUID localityId,
         LocalDate dateFrom,
@@ -35,14 +34,8 @@ public record SearchCommercialAdvertisementsCriteria(
 
     @SuppressWarnings("CPD-START")
     public SearchCommercialAdvertisementsCriteria {
-        offerFrom = offerFrom != null ? Set.copyOf(offerFrom) : emptySet();
         types = types != null ? Set.copyOf(types) : emptySet();
         typeOfMarkets = typeOfMarkets != null ? Set.copyOf(typeOfMarkets) : emptySet();
-    }
-
-    @Override
-    public Set<String> offerFrom() {
-        return Set.copyOf(offerFrom);
     }
 
     @Override

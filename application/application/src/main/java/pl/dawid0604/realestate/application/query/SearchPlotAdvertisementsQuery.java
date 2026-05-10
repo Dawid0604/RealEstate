@@ -26,7 +26,6 @@ public final class SearchPlotAdvertisementsQuery implements SearchAdvertisements
     @ValidPrice private final BigDecimal pricePerSquareMeterTo;
     @ValidPageNumber private final int page;
     @ValidPageSize private final int pageSize;
-    private final Set<String> offerFrom;
     private final Set<String> types;
     private final LocalDate dateFrom;
     private final LocalDate dateTo;
@@ -43,7 +42,6 @@ public final class SearchPlotAdvertisementsQuery implements SearchAdvertisements
                 pricePerSquareMeterTo,
                 page,
                 pageSize,
-                offerFrom,
                 localityId,
                 dateFrom,
                 dateTo,

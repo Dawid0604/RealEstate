@@ -1,14 +1,14 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain.shared.advertisement;
 
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
-
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 
 class SearchHouseAdvertisementsCriteriaTest {
 
@@ -24,7 +24,6 @@ class SearchHouseAdvertisementsCriteriaTest {
         final BigDecimal pricePerSquareMeterTo = BigDecimal.valueOf(5_000);
         final int page = 2;
         final int pageSize = 25;
-        final Set<String> offerFrom = Set.of("a", "b");
         final Set<String> types = Set.of("c", "g");
         final Set<String> typeOfMarkets = Set.of("x", "d");
         final UUID localityId = UUID.randomUUID();
@@ -48,7 +47,6 @@ class SearchHouseAdvertisementsCriteriaTest {
                         pricePerSquareMeterTo,
                         page,
                         pageSize,
-                        offerFrom,
                         types,
                         localityId,
                         dateFrom,
@@ -77,9 +75,6 @@ class SearchHouseAdvertisementsCriteriaTest {
 
                             Assertions.assertThat(c.page()).isEqualTo(page);
                             Assertions.assertThat(c.pageSize()).isEqualTo(pageSize);
-                            Assertions.assertThat(c.offerFrom())
-                                    .containsExactlyInAnyOrderElementsOf(offerFrom);
-
                             Assertions.assertThat(c.types())
                                     .containsExactlyInAnyOrderElementsOf(types);
 
@@ -112,7 +107,6 @@ class SearchHouseAdvertisementsCriteriaTest {
         final BigDecimal pricePerSquareMeterTo = BigDecimal.valueOf(5_000);
         final int page = 2;
         final int pageSize = 25;
-        final Set<String> offerFrom = Set.of("a", "b");
         final Set<String> types = Set.of("c", "g");
         final Set<String> typeOfMarkets = Set.of("x", "d");
         final UUID localityId = UUID.randomUUID();
@@ -135,7 +129,6 @@ class SearchHouseAdvertisementsCriteriaTest {
                         pricePerSquareMeterTo,
                         page,
                         pageSize,
-                        offerFrom,
                         types,
                         localityId,
                         dateFrom,
@@ -150,9 +143,6 @@ class SearchHouseAdvertisementsCriteriaTest {
 
         // When
         // Then
-        Assertions.assertThatThrownBy(() -> criteria.offerFrom().add("p"))
-                .isExactlyInstanceOf(UnsupportedOperationException.class);
-
         Assertions.assertThatThrownBy(() -> criteria.types().add("p"))
                 .isExactlyInstanceOf(UnsupportedOperationException.class);
 
@@ -194,7 +184,6 @@ class SearchHouseAdvertisementsCriteriaTest {
                         page,
                         pageSize,
                         null,
-                        null,
                         localityId,
                         dateFrom,
                         dateTo,
@@ -212,7 +201,6 @@ class SearchHouseAdvertisementsCriteriaTest {
                         c -> {
                             Assertions.assertThat(c.types()).isEmpty();
                             Assertions.assertThat(c.typeOfMarkets()).isEmpty();
-                            Assertions.assertThat(c.offerFrom()).isEmpty();
                         });
     }
 }

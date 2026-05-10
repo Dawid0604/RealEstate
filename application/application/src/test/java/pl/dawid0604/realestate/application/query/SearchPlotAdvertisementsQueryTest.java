@@ -81,7 +81,6 @@ class SearchPlotAdvertisementsQueryTest {
         final BigDecimal pricePerSquareMeterTo = BigDecimal.valueOf(5_000);
         final int page = 2;
         final int pageSize = 25;
-        final Set<String> offerFrom = Set.of("a", "b");
         final Set<String> types = Set.of("c", "g");
         final UUID localityId = UUID.randomUUID();
         final LocalDate dateFrom = LocalDate.of(2025, 1, 5);
@@ -98,7 +97,6 @@ class SearchPlotAdvertisementsQueryTest {
                         pricePerSquareMeterTo,
                         page,
                         pageSize,
-                        offerFrom,
                         types,
                         dateFrom,
                         dateTo,
@@ -123,13 +121,7 @@ class SearchPlotAdvertisementsQueryTest {
                 .returns(localityId, SearchPlotAdvertisementsCriteria::localityId)
                 .returns(dateFrom, SearchPlotAdvertisementsCriteria::dateFrom)
                 .returns(dateTo, SearchPlotAdvertisementsCriteria::dateTo)
-                .satisfies(
-                        c -> {
-                            Assertions.assertThat(c.offerFrom())
-                                    .containsExactlyElementsOf(offerFrom);
-
-                            Assertions.assertThat(c.types()).containsExactlyElementsOf(types);
-                        });
+                .satisfies(c -> Assertions.assertThat(c.types()).containsExactlyElementsOf(types));
     }
 
     private static void assertFieldAnnotations(

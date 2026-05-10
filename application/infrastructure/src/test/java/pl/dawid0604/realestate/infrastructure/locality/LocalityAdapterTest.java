@@ -2,7 +2,6 @@
 package pl.dawid0604.realestate.infrastructure.locality;
 
 import static org.awaitility.Awaitility.await;
-import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,9 +15,9 @@ import org.mockito.BDDMockito;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.jdbc.Sql;
 
 import pl.dawid0604.realestate.domain.Identifier;
+import pl.dawid0604.realestate.infrastructure.ClearDatabase;
 import pl.dawid0604.realestate.infrastructure.IntegrationTest;
 
 import java.time.Duration;
@@ -29,12 +28,12 @@ import java.util.UUID;
 class LocalityAdapterTest {
 
     @Nested
+    @ClearDatabase
     final class LocalityEntityTests extends IntegrationTest {
         @Autowired private LocalityJpaRepository repository;
 
         @Test
         @DisplayName("Should save and assign values to audit fields")
-        @Sql(scripts = "/scripts/clear_database.sql", executionPhase = BEFORE_TEST_METHOD)
         void shouldSaveAndAssignValuesToAuditFields() {
             // Given
             final LocalityEntity user =
@@ -54,7 +53,6 @@ class LocalityAdapterTest {
 
         @Test
         @DisplayName("Should update updatedAt while update")
-        @Sql(scripts = "/scripts/clear_database.sql", executionPhase = BEFORE_TEST_METHOD)
         void shouldUpdateUpdatedAtWhileUpdate() {
             // Given
             final LocalityEntity user =
@@ -108,13 +106,13 @@ class LocalityAdapterTest {
     }
 
     @Nested
+    @ClearDatabase
     final class GetFullNamesInBatchTests extends IntegrationTest {
         @Autowired private LocalityJpaRepository repository;
         @Autowired private LocalityAdapter localityAdapter;
 
         @Test
         @DisplayName("Should return proper map")
-        @Sql(scripts = "/scripts/clear_database.sql", executionPhase = BEFORE_TEST_METHOD)
         void shouldReturnProperMap() {
             // Given
             final List<LocalityEntity> entities = getEntities();

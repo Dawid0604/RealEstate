@@ -3,7 +3,6 @@ package pl.dawid0604.realestate.infrastructure.user;
 
 import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.mock;
-import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +16,6 @@ import org.mockito.BDDMockito;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.jdbc.Sql;
 
 import pl.dawid0604.realestate.domain.Identifier;
 import pl.dawid0604.realestate.domain.User;
@@ -27,6 +25,7 @@ import pl.dawid0604.realestate.domain.UserType;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 import pl.dawid0604.realestate.domain.shared.user.projection.AdvertisementUserProjection;
 import pl.dawid0604.realestate.domain.shared.user.projection.UserProfileProjection;
+import pl.dawid0604.realestate.infrastructure.ClearDatabase;
 import pl.dawid0604.realestate.infrastructure.IntegrationTest;
 
 import java.time.Duration;
@@ -38,12 +37,12 @@ import java.util.UUID;
 class UserAdapterTest {
 
     @Nested
+    @ClearDatabase
     final class UserEntityTests extends IntegrationTest {
         @Autowired private UserJpaRepository repository;
 
         @Test
         @DisplayName("Should save and assign values to audit fields")
-        @Sql(scripts = "/scripts/clear_database.sql", executionPhase = BEFORE_TEST_METHOD)
         void shouldSaveAndAssignValuesToAuditFields() {
             // Given
             final UserEntity user =
@@ -75,7 +74,6 @@ class UserAdapterTest {
 
         @Test
         @DisplayName("Should update updatedAt while update")
-        @Sql(scripts = "/scripts/clear_database.sql", executionPhase = BEFORE_TEST_METHOD)
         void shouldUpdateUpdatedAtWhileUpdate() {
             // Given
             final UserEntity user =
@@ -117,13 +115,13 @@ class UserAdapterTest {
     final class FindUserProfileTests {
 
         @Nested
+        @ClearDatabase
         final class IntegrationTests extends IntegrationTest {
             @Autowired private UserJpaRepository repository;
             @Autowired private UserAdapter userAdapter;
 
             @Test
             @DisplayName("Should return value via projection")
-            @Sql(scripts = "/scripts/clear_database.sql", executionPhase = BEFORE_TEST_METHOD)
             void shouldReturnValueViaProjection() {
                 // Given
                 final String email = "anyEmail@mail.com";
@@ -170,7 +168,6 @@ class UserAdapterTest {
 
             @Test
             @DisplayName("Should not return value when other users exist")
-            @Sql(scripts = "/scripts/clear_database.sql", executionPhase = BEFORE_TEST_METHOD)
             void shouldNotReturnValueWhenOtherUsersExist() {
                 // Given
                 final String email = "anyEmail@mail.com";
@@ -205,13 +202,13 @@ class UserAdapterTest {
     final class FindAdvertisementUserTests {
 
         @Nested
+        @ClearDatabase
         final class IntegrationTests extends IntegrationTest {
             @Autowired private UserJpaRepository repository;
             @Autowired private UserAdapter userAdapter;
 
             @Test
             @DisplayName("Should return value via projection")
-            @Sql(scripts = "/scripts/clear_database.sql", executionPhase = BEFORE_TEST_METHOD)
             void shouldReturnValueViaProjection() {
                 // Given
                 final UUID id = Identifier.generate().getValue();
@@ -254,7 +251,6 @@ class UserAdapterTest {
 
             @Test
             @DisplayName("Should not return value when other users exist")
-            @Sql(scripts = "/scripts/clear_database.sql", executionPhase = BEFORE_TEST_METHOD)
             void shouldNotReturnValueWhenOtherUsersExist() {
                 // Given
                 final UUID id = Identifier.generate().getValue();
@@ -323,13 +319,13 @@ class UserAdapterTest {
     final class GetUserTypesInBatchTests {
 
         @Nested
+        @ClearDatabase
         final class IntegrationTests extends IntegrationTest {
             @Autowired private UserJpaRepository repository;
             @Autowired private UserAdapter userAdapter;
 
             @Test
             @DisplayName("Should return proper map")
-            @Sql(scripts = "/scripts/clear_database.sql", executionPhase = BEFORE_TEST_METHOD)
             void shouldReturnProperMap() {
                 // Given
                 final List<UserEntity> entities = getEntities();
@@ -509,13 +505,13 @@ class UserAdapterTest {
     final class HasStatusTests {
 
         @Nested
+        @ClearDatabase
         final class IntegrationTests extends IntegrationTest {
             @Autowired private UserJpaRepository repository;
             @Autowired private UserAdapter userAdapter;
 
             @Test
             @DisplayName("Should return true when user has given status")
-            @Sql(scripts = "/scripts/clear_database.sql", executionPhase = BEFORE_TEST_METHOD)
             void shouldReturnTrueWhenUserHasGivenStatus() {
                 // Given
                 final String email = "anyEmail@mail.com";
@@ -547,7 +543,6 @@ class UserAdapterTest {
 
             @Test
             @DisplayName("Should return false when user does not has given status")
-            @Sql(scripts = "/scripts/clear_database.sql", executionPhase = BEFORE_TEST_METHOD)
             void shouldReturnFalseWhenUserDoesNotHasGivenStatus() {
                 // Given
                 final String email = "anyEmail@mail.com";
@@ -588,8 +583,8 @@ class UserAdapterTest {
             @Autowired private UserAdapter userAdapter;
 
             @Test
+            @ClearDatabase
             @DisplayName("Should return id")
-            @Sql(scripts = "/scripts/clear_database.sql", executionPhase = BEFORE_TEST_METHOD)
             void shouldReturnId() {
                 // Given
                 final String email = "anyEmail@mail.com";

@@ -1,5 +1,5 @@
 /* Copyright 2026 RealEstate */
-package pl.dawid0604.realestate.infrastructure.advertisement;
+package pl.dawid0604.realestate.infrastructure;
 
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 
@@ -15,4 +15,4 @@ import java.lang.annotation.Target;
 @Target({METHOD, ElementType.TYPE})
 @Retention(RUNTIME)
 @Sql(scripts = "/scripts/clear_database.sql", executionPhase = BEFORE_TEST_METHOD)
-@interface ClearDatabase {}
+public @interface ClearDatabase {}

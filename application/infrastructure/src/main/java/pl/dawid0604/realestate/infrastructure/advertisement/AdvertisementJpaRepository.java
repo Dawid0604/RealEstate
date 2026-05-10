@@ -46,6 +46,9 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserHouseA
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserPlotAdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.exception.InternalException;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -178,8 +181,8 @@ class AdvertisementJpaRepository {
                                 .get(AdvertisementFields.LOCALITY_ID)
                                 .alias(AdvertisementFields.LOCALITY_ID),
                         selectRoot
-                                .get(AdvertisementFields.FEATURED)
-                                .alias(AdvertisementFields.FEATURED),
+                                .get(AdvertisementFields.VIEW_FEATURED)
+                                .alias(AdvertisementFields.VIEW_FEATURED),
                         selectRoot
                                 .get(AdvertisementFields.BUILDING_TYPE)
                                 .alias(AdvertisementFields.BUILDING_TYPE),
@@ -257,9 +260,11 @@ class AdvertisementJpaRepository {
         final Selection<Tuple> selectFields =
                 getAdvertisementByCriteriaSelectFields(selectRoot, criteriaBuilder, entityClazz);
 
-        selectQuery.select(criteriaBuilder.tuple(selectFields));
+        selectQuery.select(selectFields);
         selectQuery.where(selectPredicates);
-        selectQuery.orderBy(criteriaBuilder.desc(selectRoot.get(AdvertisementFields.CREATED_AT)));
+        selectQuery.orderBy(
+                criteriaBuilder.desc(selectRoot.get(AdvertisementFields.CREATED_AT)),
+                criteriaBuilder.desc(selectRoot.get(AdvertisementFields.UPDATED_AT)));
 
         countQuery.select(criteriaBuilder.count(countRoot));
         countQuery.where(countPredicates);
@@ -302,34 +307,64 @@ class AdvertisementJpaRepository {
             final Class<? extends AdvertisementEntity<?, ?>> clazz) {
 
         final List<Selection<?>> fields = new ArrayList<>();
-        fields.add(root.get(AdvertisementFields.ID));
-        fields.add(root.get(AdvertisementFields.SLUG));
-        fields.add(root.get(AdvertisementFields.TITLE));
-        fields.add(root.get(AdvertisementFields.PRICE));
-        fields.add(root.get(AdvertisementFields.AREA));
-        fields.add(root.get(AdvertisementFields.PRICE_PER_SQUARE_METER));
-        fields.add(root.get(AdvertisementFields.STATUS));
-        fields.add(root.get(AdvertisementFields.CREATED_AT));
-        fields.add(root.get(AdvertisementFields.LOCALITY_ID));
-        fields.add(root.get(AdvertisementFields.USER_ID));
-        fields.add(root.get(AdvertisementFields.FEATURED));
+        fields.add(root.get(AdvertisementFields.ID).alias(AdvertisementFields.ID));
+        fields.add(root.get(AdvertisementFields.SLUG).alias(AdvertisementFields.SLUG));
+        fields.add(root.get(AdvertisementFields.TITLE).alias(AdvertisementFields.TITLE));
+        fields.add(root.get(AdvertisementFields.PRICE).alias(AdvertisementFields.PRICE));
+        fields.add(root.get(AdvertisementFields.AREA).alias(AdvertisementFields.AREA));
+        fields.add(
+                root.get(AdvertisementFields.PRICE_PER_SQUARE_METER)
+                        .alias(AdvertisementFields.PRICE_PER_SQUARE_METER));
+        fields.add(root.get(AdvertisementFields.STATUS).alias(AdvertisementFields.STATUS));
+        fields.add(root.get(AdvertisementFields.CREATED_AT).alias(AdvertisementFields.CREATED_AT));
+        fields.add(
+                root.get(AdvertisementFields.LOCALITY_ID).alias(AdvertisementFields.LOCALITY_ID));
+        fields.add(root.get(AdvertisementFields.USER_ID).alias(AdvertisementFields.USER_ID));
+        fields.add(root.get(AdvertisementFields.FEATURED).alias(AdvertisementFields.FEATURED));
 
         if (clazz == PlotAdvertisementEntity.class) {
-            fields.add(root.get(AdvertisementFields.PLOT_TYPE));
+            fields.add(
+                    root.get(AdvertisementFields.PLOT_TYPE).alias(AdvertisementFields.PLOT_TYPE));
 
         } else {
-            fields.add(root.get(AdvertisementFields.BUILDING_TYPE));
-            fields.add(root.get(AdvertisementFields.NUMBER_OF_ROOMS));
-            fields.add(root.get(AdvertisementFields.BUILT_YEAR));
-            fields.add(root.get(AdvertisementFields.TYPE_OF_MARKET));
-            fields.add(root.get(AdvertisementFields.FLOORS));
+            fields.add(
+                    root.get(AdvertisementFields.BUILDING_TYPE)
+                            .alias(AdvertisementFields.BUILDING_TYPE));
+            fields.add(
+                    root.get(AdvertisementFields.NUMBER_OF_ROOMS)
+                            .alias(AdvertisementFields.NUMBER_OF_ROOMS));
+            fields.add(
+                    root.get(AdvertisementFields.BUILT_YEAR).alias(AdvertisementFields.BUILT_YEAR));
+            fields.add(
+                    root.get(AdvertisementFields.TYPE_OF_MARKET)
+                            .alias(AdvertisementFields.TYPE_OF_MARKET));
+            fields.add(root.get(AdvertisementFields.FLOORS).alias(AdvertisementFields.FLOORS));
 
             if (clazz != HouseAdvertisementEntity.class) {
-                fields.add(root.get(AdvertisementFields.FLOOR));
+                fields.add(root.get(AdvertisementFields.FLOOR).alias(AdvertisementFields.FLOOR));
             }
         }
 
+        fields.add(criteriaBuilder.literal(getTypeLiteral(clazz)).alias(AdvertisementFields.TYPE));
         return criteriaBuilder.tuple(fields);
+    }
+
+    private static String getTypeLiteral(final Class<? extends AdvertisementEntity<?, ?>> clazz) {
+        if (clazz == FlatAdvertisementEntity.class) {
+            return AdvertisementType.FLAT.name();
+
+        } else if (clazz == HouseAdvertisementEntity.class) {
+            return AdvertisementType.HOUSE.name();
+
+        } else if (clazz == CommercialAdvertisementEntity.class) {
+            return AdvertisementType.COMMERCIAL.name();
+
+        } else if (clazz == PlotAdvertisementEntity.class) {
+            return AdvertisementType.PLOT.name();
+        }
+
+        throw new IllegalArgumentException(
+                "Unexpected type of entity, class=" + clazz.getSimpleName());
     }
 
     private static List<Predicate> getAdvertisementByCriteriaPredicates(
@@ -380,12 +415,10 @@ class AdvertisementJpaRepository {
                         criteriaBuilder, root.get(AdvertisementFields.PRICE), criteria.priceTo())
                 .ifPresent(predicates::add);
 
-        getGreaterThanOrEqualToPredicate(
-                        criteriaBuilder, root.get(AdvertisementFields.DATE), criteria.dateFrom())
+        getDateFromPredicate(criteriaBuilder, root, atStartOfDay(criteria.dateFrom()))
                 .ifPresent(predicates::add);
 
-        getLessThanOrEqualToPredicate(
-                        criteriaBuilder, root.get(AdvertisementFields.DATE), criteria.dateTo())
+        getDateToPredicate(criteriaBuilder, root, atEndOfDay(criteria.dateTo()))
                 .ifPresent(predicates::add);
 
         getGreaterThanOrEqualToPredicate(
@@ -409,11 +442,6 @@ class AdvertisementJpaRepository {
                 .ifPresent(predicates::add);
 
         getInPredicate(
-                        root.get(AdvertisementFields.OFFER_FROM),
-                        criteria.offerFrom() != null ? criteria.offerFrom() : null)
-                .ifPresent(predicates::add);
-
-        getInPredicate(
                         root.get(
                                 criteria instanceof SearchPlotAdvertisementsCriteria
                                         ? AdvertisementFields.PLOT_TYPE
@@ -422,6 +450,14 @@ class AdvertisementJpaRepository {
                 .ifPresent(predicates::add);
 
         return predicates;
+    }
+
+    private static LocalDateTime atStartOfDay(final LocalDate date) {
+        return date != null ? date.atStartOfDay() : null;
+    }
+
+    private static LocalDateTime atEndOfDay(final LocalDate date) {
+        return date != null ? date.atTime(LocalTime.MAX) : null;
     }
 
     @SuppressWarnings("CPD-START")
@@ -590,6 +626,32 @@ class AdvertisementJpaRepository {
         return Optional.ofNullable(value).map(v -> criteriaBuilder.greaterThanOrEqualTo(path, v));
     }
 
+    private static Optional<Predicate> getDateFromPredicate(
+            final CriteriaBuilder criteriaBuilder, final Root<?> root, final LocalDateTime value) {
+
+        return Optional.ofNullable(value)
+                .map(
+                        v ->
+                                criteriaBuilder.or(
+                                        criteriaBuilder.greaterThanOrEqualTo(
+                                                root.get(AdvertisementFields.CREATED_AT), v),
+                                        criteriaBuilder.greaterThanOrEqualTo(
+                                                root.get(AdvertisementFields.UPDATED_AT), v)));
+    }
+
+    private static Optional<Predicate> getDateToPredicate(
+            final CriteriaBuilder criteriaBuilder, final Root<?> root, final LocalDateTime value) {
+
+        return Optional.ofNullable(value)
+                .map(
+                        v ->
+                                criteriaBuilder.or(
+                                        criteriaBuilder.lessThanOrEqualTo(
+                                                root.get(AdvertisementFields.CREATED_AT), v),
+                                        criteriaBuilder.lessThanOrEqualTo(
+                                                root.get(AdvertisementFields.UPDATED_AT), v)));
+    }
+
     private static <T extends Comparable<? super T>>
             Optional<Predicate> getLessThanOrEqualToPredicate(
                     final CriteriaBuilder criteriaBuilder, final Path<T> path, final T value) {
@@ -627,8 +689,11 @@ class AdvertisementJpaRepository {
     private UserAdvertisementCardProjection createUserAdvertisementCardProjection(
             final Tuple tuple) {
 
+        final AdvertisementType advertisementType =
+                tuple.get(AdvertisementFields.TYPE, AdvertisementType.class);
+
         final Class<? extends UserAdvertisementCardProjection> projectionClazz =
-                switch (tuple.get("type", AdvertisementType.class)) {
+                switch (advertisementType) {
                     case FLAT -> UserFlatAdvertisementCardProjection.class;
                     case HOUSE -> UserHouseAdvertisementCardProjection.class;
                     case COMMERCIAL -> UserCommercialAdvertisementCardProjection.class;
@@ -639,9 +704,11 @@ class AdvertisementJpaRepository {
     }
 
     private AdvertisementCardProjection createAdvertisementCardProjection(final Tuple tuple) {
+        final AdvertisementType advertisementType =
+                AdvertisementType.of(tuple.get(AdvertisementFields.TYPE, String.class));
 
         final Class<? extends AdvertisementCardProjection> projectionClazz =
-                switch (tuple.get("type", AdvertisementType.class)) {
+                switch (advertisementType) {
                     case FLAT -> FlatAdvertisementCardProjection.class;
                     case HOUSE -> HouseAdvertisementCardProjection.class;
                     case COMMERCIAL -> CommercialAdvertisementCardProjection.class;

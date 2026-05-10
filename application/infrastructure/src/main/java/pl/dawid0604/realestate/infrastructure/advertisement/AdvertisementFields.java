@@ -5,10 +5,8 @@ final class AdvertisementFields {
     public static final String PRICE = "price";
     public static final String PRICE_PER_SQUARE_METER = "pricePerSquareMeter";
     public static final String AREA = "area";
-    public static final String OFFER_FROM = "offerFrom";
     public static final String PLOT_TYPE = "plotType";
     public static final String BUILDING_TYPE = "buildingType";
-    public static final String DATE = "date";
     public static final String FLOORS = "floors";
     public static final String FLOOR = "floor";
     public static final String NUMBER_OF_ROOMS = "numberOfRooms";
@@ -19,10 +17,12 @@ final class AdvertisementFields {
     public static final String SLUG = "slug";
     public static final String TITLE = "title";
     public static final String CREATED_AT = "createdAt";
-    public static final String FEATURED = "featured";
+    public static final String FEATURED = "isFeatured";
+    public static final String VIEW_FEATURED = "featured";
     public static final String TYPE = "type";
     public static final String USER_ID = "userId";
     public static final String STATUS = "status";
+    public static final String UPDATED_AT = "updatedAt";
 
     private AdvertisementFields() {}
 }

@@ -11,5 +11,9 @@ public interface PhotoProjection {
 
     int getPosition();
 
-    UUID getAdvertisementId();
+    AdvertisementProjection getAdvertisement();
+
+    interface AdvertisementProjection {
+        UUID getId();
+    }
 }

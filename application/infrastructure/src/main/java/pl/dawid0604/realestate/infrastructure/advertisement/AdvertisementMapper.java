@@ -1,15 +1,14 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.infrastructure.advertisement;
 
-import static java.util.stream.Collectors.toSet;
 import static lombok.AccessLevel.PACKAGE;
 
-import java.util.Set;
-import java.util.stream.Stream;
+import static java.util.stream.Collectors.toSet;
+
+import lombok.NoArgsConstructor;
 
 import org.springframework.stereotype.Component;
 
-import lombok.NoArgsConstructor;
 import pl.dawid0604.realestate.domain.Advertisement;
 import pl.dawid0604.realestate.domain.AdvertisementClaim;
 import pl.dawid0604.realestate.domain.AdvertisementDetails;
@@ -32,6 +31,9 @@ import pl.dawid0604.realestate.domain.Slug;
 import pl.dawid0604.realestate.domain.Title;
 import pl.dawid0604.realestate.domain.Url;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
+
+import java.util.Set;
+import java.util.stream.Stream;
 
 @Component
 @NoArgsConstructor(access = PACKAGE)
@@ -64,6 +66,10 @@ class AdvertisementMapper {
 
     @SuppressWarnings("CPD-START")
     FlatAdvertisementEntity toFlatEntity(final Advertisement advertisement) {
+        if (advertisement == null) {
+            return null;
+        }
+
         if (advertisement.getAdvertisementType() != AdvertisementType.FLAT) {
             throw new IllegalArgumentException("Invalid advertisement type, expected flat");
         }
@@ -92,6 +98,10 @@ class AdvertisementMapper {
     }
 
     CommercialAdvertisementEntity toCommercialEntity(final Advertisement advertisement) {
+        if (advertisement == null) {
+            return null;
+        }
+
         if (advertisement.getAdvertisementType() != AdvertisementType.COMMERCIAL) {
             throw new IllegalArgumentException("Invalid advertisement type, expected commercial");
         }
@@ -120,6 +130,10 @@ class AdvertisementMapper {
     }
 
     HouseAdvertisementEntity toHouseEntity(final Advertisement advertisement) {
+        if (advertisement == null) {
+            return null;
+        }
+
         if (advertisement.getAdvertisementType() != AdvertisementType.HOUSE) {
             throw new IllegalArgumentException("Invalid advertisement type, expected house");
         }
@@ -147,6 +161,10 @@ class AdvertisementMapper {
     }
 
     PlotAdvertisementEntity toPlotEntity(final Advertisement advertisement) {
+        if (advertisement == null) {
+            return null;
+        }
+
         if (advertisement.getAdvertisementType() != AdvertisementType.PLOT) {
             throw new IllegalArgumentException("Invalid advertisement type, expected plot");
         }

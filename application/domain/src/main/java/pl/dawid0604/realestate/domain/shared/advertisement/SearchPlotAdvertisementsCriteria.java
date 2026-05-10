@@ -17,7 +17,6 @@ public record SearchPlotAdvertisementsCriteria(
         BigDecimal pricePerSquareMeterTo,
         int page,
         int pageSize,
-        Set<String> offerFrom,
         UUID localityId,
         LocalDate dateFrom,
         LocalDate dateTo,
@@ -25,13 +24,7 @@ public record SearchPlotAdvertisementsCriteria(
         implements SearchAdvertisementsCriteria {
 
     public SearchPlotAdvertisementsCriteria {
-        offerFrom = offerFrom != null ? Set.copyOf(offerFrom) : emptySet();
         types = types != null ? Set.copyOf(types) : emptySet();
-    }
-
-    @Override
-    public Set<String> offerFrom() {
-        return Set.copyOf(offerFrom);
     }
 
     @Override

@@ -113,7 +113,6 @@ class SearchFlatAdvertisementsQueryTest {
         final BigDecimal pricePerSquareMeterTo = BigDecimal.valueOf(5_000);
         final int page = 2;
         final int pageSize = 25;
-        final Set<String> offerFrom = Set.of("a", "b");
         final Set<String> types = Set.of("c", "g");
         final Set<String> typeOfMarkets = Set.of("x", "d");
         final UUID localityId = UUID.randomUUID();
@@ -139,7 +138,6 @@ class SearchFlatAdvertisementsQueryTest {
                         pricePerSquareMeterTo,
                         page,
                         pageSize,
-                        offerFrom,
                         types,
                         typeOfMarkets,
                         floorFrom,
@@ -183,9 +181,6 @@ class SearchFlatAdvertisementsQueryTest {
                 .returns(dateTo, SearchFlatAdvertisementsCriteria::dateTo)
                 .satisfies(
                         c -> {
-                            Assertions.assertThat(c.offerFrom())
-                                    .containsExactlyElementsOf(offerFrom);
-
                             Assertions.assertThat(c.types()).containsExactlyElementsOf(types);
 
                             Assertions.assertThat(c.typeOfMarkets())
