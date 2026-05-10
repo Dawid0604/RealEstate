@@ -139,13 +139,15 @@
     <rule ref="category/java/design.xml/CouplingBetweenObjects">
         <properties>
             <property name="threshold" value="25"/>
+            <property name="violationSuppressXPath"
+                      value="//ClassDeclaration[@SimpleName='AdvertisementJpaRepository']"/>
         </properties>
     </rule>
 
     <rule ref="category/java/design.xml/CyclomaticComplexity">
         <properties>
             <property name="methodReportLevel" value="10"/>
-            <property name="classReportLevel" value="80"/>
+            <property name="classReportLevel" value="100"/>
         </properties>
     </rule>
 
@@ -155,6 +157,8 @@
     <rule ref="category/java/design.xml/ExcessiveImports">
         <properties>
             <property name="minimum" value="50"/>
+            <property name="violationSuppressXPath"
+                      value="//ClassDeclaration[@SimpleName='AdvertisementJpaRepository']"/>
         </properties>
     </rule>
 

@@ -24,7 +24,6 @@ class SearchPlotAdvertisementsCriteriaTest {
         final BigDecimal pricePerSquareMeterTo = BigDecimal.valueOf(5_000);
         final int page = 2;
         final int pageSize = 25;
-        final Set<String> offerFrom = Set.of("a", "b");
         final Set<String> types = Set.of("c", "g");
         final UUID localityId = UUID.randomUUID();
         final LocalDate dateFrom = LocalDate.of(2025, 1, 5);
@@ -41,7 +40,6 @@ class SearchPlotAdvertisementsCriteriaTest {
                         pricePerSquareMeterTo,
                         page,
                         pageSize,
-                        offerFrom,
                         localityId,
                         dateFrom,
                         dateTo,
@@ -63,9 +61,6 @@ class SearchPlotAdvertisementsCriteriaTest {
 
                             Assertions.assertThat(c.page()).isEqualTo(page);
                             Assertions.assertThat(c.pageSize()).isEqualTo(pageSize);
-                            Assertions.assertThat(c.offerFrom())
-                                    .containsExactlyInAnyOrderElementsOf(offerFrom);
-
                             Assertions.assertThat(c.types())
                                     .containsExactlyInAnyOrderElementsOf(types);
 
@@ -87,9 +82,7 @@ class SearchPlotAdvertisementsCriteriaTest {
         final BigDecimal pricePerSquareMeterTo = BigDecimal.valueOf(5_000);
         final int page = 2;
         final int pageSize = 25;
-        final Set<String> offerFrom = Set.of("a", "b");
         final Set<String> types = Set.of("c", "g");
-        final Set<String> typeOfMarkets = Set.of("x", "d");
         final UUID localityId = UUID.randomUUID();
         final LocalDate dateFrom = LocalDate.of(2025, 1, 5);
         final LocalDate dateTo = LocalDate.of(2025, 3, 15);
@@ -104,7 +97,6 @@ class SearchPlotAdvertisementsCriteriaTest {
                         pricePerSquareMeterTo,
                         page,
                         pageSize,
-                        offerFrom,
                         localityId,
                         dateFrom,
                         dateTo,
@@ -112,9 +104,6 @@ class SearchPlotAdvertisementsCriteriaTest {
 
         // When
         // Then
-        Assertions.assertThatThrownBy(() -> criteria.offerFrom().add("p"))
-                .isExactlyInstanceOf(UnsupportedOperationException.class);
-
         Assertions.assertThatThrownBy(() -> criteria.types().add("p"))
                 .isExactlyInstanceOf(UnsupportedOperationException.class);
     }
@@ -146,18 +135,12 @@ class SearchPlotAdvertisementsCriteriaTest {
                         pricePerSquareMeterTo,
                         page,
                         pageSize,
-                        null,
                         localityId,
                         dateFrom,
                         dateTo,
                         null);
 
         // Then
-        Assertions.assertThat(criteria)
-                .satisfies(
-                        c -> {
-                            Assertions.assertThat(c.types()).isEmpty();
-                            Assertions.assertThat(c.offerFrom()).isEmpty();
-                        });
+        Assertions.assertThat(criteria).satisfies(c -> Assertions.assertThat(c.types()).isEmpty());
     }
 }

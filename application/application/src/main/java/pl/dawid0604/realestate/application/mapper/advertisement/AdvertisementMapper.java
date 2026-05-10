@@ -19,6 +19,7 @@ import pl.dawid0604.realestate.application.dto.advertisement.UserCommercialAdver
 import pl.dawid0604.realestate.application.dto.advertisement.UserFlatAdvertisementCardDto;
 import pl.dawid0604.realestate.application.dto.advertisement.UserHouseAdvertisementCardDto;
 import pl.dawid0604.realestate.application.dto.advertisement.UserPlotAdvertisementCardDto;
+import pl.dawid0604.realestate.domain.UserType;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementClaimProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.CommercialAdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.CommercialAdvertisementDetailsProjection;
@@ -153,7 +154,7 @@ public interface AdvertisementMapper {
 
     @Mapping(target = "photos", source = "photos", qualifiedByName = "toPhoto")
     @Mapping(target = "slug", source = "projection.slug")
-    @Mapping(target = "userType", source = "projection.userType")
+    @Mapping(target = "userType", source = "userType")
     @Mapping(target = "title", source = "projection.title")
     @Mapping(target = "price", source = "projection.price")
     @Mapping(target = "area", source = "projection.area")
@@ -169,7 +170,8 @@ public interface AdvertisementMapper {
     CommercialAdvertisementCardDto toCommercialCardDto(
             CommercialAdvertisementCardProjection projection,
             String localityFullName,
-            Set<PhotoProjection> photos);
+            Set<PhotoProjection> photos,
+            UserType userType);
 
     @Mapping(target = "photos", source = "photos", qualifiedByName = "toPhoto")
     @Mapping(target = "slug", source = "projection.slug")
@@ -191,7 +193,7 @@ public interface AdvertisementMapper {
             Set<PhotoProjection> photos);
 
     @Mapping(target = "photos", source = "photos", qualifiedByName = "toPhoto")
-    @Mapping(target = "userType", source = "projection.userType")
+    @Mapping(target = "userType", source = "userType")
     @Mapping(target = "slug", source = "projection.slug")
     @Mapping(target = "title", source = "projection.title")
     @Mapping(target = "price", source = "projection.price")
@@ -208,7 +210,8 @@ public interface AdvertisementMapper {
     FlatAdvertisementCardDto toFlatCardDto(
             FlatAdvertisementCardProjection projection,
             String localityFullName,
-            Set<PhotoProjection> photos);
+            Set<PhotoProjection> photos,
+            UserType userType);
 
     @Mapping(target = "photos", source = "photos", qualifiedByName = "toPhoto")
     @Mapping(target = "slug", source = "projection.slug")
@@ -229,7 +232,7 @@ public interface AdvertisementMapper {
             Set<PhotoProjection> photos);
 
     @Mapping(target = "photos", source = "photos", qualifiedByName = "toPhoto")
-    @Mapping(target = "userType", source = "projection.userType")
+    @Mapping(target = "userType", source = "userType")
     @Mapping(target = "slug", source = "projection.slug")
     @Mapping(target = "title", source = "projection.title")
     @Mapping(target = "price", source = "projection.price")
@@ -245,7 +248,8 @@ public interface AdvertisementMapper {
     HouseAdvertisementCardDto toHouseCardDto(
             HouseAdvertisementCardProjection projection,
             String localityFullName,
-            Set<PhotoProjection> photos);
+            Set<PhotoProjection> photos,
+            UserType userType);
 
     @Mapping(target = "photos", source = "photos", qualifiedByName = "toPhoto")
     @Mapping(target = "slug", source = "projection.slug")
@@ -263,7 +267,7 @@ public interface AdvertisementMapper {
             Set<PhotoProjection> photos);
 
     @Mapping(target = "photos", source = "photos", qualifiedByName = "toPhoto")
-    @Mapping(target = "userType", source = "projection.userType")
+    @Mapping(target = "userType", source = "userType")
     @Mapping(target = "slug", source = "projection.slug")
     @Mapping(target = "title", source = "projection.title")
     @Mapping(target = "price", source = "projection.price")
@@ -276,7 +280,8 @@ public interface AdvertisementMapper {
     PlotAdvertisementCardDto toPlotCardDto(
             PlotAdvertisementCardProjection projection,
             String localityFullName,
-            Set<PhotoProjection> photos);
+            Set<PhotoProjection> photos,
+            UserType userType);
 
     @Named("toOwner")
     @SuppressWarnings("unused")
@@ -300,10 +305,10 @@ public interface AdvertisementMapper {
         return new AdvertisementDetailsDto.Owner(
                 user.getId(),
                 fullName,
-                user.getUserAvatarUrl(),
-                user.getType(),
-                user.getContactPhoneNumber(),
-                user.getContactEmail());
+                user.getAvatarUrl(),
+                user.getType().name(),
+                user.getNotificationPhoneNumber(),
+                user.getNotificationEmail());
     }
 
     @Named("toPhoto")

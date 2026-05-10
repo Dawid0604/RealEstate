@@ -5,6 +5,11 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Set;
+import java.util.UUID;
+
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,11 +66,6 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserPlotAd
 import pl.dawid0604.realestate.domain.shared.photo.projection.PhotoProjection;
 import pl.dawid0604.realestate.domain.shared.user.projection.AdvertisementUserProjection;
 
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.Set;
-import java.util.UUID;
-
 @ExtendWith(MockitoExtension.class)
 class AdvertisementMapperTest {
     private AdvertisementMapper advertisementMapper;
@@ -115,9 +115,9 @@ class AdvertisementMapperTest {
         given(user.getId()).willReturn(UUID.randomUUID());
         given(user.getFirstName()).willReturn("John");
         given(user.getLastName()).willReturn("Doe");
-        given(user.getType()).willReturn(UserType.AGENCY.name());
-        given(user.getContactEmail()).willReturn(UserFixture.getDummyEmail());
-        given(user.getContactPhoneNumber()).willReturn("123456789");
+        given(user.getType()).willReturn(UserType.AGENCY);
+        given(user.getNotificationEmail()).willReturn(UserFixture.getDummyEmail());
+        given(user.getNotificationPhoneNumber()).willReturn("123456789");
 
         final Set<PhotoProjection> photos = Set.of(photo1, photo2);
         final Set<AdvertisementClaimProjection> claims = Set.of(claim1, claim2);
@@ -137,8 +137,7 @@ class AdvertisementMapperTest {
                 final FlatAdvertisementDetailsProjection flatProjection =
                         (FlatAdvertisementDetailsProjection) projection;
 
-                given(flatProjection.getBuildingType())
-                        .willReturn(FlatBuildingType.APARTMENT.name());
+                given(flatProjection.getBuildingType()).willReturn(FlatBuildingType.APARTMENT);
 
                 given(flatProjection.getNumberOfRooms()).willReturn(3);
                 given(flatProjection.getFloor()).willReturn(4);
@@ -150,8 +149,7 @@ class AdvertisementMapperTest {
                 final HouseAdvertisementDetailsProjection houseProjection =
                         (HouseAdvertisementDetailsProjection) projection;
 
-                given(houseProjection.getBuildingType())
-                        .willReturn(HouseBuildingType.DETACHED.name());
+                given(houseProjection.getBuildingType()).willReturn(HouseBuildingType.DETACHED);
 
                 given(houseProjection.getNumberOfRooms()).willReturn(3);
                 given(houseProjection.getFloors()).willReturn(5);
@@ -163,7 +161,7 @@ class AdvertisementMapperTest {
                         (CommercialAdvertisementDetailsProjection) projection;
 
                 given(commercialProjection.getBuildingType())
-                        .willReturn(CommercialBuildingType.HALL.name());
+                        .willReturn(CommercialBuildingType.HALL);
 
                 given(commercialProjection.getNumberOfRooms()).willReturn(3);
                 given(commercialProjection.getFloor()).willReturn(4);
@@ -173,7 +171,7 @@ class AdvertisementMapperTest {
 
             case PLOT ->
                     given(((PlotAdvertisementDetailsProjection) projection).getPlotType())
-                            .willReturn(PlotBuildingType.FOREST.name());
+                            .willReturn(PlotBuildingType.FOREST);
         }
 
         // When
@@ -233,7 +231,7 @@ class AdvertisementMapperTest {
                         .asInstanceOf(
                                 InstanceOfAssertFactories.type(FlatAdvertisementDetailsDto.class))
                         .returns(
-                                flatProjection.getBuildingType(),
+                                flatProjection.getBuildingType().name(),
                                 FlatAdvertisementDetailsDto::buildingType)
                         .returns(
                                 flatProjection.getNumberOfRooms(),
@@ -254,7 +252,7 @@ class AdvertisementMapperTest {
                                 InstanceOfAssertFactories.type(
                                         CommercialAdvertisementDetailsDto.class))
                         .returns(
-                                commercialProjection.getBuildingType(),
+                                commercialProjection.getBuildingType().name(),
                                 CommercialAdvertisementDetailsDto::buildingType)
                         .returns(
                                 commercialProjection.getNumberOfRooms(),
@@ -278,7 +276,7 @@ class AdvertisementMapperTest {
                         .asInstanceOf(
                                 InstanceOfAssertFactories.type(HouseAdvertisementDetailsDto.class))
                         .returns(
-                                houseProjection.getBuildingType(),
+                                houseProjection.getBuildingType().name(),
                                 HouseAdvertisementDetailsDto::buildingType)
                         .returns(
                                 houseProjection.getNumberOfRooms(),
@@ -295,18 +293,22 @@ class AdvertisementMapperTest {
                                     InstanceOfAssertFactories.type(
                                             PlotAdvertisementDetailsDto.class))
                             .returns(
-                                    ((PlotAdvertisementDetailsProjection) projection).getPlotType(),
+                                    ((PlotAdvertisementDetailsProjection) projection)
+                                            .getPlotType()
+                                            .name(),
                                     PlotAdvertisementDetailsDto::plotType);
         }
 
         Assertions.assertThat(result.owner())
                 .returns(user.getId(), FlatAdvertisementDetailsDto.Owner::id)
-                .returns(user.getUserAvatarUrl(), FlatAdvertisementDetailsDto.Owner::avatarUrl)
-                .returns(user.getType(), FlatAdvertisementDetailsDto.Owner::type)
+                .returns(user.getAvatarUrl(), FlatAdvertisementDetailsDto.Owner::avatarUrl)
+                .returns(user.getType().name(), FlatAdvertisementDetailsDto.Owner::type)
                 .returns(
-                        user.getContactPhoneNumber(),
+                        user.getNotificationPhoneNumber(),
                         FlatAdvertisementDetailsDto.Owner::contactPhoneNumber)
-                .returns(user.getContactEmail(), FlatAdvertisementDetailsDto.Owner::contactEmail)
+                .returns(
+                        user.getNotificationEmail(),
+                        FlatAdvertisementDetailsDto.Owner::contactEmail)
                 .returns(
                         user.getFirstName() + " " + user.getLastName(),
                         FlatAdvertisementDetailsDto.Owner::fullName);
@@ -364,7 +366,7 @@ class AdvertisementMapperTest {
         given(projection.getPrice()).willReturn(BigDecimal.valueOf(450_000));
         given(projection.getArea()).willReturn(BigDecimal.valueOf(45));
         given(projection.getPricePerSquareMeter()).willReturn(BigDecimal.valueOf(4500));
-        given(projection.getStatus()).willReturn(AdvertisementStatus.ACTIVE.name());
+        given(projection.getStatus()).willReturn(AdvertisementStatus.ACTIVE);
         given(projection.getCreatedAt()).willReturn(Instant.now().minusMillis(25_000));
         given(projection.isFeatured()).willReturn(true);
 
@@ -373,8 +375,7 @@ class AdvertisementMapperTest {
                 final UserFlatAdvertisementCardProjection flatProjection =
                         (UserFlatAdvertisementCardProjection) projection;
 
-                given(flatProjection.getBuildingType())
-                        .willReturn(FlatBuildingType.APARTMENT.name());
+                given(flatProjection.getBuildingType()).willReturn(FlatBuildingType.APARTMENT);
 
                 given(flatProjection.getNumberOfRooms()).willReturn(3);
                 given(flatProjection.getFloor()).willReturn(4);
@@ -386,8 +387,7 @@ class AdvertisementMapperTest {
                 final UserHouseAdvertisementCardProjection houseProjection =
                         (UserHouseAdvertisementCardProjection) projection;
 
-                given(houseProjection.getBuildingType())
-                        .willReturn(HouseBuildingType.DETACHED.name());
+                given(houseProjection.getBuildingType()).willReturn(HouseBuildingType.DETACHED);
 
                 given(houseProjection.getNumberOfRooms()).willReturn(3);
                 given(houseProjection.getFloors()).willReturn(5);
@@ -399,7 +399,7 @@ class AdvertisementMapperTest {
                         (UserCommercialAdvertisementCardProjection) projection;
 
                 given(commercialProjection.getBuildingType())
-                        .willReturn(CommercialBuildingType.HALL.name());
+                        .willReturn(CommercialBuildingType.HALL);
 
                 given(commercialProjection.getNumberOfRooms()).willReturn(3);
                 given(commercialProjection.getFloor()).willReturn(4);
@@ -409,7 +409,7 @@ class AdvertisementMapperTest {
 
             case PLOT ->
                     given(((UserPlotAdvertisementCardProjection) projection).getPlotType())
-                            .willReturn(PlotBuildingType.FOREST.name());
+                            .willReturn(PlotBuildingType.FOREST);
         }
 
         // When
@@ -460,7 +460,7 @@ class AdvertisementMapperTest {
                         .asInstanceOf(
                                 InstanceOfAssertFactories.type(UserFlatAdvertisementCardDto.class))
                         .returns(
-                                flatProjection.getBuildingType(),
+                                flatProjection.getBuildingType().name(),
                                 UserFlatAdvertisementCardDto::buildingType)
                         .returns(
                                 flatProjection.getNumberOfRooms(),
@@ -481,7 +481,7 @@ class AdvertisementMapperTest {
                                 InstanceOfAssertFactories.type(
                                         UserCommercialAdvertisementCardDto.class))
                         .returns(
-                                commercialProjection.getBuildingType(),
+                                commercialProjection.getBuildingType().name(),
                                 UserCommercialAdvertisementCardDto::buildingType)
                         .returns(
                                 commercialProjection.getNumberOfRooms(),
@@ -505,7 +505,7 @@ class AdvertisementMapperTest {
                         .asInstanceOf(
                                 InstanceOfAssertFactories.type(UserHouseAdvertisementCardDto.class))
                         .returns(
-                                houseProjection.getBuildingType(),
+                                houseProjection.getBuildingType().name(),
                                 UserHouseAdvertisementCardDto::buildingType)
                         .returns(
                                 houseProjection.getNumberOfRooms(),
@@ -523,7 +523,8 @@ class AdvertisementMapperTest {
                                             UserPlotAdvertisementCardDto.class))
                             .returns(
                                     ((UserPlotAdvertisementCardProjection) projection)
-                                            .getPlotType(),
+                                            .getPlotType()
+                                            .name(),
                                     UserPlotAdvertisementCardDto::plotType);
         }
 
@@ -565,13 +566,14 @@ class AdvertisementMapperTest {
         given(photo2.getPosition()).willReturn(1);
 
         final Set<PhotoProjection> photos = Set.of(photo1, photo2);
+        final UserType userType = UserType.PRIVATE_OWNER;
 
         given(projection.getSlug()).willReturn("slug");
         given(projection.getTitle()).willReturn("title");
         given(projection.getPrice()).willReturn(BigDecimal.valueOf(450_000));
         given(projection.getArea()).willReturn(BigDecimal.valueOf(45));
         given(projection.getPricePerSquareMeter()).willReturn(BigDecimal.valueOf(4500));
-        given(projection.getStatus()).willReturn(AdvertisementStatus.ACTIVE.name());
+        given(projection.getStatus()).willReturn(AdvertisementStatus.ACTIVE);
         given(projection.getCreatedAt()).willReturn(Instant.now().minusMillis(25_000));
         given(projection.isFeatured()).willReturn(true);
 
@@ -626,23 +628,27 @@ class AdvertisementMapperTest {
                             advertisementMapper.toFlatCardDto(
                                     ((FlatAdvertisementCardProjection) projection),
                                     localityFullName,
-                                    photos);
+                                    photos,
+                                    userType);
 
                     case HOUSE ->
                             advertisementMapper.toHouseCardDto(
                                     ((HouseAdvertisementCardProjection) projection),
                                     localityFullName,
-                                    photos);
+                                    photos,
+                                    userType);
                     case COMMERCIAL ->
                             advertisementMapper.toCommercialCardDto(
                                     ((CommercialAdvertisementCardProjection) projection),
                                     localityFullName,
-                                    photos);
+                                    photos,
+                                    userType);
                     case PLOT ->
                             advertisementMapper.toPlotCardDto(
                                     ((PlotAdvertisementCardProjection) projection),
                                     localityFullName,
-                                    photos);
+                                    photos,
+                                    userType);
                 };
 
         // Then
@@ -655,7 +661,8 @@ class AdvertisementMapperTest {
                         projection.getPricePerSquareMeter(),
                         AdvertisementCardDto::pricePerSquareMeter)
                 .returns(projection.getCreatedAt(), AdvertisementCardDto::createdAt)
-                .returns(projection.isFeatured(), AdvertisementCardDto::isFeatured);
+                .returns(projection.isFeatured(), AdvertisementCardDto::isFeatured)
+                .returns(userType, AdvertisementCardDto::userType);
 
         switch (type) {
             case FLAT -> {
@@ -808,9 +815,9 @@ class AdvertisementMapperTest {
             given(projection.getId()).willReturn(UUID.randomUUID());
             given(projection.getFirstName()).willReturn(firstName);
             given(projection.getLastName()).willReturn(lastName);
-            given(projection.getType()).willReturn(UserType.DEVELOPER.name());
-            given(projection.getContactPhoneNumber()).willReturn("123456789");
-            given(projection.getContactEmail()).willReturn(UserFixture.getDummyEmail());
+            given(projection.getType()).willReturn(UserType.DEVELOPER);
+            given(projection.getNotificationPhoneNumber()).willReturn("123456789");
+            given(projection.getNotificationEmail()).willReturn(UserFixture.getDummyEmail());
 
             // When
             final AdvertisementDetailsDto.Owner result = advertisementMapper.toOwner(projection);
@@ -819,14 +826,13 @@ class AdvertisementMapperTest {
             Assertions.assertThat(result)
                     .returns(projection.getId(), AdvertisementDetailsDto.Owner::id)
                     .returns(expectedFullName, AdvertisementDetailsDto.Owner::fullName)
+                    .returns(projection.getAvatarUrl(), AdvertisementDetailsDto.Owner::avatarUrl)
+                    .returns(projection.getType().name(), AdvertisementDetailsDto.Owner::type)
                     .returns(
-                            projection.getUserAvatarUrl(), AdvertisementDetailsDto.Owner::avatarUrl)
-                    .returns(projection.getType(), AdvertisementDetailsDto.Owner::type)
-                    .returns(
-                            projection.getContactPhoneNumber(),
+                            projection.getNotificationPhoneNumber(),
                             AdvertisementDetailsDto.Owner::contactPhoneNumber)
                     .returns(
-                            projection.getContactEmail(),
+                            projection.getNotificationEmail(),
                             AdvertisementDetailsDto.Owner::contactEmail);
         }
     }

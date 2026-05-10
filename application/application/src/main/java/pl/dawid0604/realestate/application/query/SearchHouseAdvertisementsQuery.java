@@ -29,7 +29,6 @@ public final class SearchHouseAdvertisementsQuery implements SearchAdvertisement
     @ValidPrice private final BigDecimal pricePerSquareMeterTo;
     @ValidPageNumber private final int page;
     @ValidPageSize private final int pageSize;
-    private final Set<String> offerFrom;
     private final Set<String> types;
     private final Set<String> typeOfMarkets;
     @ValidFloors private final Integer floorsFrom;
@@ -53,7 +52,6 @@ public final class SearchHouseAdvertisementsQuery implements SearchAdvertisement
                 pricePerSquareMeterTo,
                 page,
                 pageSize,
-                offerFrom,
                 types,
                 localityId,
                 dateFrom,

@@ -5,6 +5,16 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
 import org.assertj.core.api.Assertions;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,9 +38,11 @@ import pl.dawid0604.realestate.application.query.SearchCommercialAdvertisementsQ
 import pl.dawid0604.realestate.application.query.SearchFlatAdvertisementsQuery;
 import pl.dawid0604.realestate.application.query.SearchHouseAdvertisementsQuery;
 import pl.dawid0604.realestate.application.query.SearchPlotAdvertisementsQuery;
+import pl.dawid0604.realestate.domain.UserType;
+import pl.dawid0604.realestate.domain.port.out.AdvertisementPhotoRepository;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
 import pl.dawid0604.realestate.domain.port.out.LocalityRepository;
-import pl.dawid0604.realestate.domain.port.out.PhotoRepository;
+import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.Page;
 import pl.dawid0604.realestate.domain.shared.advertisement.SearchFlatAdvertisementsCriteria;
@@ -41,22 +53,13 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.HouseAdver
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.PlotAdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.photo.projection.PhotoProjection;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
 @ExtendWith(MockitoExtension.class)
 class SearchAdvertisementQueryHandlerTest {
     @Mock private AdvertisementRepository advertisementRepository;
     @Mock private AdvertisementMapper advertisementMapper;
-    @Mock private PhotoRepository photoRepository;
+    @Mock private AdvertisementPhotoRepository advertisementPhotoRepository;
     @Mock private LocalityRepository localityRepository;
+    @Mock private UserRepository userRepository;
     private SearchAdvertisementQueryHandler handler;
 
     @BeforeEach
@@ -65,8 +68,9 @@ class SearchAdvertisementQueryHandlerTest {
                 new SearchAdvertisementQueryHandler(
                         advertisementRepository,
                         advertisementMapper,
-                        photoRepository,
-                        localityRepository);
+                        advertisementPhotoRepository,
+                        localityRepository,
+                        userRepository);
     }
 
     @Test
@@ -106,7 +110,11 @@ class SearchAdvertisementQueryHandlerTest {
         Assertions.assertThat(result.getPageNumber()).isEqualTo(pageNumber);
         Assertions.assertThat(result.getPageSize()).isEqualTo(pageSize);
         Assertions.assertThat(result.getTotalElements()).isEqualTo(totalElements);
-        verifyNoInteractions(advertisementMapper, photoRepository, localityRepository);
+        verifyNoInteractions(
+                advertisementMapper,
+                advertisementPhotoRepository,
+                localityRepository,
+                userRepository);
     }
 
     @Test
@@ -158,6 +166,12 @@ class SearchAdvertisementQueryHandlerTest {
         final String firstCardLocalityFullName = "abc";
         final Set<PhotoProjection> firstCardPhotos = Set.of();
 
+        final UUID firstCardUserId = UUID.randomUUID();
+        final UserType firstCardUserType = UserType.AGENCY;
+
+        final UUID secondCardUserId = UUID.randomUUID();
+        final UserType secondCardUserType = UserType.DEVELOPER;
+
         final UUID secondCardId = UUID.randomUUID();
         final UUID secondCardLocalityId = UUID.randomUUID();
         final String secondCardLocalityFullName = "cde";
@@ -171,9 +185,11 @@ class SearchAdvertisementQueryHandlerTest {
 
         given(firstCard.getLocalityId()).willReturn(firstCardLocalityId);
         given(firstCard.getId()).willReturn(firstCardId);
+        given(firstCard.getUserId()).willReturn(firstCardUserId);
 
         given(secondCard.getLocalityId()).willReturn(secondCardLocalityId);
         given(secondCard.getId()).willReturn(secondCardId);
+        given(secondCard.getUserId()).willReturn(secondCardUserId);
 
         given(query.criteria()).willReturn(mock(SearchFlatAdvertisementsCriteria.class));
         given(advertisementRepository.findByCriteria(query.criteria())).willReturn(page);
@@ -192,12 +208,18 @@ class SearchAdvertisementQueryHandlerTest {
                                 secondCardLocalityId, secondCardLocalityFullName));
 
         given(
-                        photoRepository.findAdvertisementsPhotosInBatch(
+                        advertisementPhotoRepository.findPhotosInBatch(
                                 Set.of(firstCardId, secondCardId), advertisementType))
                 .willReturn(
                         Map.of(
                                 firstCardId, firstCardPhotos,
                                 secondCardId, secondCardPhotos));
+
+        given(userRepository.getUserTypesInBatch(Set.of(firstCardUserId, secondCardUserId)))
+                .willReturn(
+                        Map.of(
+                                firstCardUserId, firstCardUserType,
+                                secondCardUserId, secondCardUserType));
 
         switch (advertisementType) {
             case FLAT -> {
@@ -205,14 +227,16 @@ class SearchAdvertisementQueryHandlerTest {
                                 advertisementMapper.toFlatCardDto(
                                         (FlatAdvertisementCardProjection) firstCard,
                                         firstCardLocalityFullName,
-                                        firstCardPhotos))
+                                        firstCardPhotos,
+                                        firstCardUserType))
                         .willReturn(mock(FlatAdvertisementCardDto.class));
 
                 given(
                                 advertisementMapper.toFlatCardDto(
                                         (FlatAdvertisementCardProjection) secondCard,
                                         secondCardLocalityFullName,
-                                        secondCardPhotos))
+                                        secondCardPhotos,
+                                        secondCardUserType))
                         .willReturn(mock(FlatAdvertisementCardDto.class));
             }
 
@@ -221,14 +245,16 @@ class SearchAdvertisementQueryHandlerTest {
                                 advertisementMapper.toHouseCardDto(
                                         (HouseAdvertisementCardProjection) firstCard,
                                         firstCardLocalityFullName,
-                                        firstCardPhotos))
+                                        firstCardPhotos,
+                                        firstCardUserType))
                         .willReturn(mock(HouseAdvertisementCardDto.class));
 
                 given(
                                 advertisementMapper.toHouseCardDto(
                                         (HouseAdvertisementCardProjection) secondCard,
                                         secondCardLocalityFullName,
-                                        secondCardPhotos))
+                                        secondCardPhotos,
+                                        secondCardUserType))
                         .willReturn(mock(HouseAdvertisementCardDto.class));
             }
 
@@ -237,14 +263,16 @@ class SearchAdvertisementQueryHandlerTest {
                                 advertisementMapper.toCommercialCardDto(
                                         (CommercialAdvertisementCardProjection) firstCard,
                                         firstCardLocalityFullName,
-                                        firstCardPhotos))
+                                        firstCardPhotos,
+                                        firstCardUserType))
                         .willReturn(mock(CommercialAdvertisementCardDto.class));
 
                 given(
                                 advertisementMapper.toCommercialCardDto(
                                         (CommercialAdvertisementCardProjection) secondCard,
                                         secondCardLocalityFullName,
-                                        secondCardPhotos))
+                                        secondCardPhotos,
+                                        secondCardUserType))
                         .willReturn(mock(CommercialAdvertisementCardDto.class));
             }
 
@@ -253,14 +281,16 @@ class SearchAdvertisementQueryHandlerTest {
                                 advertisementMapper.toPlotCardDto(
                                         (PlotAdvertisementCardProjection) firstCard,
                                         firstCardLocalityFullName,
-                                        firstCardPhotos))
+                                        firstCardPhotos,
+                                        firstCardUserType))
                         .willReturn(mock(PlotAdvertisementCardDto.class));
 
                 given(
                                 advertisementMapper.toPlotCardDto(
                                         (PlotAdvertisementCardProjection) secondCard,
                                         secondCardLocalityFullName,
-                                        secondCardPhotos))
+                                        secondCardPhotos,
+                                        secondCardUserType))
                         .willReturn(mock(PlotAdvertisementCardDto.class));
             }
         }

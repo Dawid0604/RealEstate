@@ -6,6 +6,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
+import java.util.Optional;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,8 +23,6 @@ import pl.dawid0604.realestate.application.query.UserProfileQuery;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 import pl.dawid0604.realestate.domain.shared.user.projection.UserProfileProjection;
-
-import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 class UserProfileQueryHandlerTest {

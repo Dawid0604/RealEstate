@@ -5,9 +5,13 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 
-public record AdvertisementClaim(String key, String value) {
+public record AdvertisementClaim(Identifier id, String key, String value) {
     private static final int MAX_KEY_LENGTH = 100;
     private static final int MAX_VALUE_LENGTH = 1024;
+
+    public AdvertisementClaim(final String key, final String value) {
+        this(null, key, value);
+    }
 
     public AdvertisementClaim {
         if (isBlank(key)) {

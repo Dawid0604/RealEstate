@@ -36,6 +36,7 @@ import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
+import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.exception.AdvertisementNotFoundException;
 import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
@@ -117,7 +118,9 @@ class SetAsFeaturedAdvertisementHandlerTest {
                 spy(getDummyAdvertisementBuilder(details).userId(foundUser.getId()).build());
 
         given(userRepository.findByEmail(command.userEmail())).willReturn(Optional.of(foundUser));
-        given(advertisementRepository.findBySlug(command.slug()))
+        given(
+                        advertisementRepository.findBySlug(
+                                command.slug(), AdvertisementType.of(command.advertisementType())))
                 .willReturn(Optional.of(foundAdvertisement));
 
         // When
@@ -138,6 +141,7 @@ class SetAsFeaturedAdvertisementHandlerTest {
     }
 
     private static SetAsFeaturedAdvertisementCommand getCommand() {
-        return new SetAsFeaturedAdvertisementCommand("abcde", getDummyEmail());
+        return new SetAsFeaturedAdvertisementCommand(
+                "abcde", AdvertisementType.FLAT.name(), getDummyEmail());
     }
 }

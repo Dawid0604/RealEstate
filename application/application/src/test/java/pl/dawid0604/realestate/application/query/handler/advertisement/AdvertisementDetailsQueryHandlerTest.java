@@ -5,6 +5,18 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
 import org.assertj.core.api.Assertions;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,16 +34,15 @@ import pl.dawid0604.realestate.application.dto.advertisement.CommercialAdvertise
 import pl.dawid0604.realestate.application.dto.advertisement.FlatAdvertisementDetailsDto;
 import pl.dawid0604.realestate.application.dto.advertisement.HouseAdvertisementDetailsDto;
 import pl.dawid0604.realestate.application.dto.advertisement.PlotAdvertisementDetailsDto;
-import pl.dawid0604.realestate.application.fixture.UserFixture;
 import pl.dawid0604.realestate.application.mapper.advertisement.AdvertisementMapper;
 import pl.dawid0604.realestate.application.query.AdvertisementDetailsQuery;
 import pl.dawid0604.realestate.application.query.CommercialAdvertisementDetailsQuery;
 import pl.dawid0604.realestate.application.query.FlatAdvertisementDetailsQuery;
 import pl.dawid0604.realestate.application.query.HouseAdvertisementDetailsQuery;
 import pl.dawid0604.realestate.application.query.PlotAdvertisementDetailsQuery;
+import pl.dawid0604.realestate.domain.port.out.AdvertisementPhotoRepository;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
 import pl.dawid0604.realestate.domain.port.out.LocalityRepository;
-import pl.dawid0604.realestate.domain.port.out.PhotoRepository;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementClaimProjection;
@@ -44,23 +55,11 @@ import pl.dawid0604.realestate.domain.shared.exception.AdvertisementNotFoundExce
 import pl.dawid0604.realestate.domain.shared.photo.projection.PhotoProjection;
 import pl.dawid0604.realestate.domain.shared.user.projection.AdvertisementUserProjection;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
 @ExtendWith(MockitoExtension.class)
 class AdvertisementDetailsQueryHandlerTest {
     @Mock private AdvertisementRepository advertisementRepository;
     @Mock private AdvertisementMapper advertisementMapper;
-    @Mock private PhotoRepository photoRepository;
+    @Mock private AdvertisementPhotoRepository advertisementPhotoRepository;
     @Mock private LocalityRepository localityRepository;
     @Mock private UserRepository userRepository;
     private AdvertisementDetailsQueryHandler handler;
@@ -70,7 +69,7 @@ class AdvertisementDetailsQueryHandlerTest {
         handler =
                 new AdvertisementDetailsQueryHandler(
                         advertisementRepository,
-                        photoRepository,
+                        advertisementPhotoRepository,
                         localityRepository,
                         userRepository,
                         advertisementMapper);
@@ -111,7 +110,7 @@ class AdvertisementDetailsQueryHandlerTest {
 
         given(advertisementDetails.getLocalityId()).willReturn(localityId);
         given(advertisementDetails.getId()).willReturn(detailsId);
-        given(advertisementDetails.getOwnerEmail()).willReturn(UserFixture.getDummyEmail());
+        given(advertisementDetails.getUserId()).willReturn(UUID.randomUUID());
 
         given(advertisementRepository.findDetails(query.slug(), AdvertisementType.FLAT))
                 .willReturn(Optional.of(advertisementDetails));
@@ -122,11 +121,11 @@ class AdvertisementDetailsQueryHandlerTest {
         given(localityRepository.getFullNamesInBatch(Set.of(localityId)))
                 .willReturn(Map.of(localityId, localityFullName));
 
-        given(userRepository.findAdvertisementUser(advertisementDetails.getOwnerEmail()))
+        given(userRepository.findAdvertisementUser(advertisementDetails.getUserId()))
                 .willReturn(Optional.of(user));
 
         given(
-                        photoRepository.findAdvertisementsPhotosInBatch(
+                        advertisementPhotoRepository.findPhotosInBatch(
                                 List.of(detailsId), AdvertisementType.FLAT))
                 .willReturn(Map.of(detailsId, Set.of()));
 
@@ -160,7 +159,7 @@ class AdvertisementDetailsQueryHandlerTest {
 
         given(advertisementDetails.getLocalityId()).willReturn(localityId);
         given(advertisementDetails.getId()).willReturn(detailsId);
-        given(advertisementDetails.getOwnerEmail()).willReturn(UserFixture.getDummyEmail());
+        given(advertisementDetails.getUserId()).willReturn(UUID.randomUUID());
 
         given(advertisementRepository.findDetails(query.slug(), AdvertisementType.FLAT))
                 .willReturn(Optional.of(advertisementDetails));
@@ -172,7 +171,7 @@ class AdvertisementDetailsQueryHandlerTest {
                 .willReturn(Map.of(localityId, localityFullName));
 
         given(
-                        photoRepository.findAdvertisementsPhotosInBatch(
+                        advertisementPhotoRepository.findPhotosInBatch(
                                 List.of(detailsId), AdvertisementType.FLAT))
                 .willReturn(Map.of(detailsId, Set.of()));
 
@@ -181,7 +180,7 @@ class AdvertisementDetailsQueryHandlerTest {
         Assertions.assertThatThrownBy(() -> handler.handle(query))
                 .isExactlyInstanceOf(CompletionException.class);
 
-        verify(userRepository).findAdvertisementUser(advertisementDetails.getOwnerEmail());
+        verify(userRepository).findAdvertisementUser(advertisementDetails.getUserId());
     }
 
     @ParameterizedTest
@@ -213,21 +212,19 @@ class AdvertisementDetailsQueryHandlerTest {
 
         given(advertisementDetails.getLocalityId()).willReturn(localityId);
         given(advertisementDetails.getId()).willReturn(detailsId);
-        given(advertisementDetails.getOwnerEmail()).willReturn(UserFixture.getDummyEmail());
+        given(advertisementDetails.getUserId()).willReturn(UUID.randomUUID());
 
         given(advertisementRepository.findDetails(query.slug(), advertisementType))
                 .willReturn(Optional.of(advertisementDetails));
 
-        given(userRepository.findAdvertisementUser(advertisementDetails.getOwnerEmail()))
+        given(userRepository.findAdvertisementUser(advertisementDetails.getUserId()))
                 .willReturn(Optional.of(user));
 
         given(advertisementRepository.findClaims(detailsId, advertisementType)).willReturn(claims);
         given(localityRepository.getFullNamesInBatch(Set.of(localityId)))
                 .willReturn(Map.of(localityId, localityFullName));
 
-        given(
-                        photoRepository.findAdvertisementsPhotosInBatch(
-                                List.of(detailsId), advertisementType))
+        given(advertisementPhotoRepository.findPhotosInBatch(List.of(detailsId), advertisementType))
                 .willReturn(Map.of(detailsId, photos));
 
         switch (advertisementType) {

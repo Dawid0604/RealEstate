@@ -18,7 +18,7 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserAdvert
 public interface AdvertisementRepository {
     void save(Advertisement advertisement);
 
-    Optional<Advertisement> findBySlug(String slug);
+    Optional<Advertisement> findBySlug(String slug, AdvertisementType advertisementType);
 
     Optional<AdvertisementDetailsProjection> findDetails(
             String slug, AdvertisementType advertisementType);
@@ -26,7 +26,7 @@ public interface AdvertisementRepository {
     Set<AdvertisementClaimProjection> findClaims(UUID id, AdvertisementType advertisementType);
 
     Page<UserAdvertisementCardProjection> findAdvertisementsByUser(
-            Set<AdvertisementStatus> statuses, String email, int page, int pageSize);
+            Set<AdvertisementStatus> statuses, UUID userId, int page, int pageSize);
 
     Page<AdvertisementCardProjection> findByCriteria(SearchAdvertisementsCriteria criteria);
 }

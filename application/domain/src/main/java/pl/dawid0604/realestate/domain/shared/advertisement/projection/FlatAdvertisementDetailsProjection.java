@@ -1,10 +1,13 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain.shared.advertisement.projection;
 
+import pl.dawid0604.realestate.domain.FlatBuildingType;
+import pl.dawid0604.realestate.domain.TypeOfMarket;
+
 public non-sealed interface FlatAdvertisementDetailsProjection
         extends AdvertisementDetailsProjection {
 
-    String getBuildingType();
+    FlatBuildingType getBuildingType();
 
     Integer getNumberOfRooms();
 
@@ -14,5 +17,5 @@ public non-sealed interface FlatAdvertisementDetailsProjection
 
     Integer getBuiltYear();
 
-    String getTypeOfMarket();
+    TypeOfMarket getTypeOfMarket();
 }

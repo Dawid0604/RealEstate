@@ -14,14 +14,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
+import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.event.AdvertisementPriceChangedEvent;
 import pl.dawid0604.realestate.domain.shared.event.AdvertisementStatusChangedEvent;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
@@ -761,6 +765,74 @@ class AdvertisementTest {
                 // Then
                 Assertions.assertThat(instance.getPhotos() == photos).isFalse();
             }
+        }
+
+        @ParameterizedTest
+        @MethodSource("shouldDetermineAdvertisementTypeProperlyDataProvider")
+        @DisplayName("Should determine advertisementType properly")
+        void shouldDetermineAdvertisementTypeProperly(
+                final AdvertisementDetails<?> details,
+                final AdvertisementType expectedAdvertisementType) {
+
+            // Given
+            // When
+            final Advertisement instance =
+                    Advertisement.reconstitute()
+                            .id(getValidIdentifier())
+                            .slug(getValidSlug())
+                            .title(getValidTitle())
+                            .description(getValidDescription())
+                            .price(getValidPrice())
+                            .locality(getValidLocality())
+                            .details(details)
+                            .status(AdvertisementStatus.DELETED)
+                            .userId(getValidIdentifier())
+                            .featured(true)
+                            .createdAt(Instant.now())
+                            .pricePerSquareMeter(getValidPricePerSquareMeter())
+                            .area(getValidArea())
+                            .photos(null)
+                            .build();
+
+            // Then
+            Assertions.assertThat(instance.getAdvertisementType())
+                    .isEqualTo(expectedAdvertisementType);
+        }
+
+        private static Stream<Arguments> shouldDetermineAdvertisementTypeProperlyDataProvider() {
+            return Stream.of(
+                    Arguments.of(
+                            new FlatDetails(
+                                    FlatBuildingType.LOFT,
+                                    null,
+                                    new NumberOfRooms(1),
+                                    new Floor(1),
+                                    new Floor(2),
+                                    new BuiltYear(2011),
+                                    TypeOfMarket.PRIMARY),
+                            AdvertisementType.FLAT),
+                    Arguments.of(
+                            new HouseDetails(
+                                    HouseBuildingType.DETACHED,
+                                    null,
+                                    new NumberOfRooms(1),
+                                    new Floor(2),
+                                    new BuiltYear(2011),
+                                    TypeOfMarket.PRIMARY),
+                            AdvertisementType.HOUSE),
+                    Arguments.of(
+                            new CommercialDetails(
+                                    CommercialBuildingType.HALL,
+                                    null,
+                                    new NumberOfRooms(1),
+                                    new Floor(1),
+                                    new Floor(2),
+                                    new BuiltYear(2011),
+                                    TypeOfMarket.PRIMARY),
+                            AdvertisementType.COMMERCIAL),
+                    Arguments.of(
+                            new PlotDetails(PlotBuildingType.AGRICULTURAL, null),
+                            AdvertisementType.PLOT));
         }
     }
 

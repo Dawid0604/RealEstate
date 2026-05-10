@@ -4,7 +4,6 @@ package pl.dawid0604.realestate.domain;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
-import java.util.Optional;
 
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 
@@ -45,8 +44,8 @@ public final class PricePerSquareMeter {
         return new PricePerSquareMeter(null, null);
     }
 
-    public Optional<BigDecimal> getValue() {
-        return Optional.ofNullable(value);
+    public BigDecimal getValue() {
+        return value;
     }
 
     private static BigDecimal calculate(final Area area, final Price price) {

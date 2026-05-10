@@ -29,7 +29,7 @@ public sealed interface AdvertisementDetailsProjection
 
     String getStatus();
 
-    String getOwnerEmail();
+    UUID getUserId();
 
     Instant getCreatedAt();
 

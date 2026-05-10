@@ -28,8 +28,6 @@ public sealed interface SearchAdvertisementsCriteria
 
     int pageSize();
 
-    Set<String> offerFrom();
-
     Set<String> types();
 
     UUID localityId();

@@ -14,6 +14,7 @@ import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.BooleanUtils;
 
+import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.event.AdvertisementPriceChangedEvent;
 import pl.dawid0604.realestate.domain.shared.event.AdvertisementStatusChangedEvent;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
@@ -32,6 +33,7 @@ public final class Advertisement extends AggregateRoot {
     private final AdvertisementDetails<?> details;
     private final AdvertisementStatus status;
     private final Identifier userId;
+    private final AdvertisementType advertisementType;
     private final Set<AdvertisementPhoto> photos;
     private final Instant createdAt;
     private final boolean featured;
@@ -251,6 +253,10 @@ public final class Advertisement extends AggregateRoot {
         return area;
     }
 
+    public AdvertisementStatus getStatus() {
+        return status;
+    }
+
     public Locality getLocality() {
         return locality;
     }
@@ -279,6 +285,10 @@ public final class Advertisement extends AggregateRoot {
         return userId;
     }
 
+    public AdvertisementType getAdvertisementType() {
+        return advertisementType;
+    }
+
     private Advertisement(
             final Identifier id,
             final Slug slug,
@@ -293,7 +303,8 @@ public final class Advertisement extends AggregateRoot {
             final Identifier userId,
             final Set<AdvertisementPhoto> photos,
             final Boolean featured,
-            final Instant createdAt) {
+            final Instant createdAt,
+            final AdvertisementType advertisementType) {
 
         this.id = id;
         this.slug = slug;
@@ -309,6 +320,7 @@ public final class Advertisement extends AggregateRoot {
         this.createdAt = createdAt;
         this.area = area;
         this.pricePerSquareMeter = pricePerSquareMeter;
+        this.advertisementType = advertisementType;
     }
 
     public static Builder create() {
@@ -407,7 +419,19 @@ public final class Advertisement extends AggregateRoot {
                     this.userId,
                     this.photos,
                     BooleanUtils.toBoolean(this.featured),
-                    this.createdAt);
+                    this.createdAt,
+                    determineAdvertisementType(this.details));
+        }
+
+        private static AdvertisementType determineAdvertisementType(
+                final AdvertisementDetails<?> details) {
+
+            return switch (details) {
+                case FlatDetails ignored -> AdvertisementType.FLAT;
+                case CommercialDetails ignored -> AdvertisementType.COMMERCIAL;
+                case HouseDetails ignored -> AdvertisementType.HOUSE;
+                case PlotDetails ignored -> AdvertisementType.PLOT;
+            };
         }
 
         public Builder slug(final Slug slug) {

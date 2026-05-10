@@ -1,6 +1,8 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.dto.advertisement;
 
+import pl.dawid0604.realestate.domain.UserType;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Set;
@@ -23,7 +25,7 @@ public sealed interface AdvertisementCardDto
 
     String localityFullName();
 
-    String userType();
+    UserType userType();
 
     Instant createdAt();
 

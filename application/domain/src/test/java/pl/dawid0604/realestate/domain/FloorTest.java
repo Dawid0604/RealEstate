@@ -36,14 +36,24 @@ class FloorTest {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {-100, -1})
-    @DisplayName("Should throw exception when value is negative")
-    void shouldThrowExceptionWhenValueIsNegative(final int value) {
+    @ValueSource(ints = {1, 100})
+    @DisplayName("Should create instance successfully with boundary values")
+    void shouldCreateInstanceSuccessfullyWithBoundaryValues(final int value) {
+        // Given
+        // When
+        // Then
+        Assertions.assertThatCode(() -> new Floor(value)).doesNotThrowAnyException();
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {-100, -1, 0, 101})
+    @DisplayName("Should throw exception when value is invalid")
+    void shouldThrowExceptionWhenValueIsInvalid(final int value) {
         // Given
         // When
         // Then
         Assertions.assertThatThrownBy(() -> new Floor(value))
                 .isExactlyInstanceOf(InvalidArgumentValueException.class)
-                .hasMessage("Floor cannot be negative");
+                .hasMessageStartingWith("Floor must be between");
     }
 }

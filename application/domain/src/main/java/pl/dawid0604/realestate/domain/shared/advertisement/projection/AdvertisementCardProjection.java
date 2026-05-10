@@ -5,6 +5,8 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
+import pl.dawid0604.realestate.domain.AdvertisementStatus;
+
 public sealed interface AdvertisementCardProjection
         permits CommercialAdvertisementCardProjection,
                 FlatAdvertisementCardProjection,
@@ -23,13 +25,13 @@ public sealed interface AdvertisementCardProjection
 
     BigDecimal getPricePerSquareMeter();
 
-    String getStatus();
+    AdvertisementStatus getStatus();
 
     Instant getCreatedAt();
 
     UUID getLocalityId();
 
-    String getUserType();
+    UUID getUserId();
 
     boolean isFeatured();
 }
