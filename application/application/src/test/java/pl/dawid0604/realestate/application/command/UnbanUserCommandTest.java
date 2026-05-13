@@ -21,12 +21,12 @@ class UnbanUserCommandTest {
     }
 
     @Test
-    @DisplayName("Should have email field with required annotations")
+    @DisplayName("Should have username field with required annotations")
     void shouldHaveEmailFieldWithRequiredAnnotations() {
         // Given
         // When
         // Then
         AnnotationAssertions.assertFieldAnnotations(
-                UnbanUserCommand.class, "email", List.of(ValidEmail.class));
+                UnbanUserCommand.class, "username", List.of(ValidEmail.class));
     }
 }

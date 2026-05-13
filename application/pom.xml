@@ -40,6 +40,7 @@
         <module>domain</module>
         <module>application</module>
         <module>infrastructure</module>
+        <module>api</module>
     </modules>
 
     <properties>
@@ -116,6 +117,11 @@
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>pl.dawid0604.real-estate</groupId>
+                <artifactId>api</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
             </dependency>
 
             <dependency>

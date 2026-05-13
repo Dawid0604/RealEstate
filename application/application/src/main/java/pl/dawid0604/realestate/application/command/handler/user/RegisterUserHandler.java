@@ -33,21 +33,21 @@ class RegisterUserHandler implements CommandHandler<RegisterUserCommand, UUID> {
 
     @Override
     public UUID handle(final RegisterUserCommand command) {
-        if (userRepository.existsByEmail(command.email())) {
-            throw new UserExistsException(command.email());
+        if (userRepository.existsByEmail(command.username())) {
+            throw new UserExistsException(command.username());
         }
 
         User user =
                 User.create()
-                        .email(new Email(command.email()))
+                        .email(new Email(command.username()))
                         .password(Password.ofHashed(passwordRepository.encode(command.password())))
                         .fullName(new FullName(command.firstName(), command.lastName()))
-                        .role(UserRole.USER_ROLE)
+                        .role(UserRole.ROLE_USER)
                         .type(UserType.of(command.type()))
                         .contactDetails(
                                 new ContactDetails(
                                         new Email(command.notificationEmail()),
-                                        new PhoneNumber(command.phoneNumber())))
+                                        new PhoneNumber(command.notificationPhoneNumber())))
                         .build();
 
         user = user.register();

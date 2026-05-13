@@ -21,12 +21,12 @@ class IsUserBannedQueryTest {
     }
 
     @Test
-    @DisplayName("Should have email field with required annotations")
+    @DisplayName("Should have username field with required annotations")
     void shouldHaveEmailFieldWithRequiredAnnotations() {
         // Given
         // When
         // Then
         AnnotationAssertions.assertFieldAnnotations(
-                IsUserBannedQuery.class, "email", List.of(ValidEmail.class));
+                IsUserBannedQuery.class, "username", List.of(ValidEmail.class));
     }
 }

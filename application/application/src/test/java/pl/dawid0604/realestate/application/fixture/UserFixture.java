@@ -30,7 +30,7 @@ public class UserFixture {
                 .password(Password.ofHashed("$xyz"))
                 .fullName(new FullName("John", "Doe"))
                 .status(UserStatus.ACTIVE)
-                .role(UserRole.USER_ROLE)
+                .role(UserRole.ROLE_USER)
                 .type(UserType.DEVELOPER)
                 .contactDetails(
                         new ContactDetails(

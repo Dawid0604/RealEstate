@@ -2,10 +2,14 @@
 package pl.dawid0604.realestate.infrastructure;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import pl.dawid0604.realestate.infrastructure.token.JwtProperties;
+
+@EnableConfigurationProperties(JwtProperties.class)
 @SpringBootApplication(scanBasePackages = "pl.dawid0604.realestate.infrastructure")
 class TestApplicationContext {
 

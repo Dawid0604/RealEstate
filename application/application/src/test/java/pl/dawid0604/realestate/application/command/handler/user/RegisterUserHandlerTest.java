@@ -49,7 +49,7 @@ class RegisterUserHandlerTest {
         // Given
         final RegisterUserCommand command = getCommand();
 
-        given(userRepository.existsByEmail(command.email())).willReturn(true);
+        given(userRepository.existsByEmail(command.username())).willReturn(true);
 
         // When
         // Then
@@ -75,14 +75,14 @@ class RegisterUserHandlerTest {
         // Then
         verify(userRepository).save(userArgumentCaptor.capture());
         verify(eventPublisher).publishEvent(any(UserRegisteredEvent.class));
-        verify(userRepository).existsByEmail(command.email());
+        verify(userRepository).existsByEmail(command.username());
 
         Assertions.assertThat(result).isEqualTo(userArgumentCaptor.getValue().getId().getValue());
         Assertions.assertThat(userArgumentCaptor.getValue())
                 .satisfies(
                         user -> {
                             Assertions.assertThat(user.getEmail().value())
-                                    .isEqualTo(command.email());
+                                    .isEqualTo(command.username());
 
                             Assertions.assertThat(user.getType()).isEqualTo(UserType.DEVELOPER);
 
@@ -106,7 +106,7 @@ class RegisterUserHandlerTest {
 
                                                 Assertions.assertThat(c.getPhoneNumber())
                                                         .map(PhoneNumber::value)
-                                                        .hasValue(command.phoneNumber());
+                                                        .hasValue(command.notificationPhoneNumber());
                                             });
                         });
     }

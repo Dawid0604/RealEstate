@@ -55,7 +55,7 @@ class UserAdapterTest {
                             "abc",
                             "cde",
                             "anyImage",
-                            UserRole.USER_ROLE,
+                            UserRole.ROLE_USER,
                             UserStatus.ACTIVE,
                             UserType.AGENCY,
                             null);
@@ -86,7 +86,7 @@ class UserAdapterTest {
                             "abc",
                             "cde",
                             "anyImage",
-                            UserRole.USER_ROLE,
+                            UserRole.ROLE_USER,
                             UserStatus.ACTIVE,
                             UserType.AGENCY,
                             null);
@@ -136,7 +136,7 @@ class UserAdapterTest {
                                 "abc",
                                 "cde",
                                 "anyImage",
-                                UserRole.USER_ROLE,
+                                UserRole.ROLE_USER,
                                 UserStatus.ACTIVE,
                                 UserType.AGENCY,
                                 null);
@@ -182,7 +182,7 @@ class UserAdapterTest {
                                 "abc",
                                 "cde",
                                 "anyImage",
-                                UserRole.USER_ROLE,
+                                UserRole.ROLE_USER,
                                 UserStatus.ACTIVE,
                                 UserType.AGENCY,
                                 null);
@@ -223,7 +223,7 @@ class UserAdapterTest {
                                 "abc",
                                 "cde",
                                 "anyImage",
-                                UserRole.USER_ROLE,
+                                UserRole.ROLE_USER,
                                 UserStatus.ACTIVE,
                                 UserType.AGENCY,
                                 null);
@@ -265,7 +265,7 @@ class UserAdapterTest {
                                 "abc",
                                 "cde",
                                 "anyImage",
-                                UserRole.USER_ROLE,
+                                UserRole.ROLE_USER,
                                 UserStatus.ACTIVE,
                                 UserType.AGENCY,
                                 null);
@@ -357,7 +357,7 @@ class UserAdapterTest {
                                 "abc",
                                 "cde",
                                 "anyImage",
-                                UserRole.USER_ROLE,
+                                UserRole.ROLE_USER,
                                 UserStatus.ACTIVE,
                                 UserType.AGENCY,
                                 null);
@@ -372,7 +372,7 @@ class UserAdapterTest {
                                 "abc",
                                 "cde",
                                 "anyImage",
-                                UserRole.USER_ROLE,
+                                UserRole.ROLE_USER,
                                 UserStatus.ACTIVE,
                                 UserType.AGENCY,
                                 null);
@@ -387,7 +387,7 @@ class UserAdapterTest {
                                 "abc",
                                 "cde",
                                 "anyImage",
-                                UserRole.USER_ROLE,
+                                UserRole.ROLE_USER,
                                 UserStatus.ACTIVE,
                                 UserType.DEVELOPER,
                                 null);
@@ -527,7 +527,7 @@ class UserAdapterTest {
                                 "abc",
                                 "cde",
                                 "anyImage",
-                                UserRole.USER_ROLE,
+                                UserRole.ROLE_USER,
                                 status,
                                 UserType.AGENCY,
                                 null);
@@ -558,7 +558,7 @@ class UserAdapterTest {
                                 "abc",
                                 "cde",
                                 "anyImage",
-                                UserRole.USER_ROLE,
+                                UserRole.ROLE_USER,
                                 UserStatus.BANNED,
                                 UserType.AGENCY,
                                 null);
@@ -599,7 +599,7 @@ class UserAdapterTest {
                                 "abc",
                                 "cde",
                                 "anyImage",
-                                UserRole.USER_ROLE,
+                                UserRole.ROLE_USER,
                                 UserStatus.ACTIVE,
                                 UserType.AGENCY,
                                 null);
@@ -611,6 +611,47 @@ class UserAdapterTest {
 
                 // Then
                 Assertions.assertThat(result).isPresent().hasValue(user.getId());
+            }
+        }
+    }
+
+    @Nested
+    final class FindRoleByEmailTests {
+
+        @Nested
+        final class IntegrationTests extends IntegrationTest {
+            @Autowired private UserJpaRepository repository;
+            @Autowired private UserAdapter userAdapter;
+
+            @Test
+            @ClearDatabase
+            @DisplayName("Should return role")
+            void shouldReturnRole() {
+                // Given
+                final String email = "anyEmail@mail.com";
+
+                final UserEntity user =
+                        new UserEntity(
+                                Identifier.generate().getValue(),
+                                email,
+                                "anyPassword",
+                                "John",
+                                "Doe",
+                                "abc",
+                                "cde",
+                                "anyImage",
+                                UserRole.ROLE_USER,
+                                UserStatus.ACTIVE,
+                                UserType.AGENCY,
+                                null);
+
+                repository.save(user);
+
+                // When
+                final var result = userAdapter.findUserRoleByEmail(email);
+
+                // Then
+                Assertions.assertThat(result).isPresent().hasValue(user.getRole());
             }
         }
     }

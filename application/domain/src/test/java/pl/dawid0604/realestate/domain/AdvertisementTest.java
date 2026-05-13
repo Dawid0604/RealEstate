@@ -1,20 +1,13 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
-import static java.time.temporal.ChronoUnit.SECONDS;
-import static java.util.stream.Collectors.toMap;
 import static pl.dawid0604.realestate.domain.AdvertisementStatus.ACTIVE;
 import static pl.dawid0604.realestate.domain.AdvertisementStatus.DELETED;
 import static pl.dawid0604.realestate.domain.AdvertisementStatus.INACTIVE;
 import static pl.dawid0604.realestate.domain.AdvertisementStatus.SOLD;
 
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Stream;
+import static java.time.temporal.ChronoUnit.SECONDS;
+import static java.util.stream.Collectors.toMap;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -31,6 +24,14 @@ import pl.dawid0604.realestate.domain.shared.event.AdvertisementStatusChangedEve
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 import pl.dawid0604.realestate.domain.shared.exception.MaxPhotosExceededException;
 import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
 
 class AdvertisementTest {
 
@@ -2625,7 +2626,7 @@ class AdvertisementTest {
                             .email(new Email("abc@mail.com"))
                             .password(Password.ofHashed("$abc"))
                             .fullName(new FullName("abc", "cde"))
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .contactDetails(
                                     new ContactDetails(
                                             new Email("abc@mail.com"),
@@ -2670,7 +2671,7 @@ class AdvertisementTest {
                             .email(new Email("abc@mail.com"))
                             .password(Password.ofHashed("$abc"))
                             .fullName(new FullName("abc", "cde"))
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .contactDetails(
                                     new ContactDetails(
                                             new Email("abc@mail.com"),
@@ -2714,7 +2715,7 @@ class AdvertisementTest {
                             .email(new Email("abc@mail.com"))
                             .password(Password.ofHashed("$abc"))
                             .fullName(new FullName("abc", "cde"))
-                            .role(UserRole.ADMIN_ROLE)
+                            .role(UserRole.ROLE_ADMIN)
                             .contactDetails(
                                     new ContactDetails(
                                             new Email("abc@mail.com"),

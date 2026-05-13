@@ -22,12 +22,12 @@ class UpdateUserContactDetailsCommandTest {
     }
 
     @Test
-    @DisplayName("Should have email field with required annotations")
+    @DisplayName("Should have username field with required annotations")
     void shouldHaveEmailFieldWithRequiredAnnotations() {
         // Given
         // When
         // Then
         AnnotationAssertions.assertFieldAnnotations(
-                UpdateUserContactDetailsCommand.class, "email", List.of(ValidEmail.class));
+                UpdateUserContactDetailsCommand.class, "username", List.of(ValidEmail.class));
     }
 }

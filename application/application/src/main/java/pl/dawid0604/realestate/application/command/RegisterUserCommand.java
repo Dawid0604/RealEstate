@@ -8,11 +8,11 @@ import pl.dawid0604.realestate.application.validation.ValidPassword;
 import pl.dawid0604.realestate.application.validation.ValidUserType;
 
 public record RegisterUserCommand(
-        @ValidEmail String email,
+        @ValidEmail String username,
         @ValidPassword String password,
         @ValidFirstName String firstName,
         @ValidLastName String lastName,
         @ValidUserType String type,
         String notificationEmail,
-        String phoneNumber)
+        String notificationPhoneNumber)
         implements Command {}

@@ -65,7 +65,7 @@ class UserMapperTest {
                                     "notificationEmail@mail.com",
                                     "123456789",
                                     "https://anyUrl",
-                                    UserRole.USER_ROLE,
+                                    UserRole.ROLE_USER,
                                     UserStatus.ACTIVE,
                                     UserType.AGENCY,
                                     Instant.now().minusMillis(35_000)));
@@ -128,7 +128,7 @@ class UserMapperTest {
                             .fullName(new FullName("abc", "cde"))
                             .contactDetails(new ContactDetails(null, new PhoneNumber("123456789")))
                             .avatar(new Url("https://abc"))
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .status(UserStatus.ACTIVE)
                             .createdAt(Instant.now().minusNanos(135_000))
                             .lastLoginAt(Instant.now().minusNanos(15_000))

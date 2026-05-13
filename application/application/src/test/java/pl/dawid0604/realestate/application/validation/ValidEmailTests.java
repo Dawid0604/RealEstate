@@ -41,7 +41,7 @@ public class ValidEmailTests {
                 "123@example.com",
                 "jan@example.co.uk"
             })
-    @DisplayName("Should pass for valid email")
+    @DisplayName("Should pass for valid username")
     void shouldPassForValidEmail(final String value) {
         // Given
         final EmailWrapper emailWrapper = new EmailWrapper(value);
@@ -55,7 +55,7 @@ public class ValidEmailTests {
 
     @ParameterizedTest
     @NullAndEmptySource
-    @DisplayName("Should fail for blank email")
+    @DisplayName("Should fail for blank username")
     void shouldFailForBlankSlug(final String value) {
         // Given
         final EmailWrapper emailWrapper = new EmailWrapper(value);
@@ -67,7 +67,7 @@ public class ValidEmailTests {
         Assertions.assertThat(violations)
                 .anyMatch(
                         v ->
-                                v.getPropertyPath().toString().equals("email")
+                                v.getPropertyPath().toString().equals("username")
                                         && v.getMessage().equals("Email cannot be blank"));
     }
 
@@ -82,7 +82,7 @@ public class ValidEmailTests {
                 "jan @example.com",
                 "jan@example.c"
             })
-    @DisplayName("Should fail for invalid email")
+    @DisplayName("Should fail for invalid username")
     void shouldFailForInvalidEmail(final String value) {
         // Given
         final EmailWrapper emailWrapper = new EmailWrapper(value);
@@ -94,7 +94,7 @@ public class ValidEmailTests {
         Assertions.assertThat(violations)
                 .anyMatch(
                         v ->
-                                v.getPropertyPath().toString().equals("email")
+                                v.getPropertyPath().toString().equals("username")
                                         && v.getMessage().equals("Email must be valid"));
     }
 }

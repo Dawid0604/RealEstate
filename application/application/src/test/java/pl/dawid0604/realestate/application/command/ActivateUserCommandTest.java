@@ -21,12 +21,12 @@ class ActivateUserCommandTest {
     }
 
     @Test
-    @DisplayName("Should have email field with required annotations")
+    @DisplayName("Should have username field with required annotations")
     void shouldHaveEmailFieldWithRequiredAnnotations() {
         // Given
         // When
         // Then
         AnnotationAssertions.assertFieldAnnotations(
-                ActivateUserCommand.class, "email", List.of(ValidEmail.class));
+                ActivateUserCommand.class, "username", List.of(ValidEmail.class));
     }
 }

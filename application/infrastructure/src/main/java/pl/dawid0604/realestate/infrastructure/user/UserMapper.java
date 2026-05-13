@@ -3,9 +3,12 @@ package pl.dawid0604.realestate.infrastructure.user;
 
 import static lombok.AccessLevel.PACKAGE;
 
-import org.springframework.stereotype.Component;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import lombok.NoArgsConstructor;
+
+import org.springframework.stereotype.Component;
+
 import pl.dawid0604.realestate.domain.ContactDetails;
 import pl.dawid0604.realestate.domain.Email;
 import pl.dawid0604.realestate.domain.FullName;
@@ -33,7 +36,7 @@ class UserMapper {
                         new ContactDetails(
                                 new Email(entity.getNotificationEmail()),
                                 new PhoneNumber(entity.getNotificationPhoneNumber())))
-                .avatar(new Url(entity.getAvatarUrl()))
+                .avatar(isNotBlank(entity.getAvatarUrl()) ? new Url(entity.getAvatarUrl()) : null)
                 .role(entity.getRole())
                 .status(entity.getStatus())
                 .createdAt(entity.getCreatedAt())
