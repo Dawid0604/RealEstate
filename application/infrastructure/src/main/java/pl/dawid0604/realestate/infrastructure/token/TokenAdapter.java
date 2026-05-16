@@ -25,6 +25,7 @@ import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.Objects;
 
 import javax.crypto.SecretKey;
 
@@ -38,6 +39,16 @@ class TokenAdapter implements TokenRepository {
     public String getUserEmail(final String token) {
         requireNotBlankToken(token);
         return extractClaims(token).getSubject();
+    }
+
+    @Override
+    public boolean isAccessToken(final String token) {
+        return tokenTypeIs(token, JwtProperties.ACCESS_TOKEN_TYPE);
+    }
+
+    @Override
+    public boolean isRefreshToken(final String token) {
+        return tokenTypeIs(token, JwtProperties.REFRESH_TOKEN_TYPE);
     }
 
     @Override
@@ -56,6 +67,7 @@ class TokenAdapter implements TokenRepository {
                 .expiration(
                         Date.from(Instant.now().plusSeconds(jwtProperties.accessTokenExpiration())))
                 .signWith(signingKey())
+                .claim(JwtProperties.TOKEN_TYPE_CLAIM, JwtProperties.ACCESS_TOKEN_TYPE)
                 .compact();
     }
 
@@ -74,11 +86,25 @@ class TokenAdapter implements TokenRepository {
                         Date.from(
                                 Instant.now().plusSeconds(jwtProperties.refreshTokenExpiration())))
                 .signWith(signingKey())
+                .claim(JwtProperties.TOKEN_TYPE_CLAIM, JwtProperties.REFRESH_TOKEN_TYPE)
                 .compact();
+    }
+
+    @Override
+    public Instant getTokenExpirationDate(final String token) {
+        requireNotBlankToken(token);
+        return extractClaims(token).getExpiration().toInstant();
     }
 
     private SecretKey signingKey() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtProperties.secret()));
+    }
+
+    private boolean tokenTypeIs(final String token, final String requiredType) {
+        requireNotBlankToken(token);
+
+        final String type = extractClaims(token).get(JwtProperties.TOKEN_TYPE_CLAIM, String.class);
+        return Objects.equals(type, requiredType);
     }
 
     private static void requireNotBlankEmail(final String email) {

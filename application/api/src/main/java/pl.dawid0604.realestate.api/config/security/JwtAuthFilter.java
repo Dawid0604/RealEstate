@@ -23,7 +23,6 @@ import pl.dawid0604.realestate.domain.shared.exception.InvalidTokenException;
 
 import java.io.IOException;
 
-// TODO: test it
 @Component
 @RequiredArgsConstructor(access = PACKAGE)
 class JwtAuthFilter extends OncePerRequestFilter {
@@ -46,10 +45,18 @@ class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         final String token = header.substring(7);
-        final var authentication = getAuthentication(token);
+        requireAccessTokenType(token);
 
+        final var authentication = getAuthentication(token);
         SecurityContextHolder.getContext().setAuthentication(authentication);
+
         filterChain.doFilter(request, response);
+    }
+
+    private void requireAccessTokenType(final String token) {
+        if (!tokenRepository.isAccessToken(token)) {
+            throw new InvalidTokenException("Invalid token type, expected access token");
+        }
     }
 
     private UsernamePasswordAuthenticationToken getAuthentication(final String token) {

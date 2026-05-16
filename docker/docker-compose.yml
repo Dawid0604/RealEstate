@@ -1,5 +1,6 @@
 volumes:
   postgres_volume: { }
+  cloudbeaver_volume: { }
 
 services:
   postgres:
@@ -13,3 +14,13 @@ services:
       - postgres_volume:/var/lib/postgresql/data/pgdata
     ports:
       - '5432:5432'
+
+  cloudbeaver:
+    image: dbeaver/cloudbeaver:latest
+    container_name: cloudbeaver
+    ports:
+      - '8978:8978'
+    volumes:
+      - cloudbeaver_volume:/opt/cloudbeaver/workspace
+    depends_on:
+      - postgres

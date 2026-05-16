@@ -4,6 +4,8 @@ package pl.dawid0604.realestate.application.bus;
 import static java.util.stream.Collectors.toMap;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import pl.dawid0604.realestate.application.command.Command;
 import pl.dawid0604.realestate.application.port.in.CommandHandler;
@@ -15,8 +17,13 @@ import java.util.Objects;
 @Component
 non-sealed class CommandBusImpl implements CommandBus {
     private final Map<Class<? extends Command>, CommandHandler<?, ?>> handlers;
+    private final PlatformTransactionManager transactionManager;
 
-    CommandBusImpl(final List<CommandHandler<? extends Command, ?>> handlerBeans) {
+    CommandBusImpl(
+            final List<CommandHandler<? extends Command, ?>> handlerBeans,
+            final PlatformTransactionManager transactionManager) {
+
+        this.transactionManager = transactionManager;
         this.handlers =
                 Objects.requireNonNullElse(handlerBeans, List.<CommandHandler<?, ?>>of()).stream()
                         .collect(toMap(CommandHandler::getCommandType, handler -> handler));
@@ -33,6 +40,13 @@ non-sealed class CommandBusImpl implements CommandBus {
                     "Handler not registered for command, type=" + command.getClass());
         }
 
-        return ((CommandHandler<Command, R>) handler).handle(command);
+        return transactionDecorator((CommandHandler<Command, R>) handler, command);
+    }
+
+    private <R> R transactionDecorator(
+            final CommandHandler<Command, R> handler, final Command command) {
+
+        final TransactionTemplate template = new TransactionTemplate(transactionManager);
+        return template.execute(status -> handler.handle(command));
     }
 }

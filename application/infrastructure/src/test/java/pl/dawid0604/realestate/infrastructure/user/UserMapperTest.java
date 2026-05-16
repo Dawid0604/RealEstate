@@ -88,12 +88,12 @@ class UserMapperTest {
                     .returns(entity.getLastLoginAt(), u -> u.getLastLoginAt().orElse(null))
                     .returns(
                             entity.getNotificationEmail().toLowerCase(),
-                            u -> u.getContactDetails().getEmail().map(Email::value).orElse(null))
+                            u -> u.getContactDetails().email().map(Email::value).orElse(null))
                     .returns(
                             entity.getNotificationPhoneNumber(),
                             u ->
                                     u.getContactDetails()
-                                            .getPhoneNumber()
+                                            .phoneNumber()
                                             .map(PhoneNumber::value)
                                             .orElse(null))
                     .returns(entity.getFirstName(), u -> u.getFullName().firstName())
@@ -146,11 +146,11 @@ class UserMapperTest {
                     .returns(domain.getFullName().firstName(), UserEntity::getFirstName)
                     .returns(domain.getFullName().lastName(), UserEntity::getLastName)
                     .returns(
-                            domain.getContactDetails().getEmail().map(Email::value).orElse(null),
+                            domain.getContactDetails().email().map(Email::value).orElse(null),
                             UserEntity::getNotificationEmail)
                     .returns(
                             domain.getContactDetails()
-                                    .getPhoneNumber()
+                                    .phoneNumber()
                                     .map(PhoneNumber::value)
                                     .orElse(null),
                             UserEntity::getNotificationPhoneNumber)

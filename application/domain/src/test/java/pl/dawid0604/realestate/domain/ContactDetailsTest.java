@@ -31,8 +31,8 @@ class ContactDetailsTest {
         final ContactDetails instance = new ContactDetails(email, null);
 
         // Then
-        Assertions.assertThat(instance.getEmail()).isPresent().hasValue(email);
-        Assertions.assertThat(instance.getPhoneNumber()).isEmpty();
+        Assertions.assertThat(instance.email()).isPresent().hasValue(email);
+        Assertions.assertThat(instance.phoneNumber()).isEmpty();
     }
 
     @Test
@@ -46,8 +46,8 @@ class ContactDetailsTest {
         final ContactDetails instance = new ContactDetails(null, phoneNumber);
 
         // Then
-        Assertions.assertThat(instance.getPhoneNumber()).isPresent().hasValue(phoneNumber);
-        Assertions.assertThat(instance.getEmail()).isEmpty();
+        Assertions.assertThat(instance.phoneNumber()).isPresent().hasValue(phoneNumber);
+        Assertions.assertThat(instance.email()).isEmpty();
     }
 
     @Test
@@ -61,8 +61,8 @@ class ContactDetailsTest {
         final ContactDetails instance = new ContactDetails(email, phoneNumber);
 
         // Then
-        Assertions.assertThat(instance.getPhoneNumber()).isPresent().hasValue(phoneNumber);
-        Assertions.assertThat(instance.getEmail()).isPresent().hasValue(email);
+        Assertions.assertThat(instance.phoneNumber()).isPresent().hasValue(phoneNumber);
+        Assertions.assertThat(instance.email()).isPresent().hasValue(email);
     }
 
     private static Email getValidEmail() {

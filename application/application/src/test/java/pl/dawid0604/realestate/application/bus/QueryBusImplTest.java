@@ -14,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import pl.dawid0604.realestate.application.port.in.QueryHandler;
-import pl.dawid0604.realestate.application.query.IsUserBannedQuery;
 import pl.dawid0604.realestate.application.query.UserProfileQuery;
 
 import java.util.List;

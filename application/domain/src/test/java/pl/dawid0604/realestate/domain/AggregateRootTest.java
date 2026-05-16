@@ -1,8 +1,6 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
-import java.util.List;
-
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -10,6 +8,8 @@ import org.junit.jupiter.api.Test;
 
 import pl.dawid0604.realestate.domain.shared.event.DomainEvent;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
+
+import java.util.Set;
 
 class AggregateRootTest {
     private AggregateRoot instance;
@@ -51,12 +51,12 @@ class AggregateRootTest {
         final DomainEvent event2 = new DomainEvent() {};
 
         // When
-        final List<DomainEvent> beforeAddEvents = instance.getEvents();
+        final Set<DomainEvent> beforeAddEvents = instance.getEvents();
         instance.addEvent(event);
         instance.addEvent(event2);
 
         // Then
-        final List<DomainEvent> events = instance.getEvents();
+        final Set<DomainEvent> events = instance.getEvents();
         Assertions.assertThat(events).isNotEqualTo(beforeAddEvents);
     }
 

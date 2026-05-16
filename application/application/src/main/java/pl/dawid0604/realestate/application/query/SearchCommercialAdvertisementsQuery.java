@@ -3,15 +3,6 @@ package pl.dawid0604.realestate.application.query;
 
 import lombok.RequiredArgsConstructor;
 
-import pl.dawid0604.realestate.application.validation.ValidArea;
-import pl.dawid0604.realestate.application.validation.ValidBuiltYear;
-import pl.dawid0604.realestate.application.validation.ValidFloor;
-import pl.dawid0604.realestate.application.validation.ValidFloors;
-import pl.dawid0604.realestate.application.validation.ValidLocalityId;
-import pl.dawid0604.realestate.application.validation.ValidNumberOfRooms;
-import pl.dawid0604.realestate.application.validation.ValidPageNumber;
-import pl.dawid0604.realestate.application.validation.ValidPageSize;
-import pl.dawid0604.realestate.application.validation.ValidPrice;
 import pl.dawid0604.realestate.domain.shared.advertisement.SearchAdvertisementsCriteria;
 import pl.dawid0604.realestate.domain.shared.advertisement.SearchCommercialAdvertisementsCriteria;
 
@@ -23,27 +14,27 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @SuppressWarnings("CPD-START")
 public final class SearchCommercialAdvertisementsQuery implements SearchAdvertisementsQuery {
-    @ValidArea private final BigDecimal areaFrom;
-    @ValidArea private final BigDecimal areaTo;
-    @ValidPrice private final BigDecimal priceFrom;
-    @ValidPrice private final BigDecimal priceTo;
-    @ValidPrice private final BigDecimal pricePerSquareMeterFrom;
-    @ValidPrice private final BigDecimal pricePerSquareMeterTo;
-    @ValidPageNumber private final int page;
-    @ValidPageSize private final int pageSize;
+    private final BigDecimal areaFrom;
+    private final BigDecimal areaTo;
+    private final BigDecimal priceFrom;
+    private final BigDecimal priceTo;
+    private final BigDecimal pricePerSquareMeterFrom;
+    private final BigDecimal pricePerSquareMeterTo;
+    private final int page;
+    private final int pageSize;
     private final Set<String> types;
     private final Set<String> typeOfMarkets;
-    @ValidFloor private final Integer floorFrom;
-    @ValidFloor private final Integer floorTo;
-    @ValidFloors private final Integer floorsFrom;
-    @ValidFloors private final Integer floorsTo;
-    @ValidNumberOfRooms private final Integer numberOfRoomsFrom;
-    @ValidNumberOfRooms private final Integer numberOfRoomsTo;
-    @ValidBuiltYear private final Integer builtYearFrom;
-    @ValidBuiltYear private final Integer builtYearTo;
+    private final Integer floorFrom;
+    private final Integer floorTo;
+    private final Integer floorsFrom;
+    private final Integer floorsTo;
+    private final Integer numberOfRoomsFrom;
+    private final Integer numberOfRoomsTo;
+    private final Integer builtYearFrom;
+    private final Integer builtYearTo;
     private final LocalDate dateFrom;
     private final LocalDate dateTo;
-    @ValidLocalityId private final UUID localityId;
+    private final UUID localityId;
 
     @Override
     public SearchAdvertisementsCriteria criteria() {

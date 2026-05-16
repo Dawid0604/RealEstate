@@ -4,6 +4,8 @@ package pl.dawid0604.realestate.application.bus;
 import static java.util.stream.Collectors.toMap;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import pl.dawid0604.realestate.application.port.in.QueryHandler;
 import pl.dawid0604.realestate.application.query.Query;
@@ -15,8 +17,13 @@ import java.util.Objects;
 @Component
 non-sealed class QueryBusImpl implements QueryBus {
     private final Map<Class<? extends Query>, QueryHandler<?, ?>> handlers;
+    private final PlatformTransactionManager transactionManager;
 
-    QueryBusImpl(final List<QueryHandler<? extends Query, ?>> handlerBeans) {
+    QueryBusImpl(
+            final List<QueryHandler<? extends Query, ?>> handlerBeans,
+            final PlatformTransactionManager transactionManager) {
+
+        this.transactionManager = transactionManager;
         this.handlers =
                 Objects.requireNonNullElse(handlerBeans, List.<QueryHandler<?, ?>>of()).stream()
                         .collect(toMap(QueryHandler::getQueryType, handler -> handler));
@@ -33,6 +40,13 @@ non-sealed class QueryBusImpl implements QueryBus {
                     "Handler not registered for query, type=" + query.getClass());
         }
 
-        return ((QueryHandler<Query, R>) handler).handle(query);
+        return transactionDecorator((QueryHandler<Query, R>) handler, query);
+    }
+
+    private <R> R transactionDecorator(final QueryHandler<Query, R> handler, final Query query) {
+        final TransactionTemplate template = new TransactionTemplate(transactionManager);
+        template.setReadOnly(true);
+
+        return template.execute(status -> handler.handle(query));
     }
 }

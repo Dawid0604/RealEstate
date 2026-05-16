@@ -5,4 +5,8 @@ public final class InvalidTokenException extends DomainException {
     public InvalidTokenException(final Exception exception) {
         super("Given token is invalid", exception);
     }
+
+    public InvalidTokenException(final String message) {
+        super(message);
+    }
 }

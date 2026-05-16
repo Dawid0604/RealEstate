@@ -56,9 +56,13 @@ class UserMapper {
                 domain.getPassword().getValue(),
                 domain.getFullName().firstName(),
                 domain.getFullName().lastName(),
-                domain.getContactDetails().getEmail().map(Email::value).orElse(null),
-                domain.getContactDetails().getPhoneNumber().map(PhoneNumber::value).orElse(null),
-                domain.getAvatar().map(Url::value).orElse(null),
+                domain.getContactDetails().email() != null
+                        ? domain.getContactDetails().email().value()
+                        : null,
+                domain.getContactDetails().phoneNumber() != null
+                        ? domain.getContactDetails().phoneNumber().value()
+                        : null,
+                domain.getAvatar() != null ? domain.getAvatar().value() : null,
                 domain.getRole(),
                 domain.getStatus(),
                 domain.getType(),

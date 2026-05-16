@@ -19,7 +19,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import pl.dawid0604.realestate.application.command.UpdateUserAvatarCommand;
+import pl.dawid0604.realestate.application.command.UpdateUserProfileCommand;
 import pl.dawid0604.realestate.domain.Url;
 import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserStatus;
@@ -33,18 +33,18 @@ import java.util.Optional;
 class UpdateUserAvatarHandlerTest {
     @Mock private UserRepository userRepository;
     @Captor private ArgumentCaptor<User> userArgumentCaptor;
-    private UpdateUserAvatarHandler handler;
+    private UpdateUserProfileHandler handler;
 
     @BeforeEach
     void setUp() {
-        handler = new UpdateUserAvatarHandler(userRepository);
+        handler = new UpdateUserProfileHandler(userRepository);
     }
 
     @Test
     @DisplayName("Should throw exception when user not found")
     void shouldThrowExceptionWhenUserNotFound() {
         // Given
-        final UpdateUserAvatarCommand command = getCommand();
+        final UpdateUserProfileCommand command = getCommand();
 
         // When
         // Then
@@ -58,7 +58,7 @@ class UpdateUserAvatarHandlerTest {
     @DisplayName("Should throw exception when user is inactive")
     void shouldThrowExceptionWhenUserIsInactive() {
         // Given
-        final UpdateUserAvatarCommand command = getCommand();
+        final UpdateUserProfileCommand command = getCommand();
         final User foundUser = getDummyUserBuilder().status(UserStatus.INACTIVE).build();
 
         given(userRepository.findByEmail(command.email())).willReturn(Optional.of(foundUser));
@@ -75,7 +75,7 @@ class UpdateUserAvatarHandlerTest {
     @DisplayName("Should update avatar")
     void shouldUpdateAvatar() {
         // Given
-        final UpdateUserAvatarCommand command = getCommand();
+        final UpdateUserProfileCommand command = getCommand();
         final User foundUser = spy(getDummyUserBuilder().build());
 
         given(userRepository.findByEmail(command.email())).willReturn(Optional.of(foundUser));
@@ -89,7 +89,7 @@ class UpdateUserAvatarHandlerTest {
         Assertions.assertThat(userArgumentCaptor.getValue()).isEqualTo(foundUser);
     }
 
-    private static UpdateUserAvatarCommand getCommand() {
-        return new UpdateUserAvatarCommand(getDummyEmail(), "https://abc");
+    private static UpdateUserProfileCommand getCommand() {
+        return new UpdateUserProfileCommand(getDummyEmail(), "https://abc");
     }
 }

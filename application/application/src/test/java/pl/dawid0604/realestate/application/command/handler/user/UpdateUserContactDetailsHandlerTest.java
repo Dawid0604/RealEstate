@@ -1,15 +1,13 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.command.handler.user;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+
 import static pl.dawid0604.realestate.application.fixture.UserFixture.getDummyEmail;
 import static pl.dawid0604.realestate.application.fixture.UserFixture.getDummyUserBuilder;
-
-import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +19,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import pl.dawid0604.realestate.application.command.UpdateUserContactDetailsCommand;
 import pl.dawid0604.realestate.domain.Email;
 import pl.dawid0604.realestate.domain.PhoneNumber;
 import pl.dawid0604.realestate.domain.User;
@@ -29,6 +26,8 @@ import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
+
+import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 class UpdateUserContactDetailsHandlerTest {
@@ -90,11 +89,11 @@ class UpdateUserContactDetailsHandlerTest {
         Assertions.assertThat(userArgumentCaptor.getValue())
                 .satisfies(
                         user -> {
-                            Assertions.assertThat(user.getContactDetails().getEmail())
+                            Assertions.assertThat(user.getContactDetails().email())
                                     .map(Email::value)
                                     .hasValue(command.newNotificationEmail());
 
-                            Assertions.assertThat(user.getContactDetails().getPhoneNumber())
+                            Assertions.assertThat(user.getContactDetails().phoneNumber())
                                     .map(PhoneNumber::value)
                                     .hasValue(command.newNotificationPhoneNumber());
                         });

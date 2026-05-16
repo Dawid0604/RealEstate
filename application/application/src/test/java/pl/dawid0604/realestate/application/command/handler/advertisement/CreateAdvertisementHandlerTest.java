@@ -51,6 +51,7 @@ import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessExcepti
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -382,22 +383,22 @@ class CreateAdvertisementHandlerTest {
 
         return Stream.of(
                 Arguments.of(getFlatCommand(null, null), emptySet()),
-                Arguments.of(getFlatCommand(null, List.of()), emptySet()),
-                Arguments.of(getFlatCommand(null, photos), expectedPhotos),
+                Arguments.of(getFlatCommand(null, Set.of()), emptySet()),
+                Arguments.of(getFlatCommand(null, new HashSet<>(photos)), expectedPhotos),
                 Arguments.of(getHouseCommand(null, null), emptySet()),
-                Arguments.of(getHouseCommand(null, List.of()), emptySet()),
-                Arguments.of(getHouseCommand(null, photos), expectedPhotos),
+                Arguments.of(getHouseCommand(null, Set.of()), emptySet()),
+                Arguments.of(getHouseCommand(null, new HashSet<>(photos)), expectedPhotos),
                 Arguments.of(getCommercialCommand(null, null), emptySet()),
-                Arguments.of(getCommercialCommand(null, List.of()), emptySet()),
-                Arguments.of(getCommercialCommand(null, photos), expectedPhotos),
+                Arguments.of(getCommercialCommand(null, Set.of()), emptySet()),
+                Arguments.of(getCommercialCommand(null, new HashSet<>(photos)), expectedPhotos),
                 Arguments.of(getPlotCommand(null, null), emptySet()),
-                Arguments.of(getPlotCommand(null, List.of()), emptySet()),
-                Arguments.of(getPlotCommand(null, photos), expectedPhotos));
+                Arguments.of(getPlotCommand(null, Set.of()), emptySet()),
+                Arguments.of(getPlotCommand(null, new HashSet<>(photos)), expectedPhotos));
     }
 
     private static CreateFlatAdvertisementCommand getFlatCommand(
             final Map<String, String> claims,
-            final List<CreateAdvertisementCommand.AdvertisementPhoto> photos) {
+            final Set<CreateAdvertisementCommand.AdvertisementPhoto> photos) {
 
         return new CreateFlatAdvertisementCommand(
                 "any title content",
@@ -419,7 +420,7 @@ class CreateAdvertisementHandlerTest {
 
     private static CreateHouseAdvertisementCommand getHouseCommand(
             final Map<String, String> claims,
-            final List<CreateAdvertisementCommand.AdvertisementPhoto> photos) {
+            final Set<CreateAdvertisementCommand.AdvertisementPhoto> photos) {
 
         return new CreateHouseAdvertisementCommand(
                 "any title content",
@@ -440,7 +441,7 @@ class CreateAdvertisementHandlerTest {
 
     private static CreateCommercialAdvertisementCommand getCommercialCommand(
             final Map<String, String> claims,
-            final List<CreateAdvertisementCommand.AdvertisementPhoto> photos) {
+            final Set<CreateAdvertisementCommand.AdvertisementPhoto> photos) {
 
         return new CreateCommercialAdvertisementCommand(
                 "any title content",
@@ -462,7 +463,7 @@ class CreateAdvertisementHandlerTest {
 
     private static CreatePlotAdvertisementCommand getPlotCommand(
             final Map<String, String> claims,
-            final List<CreateAdvertisementCommand.AdvertisementPhoto> photos) {
+            final Set<CreateAdvertisementCommand.AdvertisementPhoto> photos) {
 
         return new CreatePlotAdvertisementCommand(
                 "any title content",

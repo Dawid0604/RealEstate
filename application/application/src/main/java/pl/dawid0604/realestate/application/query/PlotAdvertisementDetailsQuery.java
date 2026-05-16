@@ -1,7 +1,4 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.query;
 
-import pl.dawid0604.realestate.application.validation.ValidSlug;
-
-public record PlotAdvertisementDetailsQuery(@ValidSlug String slug)
-        implements AdvertisementDetailsQuery {}
+public record PlotAdvertisementDetailsQuery(String slug) implements AdvertisementDetailsQuery {}

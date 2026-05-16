@@ -29,7 +29,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
-import pl.dawid0604.realestate.application.command.UpdateAdvertisementPriceCommand;
 import pl.dawid0604.realestate.domain.Advertisement;
 import pl.dawid0604.realestate.domain.AdvertisementDetails;
 import pl.dawid0604.realestate.domain.MoneyCurrency;

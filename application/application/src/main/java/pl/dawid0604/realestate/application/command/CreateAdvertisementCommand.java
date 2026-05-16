@@ -2,8 +2,8 @@
 package pl.dawid0604.realestate.application.command;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public sealed interface CreateAdvertisementCommand extends Command
@@ -28,7 +28,7 @@ public sealed interface CreateAdvertisementCommand extends Command
 
     String userEmail();
 
-    List<AdvertisementPhoto> photos();
+    Set<AdvertisementPhoto> photos();
 
     Boolean featured();
 

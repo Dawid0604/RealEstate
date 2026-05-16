@@ -1,14 +1,14 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import pl.dawid0604.realestate.domain.shared.event.DomainEvent;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 public abstract class AggregateRoot {
-    private final List<DomainEvent> events = new LinkedList<>();
+    private final Set<DomainEvent> events = new LinkedHashSet<>();
 
     public final void addEvent(final DomainEvent event) {
         if (event == null) {
@@ -18,8 +18,8 @@ public abstract class AggregateRoot {
         events.add(event);
     }
 
-    public final List<DomainEvent> getEvents() {
-        return List.copyOf(events);
+    public final Set<DomainEvent> getEvents() {
+        return Set.copyOf(events);
     }
 
     protected static void requireNonNull(final Object field, final String name) {

@@ -28,7 +28,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import pl.dawid0604.realestate.application.command.UpdateAdvertisementTitleCommand;
 import pl.dawid0604.realestate.domain.Advertisement;
 import pl.dawid0604.realestate.domain.AdvertisementDetails;
 import pl.dawid0604.realestate.domain.Title;

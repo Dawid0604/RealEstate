@@ -20,7 +20,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import pl.dawid0604.realestate.application.command.UpdateUserFullNameCommand;
 import pl.dawid0604.realestate.domain.FullName;
 import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserStatus;

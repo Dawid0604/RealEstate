@@ -16,7 +16,6 @@ import pl.dawid0604.realestate.application.dto.advertisement.UserAdvertisementCa
 import pl.dawid0604.realestate.application.mapper.advertisement.AdvertisementMapper;
 import pl.dawid0604.realestate.application.port.in.QueryHandler;
 import pl.dawid0604.realestate.application.query.UserAdvertisementsQuery;
-import pl.dawid0604.realestate.domain.AdvertisementStatus;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementPhotoRepository;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
 import pl.dawid0604.realestate.domain.port.out.LocalityRepository;
@@ -64,7 +63,7 @@ class UserAdvertisementsQueryHandler
 
             final var advertisementsPage =
                     advertisementRepository.findAdvertisementsByUser(
-                            mapStatuses(query.statuses()), userId, query.page(), query.pageSize());
+                            query.statuses(), userId, query.page(), query.pageSize());
 
             return Page.of(
                     mapPage(advertisementsPage, executorService),
@@ -77,10 +76,6 @@ class UserAdvertisementsQueryHandler
     @Override
     public Class<UserAdvertisementsQuery> getQueryType() {
         return UserAdvertisementsQuery.class;
-    }
-
-    private static Set<AdvertisementStatus> mapStatuses(final Set<String> statuses) {
-        return statuses.stream().map(AdvertisementStatus::of).collect(toSet());
     }
 
     private List<UserAdvertisementCardDto> mapPage(

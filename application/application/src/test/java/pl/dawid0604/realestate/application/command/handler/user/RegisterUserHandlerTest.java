@@ -100,11 +100,11 @@ class RegisterUserHandlerTest {
                             Assertions.assertThat(user.getContactDetails())
                                     .satisfies(
                                             c -> {
-                                                Assertions.assertThat(c.getEmail())
+                                                Assertions.assertThat(c.email())
                                                         .map(Email::value)
                                                         .hasValue(command.notificationEmail());
 
-                                                Assertions.assertThat(c.getPhoneNumber())
+                                                Assertions.assertThat(c.phoneNumber())
                                                         .map(PhoneNumber::value)
                                                         .hasValue(command.notificationPhoneNumber());
                                             });
