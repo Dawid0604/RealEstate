@@ -1,18 +1,18 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.infrastructure.advertisement;
 
-import static java.util.stream.Collectors.toSet;
 import static lombok.AccessLevel.PACKAGE;
 
-import java.util.Set;
-import java.util.stream.Stream;
+import static java.util.stream.Collectors.toSet;
+
+import lombok.NoArgsConstructor;
 
 import org.springframework.stereotype.Component;
 
-import lombok.NoArgsConstructor;
 import pl.dawid0604.realestate.domain.Advertisement;
 import pl.dawid0604.realestate.domain.AdvertisementClaim;
 import pl.dawid0604.realestate.domain.AdvertisementDetails;
+import pl.dawid0604.realestate.domain.AdvertisementLocality;
 import pl.dawid0604.realestate.domain.AdvertisementPhoto;
 import pl.dawid0604.realestate.domain.Area;
 import pl.dawid0604.realestate.domain.BuiltYear;
@@ -22,7 +22,6 @@ import pl.dawid0604.realestate.domain.FlatDetails;
 import pl.dawid0604.realestate.domain.Floor;
 import pl.dawid0604.realestate.domain.HouseDetails;
 import pl.dawid0604.realestate.domain.Identifier;
-import pl.dawid0604.realestate.domain.Locality;
 import pl.dawid0604.realestate.domain.MoneyCurrency;
 import pl.dawid0604.realestate.domain.NumberOfRooms;
 import pl.dawid0604.realestate.domain.PlotDetails;
@@ -32,6 +31,9 @@ import pl.dawid0604.realestate.domain.Slug;
 import pl.dawid0604.realestate.domain.Title;
 import pl.dawid0604.realestate.domain.Url;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
+
+import java.util.Set;
+import java.util.stream.Stream;
 
 @Component
 @NoArgsConstructor(access = PACKAGE)
@@ -52,7 +54,7 @@ class AdvertisementMapper {
                 .pricePerSquareMeter(
                         PricePerSquareMeter.reconstitute(
                                 entity.getPricePerSquareMeter(), MoneyCurrency.PLN))
-                .locality(new Locality(Identifier.of(entity.getLocalityId())))
+                .locality(new AdvertisementLocality(Identifier.of(entity.getLocalityId())))
                 .details(mapDetails(entity))
                 .status(entity.getStatus())
                 .userId(Identifier.of(entity.getUserId()))

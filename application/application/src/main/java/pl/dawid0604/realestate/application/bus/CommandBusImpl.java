@@ -33,7 +33,7 @@ non-sealed class CommandBusImpl implements CommandBus {
     @SuppressWarnings("unchecked")
     public final <R> R send(final Command command) {
         Objects.requireNonNull(command, "Command cannot be null");
-        final CommandHandler<?, ?> handler = handlers.get(command.getClass());
+        final CommandHandler<?, ?> handler = findHandler(command.getClass());
 
         if (handler == null) {
             throw new UnsupportedOperationException(
@@ -48,5 +48,23 @@ non-sealed class CommandBusImpl implements CommandBus {
 
         final TransactionTemplate template = new TransactionTemplate(transactionManager);
         return template.execute(status -> handler.handle(command));
+    }
+
+    private CommandHandler<?, ?> findHandler(final Class<?> commandType) {
+        var handler = handlers.get(commandType);
+        if (handler != null) return handler;
+
+        var superType = commandType.getSuperclass();
+        if (superType != null) {
+            handler = handlers.get(superType);
+            if (handler != null) return handler;
+        }
+
+        for (var iface : commandType.getInterfaces()) {
+            handler = handlers.get(iface);
+            if (handler != null) return handler;
+        }
+
+        return null;
     }
 }

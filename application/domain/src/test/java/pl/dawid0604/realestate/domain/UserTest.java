@@ -12,8 +12,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
 import pl.dawid0604.realestate.domain.shared.event.UserRegisteredEvent;
+import pl.dawid0604.realestate.domain.shared.exception.ForbiddenException;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
-import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
 
 import java.time.Instant;
 
@@ -1342,7 +1342,7 @@ class UserTest {
             // When
             // Then
             Assertions.assertThatThrownBy(instance::register)
-                    .isExactlyInstanceOf(UnauthorizedAccessException.class)
+                    .isExactlyInstanceOf(ForbiddenException.class)
                     .hasMessage("User is already registered");
         }
     }
@@ -1429,7 +1429,7 @@ class UserTest {
 
             // When
             Assertions.assertThatThrownBy(instance::verifyUser)
-                    .isExactlyInstanceOf(UnauthorizedAccessException.class)
+                    .isExactlyInstanceOf(ForbiddenException.class)
                     .hasMessage("User account has no permissions to perform this action");
         }
 

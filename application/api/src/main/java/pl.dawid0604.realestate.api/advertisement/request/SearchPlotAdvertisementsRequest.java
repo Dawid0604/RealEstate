@@ -4,8 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import pl.dawid0604.realestate.api.validation.ValidArea;
 import pl.dawid0604.realestate.api.validation.ValidLocalityId;
-import pl.dawid0604.realestate.api.validation.ValidPageNumber;
-import pl.dawid0604.realestate.api.validation.ValidPageSize;
 import pl.dawid0604.realestate.api.validation.ValidPrice;
 import pl.dawid0604.realestate.domain.PlotBuildingType;
 
@@ -25,10 +23,7 @@ public record SearchPlotAdvertisementsRequest(
                 BigDecimal pricePerSquareMeterFrom,
         @ValidPrice @Schema(description = "PricePerSquareMeter to value", example = "4500")
                 BigDecimal pricePerSquareMeterTo,
-        @ValidPageNumber @Schema(description = "Number of page, starting from 0", example = "0")
-                int page,
-        @ValidPageSize @Schema(description = "Page size", example = "25") int pageSize,
-        @Schema(description = "Building types") Set<PlotBuildingType> types,
+        @Schema(description = "Plot types") Set<PlotBuildingType> types,
         @ValidLocalityId
                 @Schema(
                         description = "Locality id",

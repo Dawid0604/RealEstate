@@ -65,7 +65,10 @@ class AuthController {
             description =
                     "Refreshes and returns JWT access and refresh token. Old refresh token has been invalidated")
     @ApiResponse(responseCode = "200", description = "Successfully refreshed")
-    @ApiResponse(responseCode = "400", description = "Invalid or expired token")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Invalid or expired token",
+            content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     TokenResponseDto refreshToken(@Validated @RequestBody final RefreshTokenRequest request) {
         return commandBus.send(new RefreshTokenCommand(request.refreshToken()));
     }

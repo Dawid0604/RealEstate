@@ -1,4 +1,4 @@
-package pl.dawid0604.realestate.api.shared;
+package pl.dawid0604.realestate.api.common;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;

@@ -18,6 +18,7 @@ import pl.dawid0604.realestate.application.port.in.CommandHandler;
 import pl.dawid0604.realestate.domain.Advertisement;
 import pl.dawid0604.realestate.domain.AdvertisementClaim;
 import pl.dawid0604.realestate.domain.AdvertisementDetails;
+import pl.dawid0604.realestate.domain.AdvertisementLocality;
 import pl.dawid0604.realestate.domain.Area;
 import pl.dawid0604.realestate.domain.BuildingType;
 import pl.dawid0604.realestate.domain.BuiltYear;
@@ -30,7 +31,6 @@ import pl.dawid0604.realestate.domain.Floor;
 import pl.dawid0604.realestate.domain.HouseBuildingType;
 import pl.dawid0604.realestate.domain.HouseDetails;
 import pl.dawid0604.realestate.domain.Identifier;
-import pl.dawid0604.realestate.domain.Locality;
 import pl.dawid0604.realestate.domain.MoneyCurrency;
 import pl.dawid0604.realestate.domain.NumberOfRooms;
 import pl.dawid0604.realestate.domain.PlotBuildingType;
@@ -60,7 +60,8 @@ class UpdateAdvertisementHandler implements CommandHandler<UpdateAdvertisementCo
         advertisement.updateArea(new Area(command.area()));
         advertisement.updateDescription(new Description(command.description()));
         advertisement.updateDetails(getDetails(command));
-        advertisement.updateLocality(new Locality(Identifier.of(command.localityId())));
+        advertisement.updateLocality(
+                new AdvertisementLocality(Identifier.of(command.localityId())));
         advertisement.updatePrice(new Price(command.price(), MoneyCurrency.PLN));
         advertisement.updateTitle(new Title(command.title()));
 

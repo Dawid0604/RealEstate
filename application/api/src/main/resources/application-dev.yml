@@ -9,3 +9,11 @@ logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus,metrics,info,env,beans
+  endpoint.health:
+    show-details: always

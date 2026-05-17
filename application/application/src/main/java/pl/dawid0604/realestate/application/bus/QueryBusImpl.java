@@ -33,7 +33,7 @@ non-sealed class QueryBusImpl implements QueryBus {
     @SuppressWarnings("unchecked")
     public final <R> R send(final Query query) {
         Objects.requireNonNull(query, "Query cannot be null");
-        final QueryHandler<?, ?> handler = handlers.get(query.getClass());
+        final QueryHandler<?, ?> handler = findHandler(query.getClass());
 
         if (handler == null) {
             throw new UnsupportedOperationException(
@@ -49,4 +49,23 @@ non-sealed class QueryBusImpl implements QueryBus {
 
         return template.execute(status -> handler.handle(query));
     }
+
+    private QueryHandler<?, ?> findHandler(final Class<?> queryType) {
+        var handler = handlers.get(queryType);
+        if (handler != null) return handler;
+
+        var superType = queryType.getSuperclass();
+        if (superType != null) {
+            handler = handlers.get(superType);
+            if (handler != null) return handler;
+        }
+
+        for (var iface : queryType.getInterfaces()) {
+            handler = handlers.get(iface);
+            if (handler != null) return handler;
+        }
+
+        return null;
+    }
+
 }

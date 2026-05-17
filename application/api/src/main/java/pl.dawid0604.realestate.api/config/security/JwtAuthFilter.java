@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import pl.dawid0604.realestate.domain.port.out.TokenRepository;
+import pl.dawid0604.realestate.domain.shared.exception.ExpiredTokenException;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidTokenException;
 
 import java.io.IOException;
@@ -35,7 +36,7 @@ class JwtAuthFilter extends OncePerRequestFilter {
             @Nonnull final HttpServletRequest request,
             @Nonnull final HttpServletResponse response,
             @Nonnull final FilterChain filterChain)
-            throws ServletException, IOException, InvalidTokenException {
+            throws ServletException, IOException {
 
         final String header = request.getHeader(HttpHeaders.AUTHORIZATION);
 
@@ -44,11 +45,16 @@ class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        final String token = header.substring(7);
-        requireAccessTokenType(token);
+        try {
+            final String token = header.substring(7);
+            requireAccessTokenType(token);
 
-        final var authentication = getAuthentication(token);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+            final var authentication = getAuthentication(token);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        } catch (InvalidTokenException | ExpiredTokenException ex) {
+            SecurityContextHolder.clearContext();
+        }
 
         filterChain.doFilter(request, response);
     }

@@ -24,7 +24,7 @@ import pl.dawid0604.realestate.domain.Url;
 import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
-import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
+import pl.dawid0604.realestate.domain.shared.exception.ForbiddenException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 
 import java.util.Optional;
@@ -66,7 +66,7 @@ class UpdateUserAvatarHandlerTest {
         // When
         // Then
         Assertions.assertThatThrownBy(() -> handler.handle(command))
-                .isExactlyInstanceOf(UnauthorizedAccessException.class);
+                .isExactlyInstanceOf(ForbiddenException.class);
 
         verify(userRepository, never()).save(any());
     }

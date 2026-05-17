@@ -6,12 +6,15 @@ import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.http.ProblemDetail;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,9 +26,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import pl.dawid0604.realestate.api.common.HasAdminRole;
 import pl.dawid0604.realestate.api.config.openapi.OpenApiProperties;
 import pl.dawid0604.realestate.api.config.security.AuthenticatedUser;
-import pl.dawid0604.realestate.api.shared.HasAdminRole;
 import pl.dawid0604.realestate.api.user.request.ActivateUserRequest;
 import pl.dawid0604.realestate.api.user.request.BanUserRequest;
 import pl.dawid0604.realestate.api.user.request.DeleteUserRequest;
@@ -65,7 +68,10 @@ class UserController {
     @PatchMapping("/activate")
     @Operation(summary = "User account activation")
     @ApiResponse(responseCode = "200", description = "User account successfully activated")
-    @ApiResponse(responseCode = "400", description = "User account already active or banned")
+    @ApiResponse(
+            responseCode = "400",
+            description = "User account already active or banned",
+            content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     void activate(@Validated @RequestBody final ActivateUserRequest request) {
         commandBus.send(new ActivateUserCommand(request.email()));
     }
@@ -75,7 +81,10 @@ class UserController {
     @ResponseStatus(NO_CONTENT)
     @Operation(summary = "User account ban action")
     @ApiResponse(responseCode = "200", description = "User account successfully banned")
-    @ApiResponse(responseCode = "400", description = "User account already banned")
+    @ApiResponse(
+            responseCode = "400",
+            description = "User account already banned",
+            content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     void ban(@Validated @RequestBody final BanUserRequest request) {
         commandBus.send(new BanUserCommand(request.email()));
     }
@@ -85,8 +94,11 @@ class UserController {
     @ResponseStatus(NO_CONTENT)
     @Operation(summary = "User account unban action")
     @ApiResponse(responseCode = "200", description = "User account successfully unbanned")
-    @ApiResponse(responseCode = "400", description = "User account is not banned")
-    void ban(@Validated @RequestBody final UnbanUserRequest request) {
+    @ApiResponse(
+            responseCode = "400",
+            description = "User account is not banned",
+            content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
+    void unban(@Validated @RequestBody final UnbanUserRequest request) {
         commandBus.send(new UnbanUserCommand(request.email()));
     }
 
@@ -94,7 +106,10 @@ class UserController {
     @ResponseStatus(NO_CONTENT)
     @Operation(summary = "User account delete action")
     @ApiResponse(responseCode = "200", description = "User account successfully deleted")
-    @ApiResponse(responseCode = "404", description = "User account not found")
+    @ApiResponse(
+            responseCode = "404",
+            description = "User account not found",
+            content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     void delete(@Validated @RequestBody final DeleteUserRequest request) {
         commandBus.send(new DeleteUserCommand(request.email()));
     }
@@ -103,7 +118,10 @@ class UserController {
     @ResponseStatus(NO_CONTENT)
     @Operation(summary = "User account update action")
     @ApiResponse(responseCode = "200", description = "User account successfully updated")
-    @ApiResponse(responseCode = "404", description = "User account not found")
+    @ApiResponse(
+            responseCode = "404",
+            description = "User account not found",
+            content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     void updateUserProfile(@Validated @RequestBody final UpdateUserProfileRequest request) {
         commandBus.send(
                 new UpdateUserProfileCommand(
@@ -120,7 +138,10 @@ class UserController {
     @PatchMapping("/password")
     @Operation(summary = "User account password update action")
     @ApiResponse(responseCode = "200", description = "User account successfully updated")
-    @ApiResponse(responseCode = "404", description = "User account not found")
+    @ApiResponse(
+            responseCode = "404",
+            description = "User account not found",
+            content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     void updatePassword(@Validated @RequestBody final UpdateUserPasswordRequest request) {
         commandBus.send(
                 new UpdateUserPasswordCommand(
@@ -131,7 +152,10 @@ class UserController {
     @GetMapping("/profile")
     @Operation(summary = "Current logged user profile")
     @ApiResponse(responseCode = "200", description = "User account found")
-    @ApiResponse(responseCode = "404", description = "User account not found")
+    @ApiResponse(
+            responseCode = "404",
+            description = "User account not found",
+            content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     UserProfileDto getProfile(@AuthenticationPrincipal final AuthenticatedUser loggedUser) {
         return queryBus.send(new UserProfileQuery(loggedUser.email()));
     }

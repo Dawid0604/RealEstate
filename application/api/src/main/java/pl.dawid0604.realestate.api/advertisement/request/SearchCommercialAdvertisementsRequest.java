@@ -7,8 +7,6 @@ import pl.dawid0604.realestate.api.validation.ValidBuiltYear;
 import pl.dawid0604.realestate.api.validation.ValidFloor;
 import pl.dawid0604.realestate.api.validation.ValidLocalityId;
 import pl.dawid0604.realestate.api.validation.ValidNumberOfRooms;
-import pl.dawid0604.realestate.api.validation.ValidPageNumber;
-import pl.dawid0604.realestate.api.validation.ValidPageSize;
 import pl.dawid0604.realestate.api.validation.ValidPrice;
 import pl.dawid0604.realestate.domain.CommercialBuildingType;
 import pl.dawid0604.realestate.domain.TypeOfMarket;
@@ -29,9 +27,6 @@ public record SearchCommercialAdvertisementsRequest(
                 BigDecimal pricePerSquareMeterFrom,
         @ValidPrice @Schema(description = "PricePerSquareMeter to value", example = "4500")
                 BigDecimal pricePerSquareMeterTo,
-        @ValidPageNumber @Schema(description = "Number of page, starting from 0", example = "0")
-                int page,
-        @ValidPageSize @Schema(description = "Page size", example = "25") int pageSize,
         @Schema(description = "Building types") Set<CommercialBuildingType> types,
         @ValidLocalityId
                 @Schema(

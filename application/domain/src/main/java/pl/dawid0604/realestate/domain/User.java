@@ -2,8 +2,8 @@
 package pl.dawid0604.realestate.domain;
 
 import pl.dawid0604.realestate.domain.shared.event.UserRegisteredEvent;
+import pl.dawid0604.realestate.domain.shared.exception.ForbiddenException;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
-import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
 import pl.dawid0604.realestate.domain.shared.exception.UserAlreadyActiveException;
 import pl.dawid0604.realestate.domain.shared.exception.UserBannedException;
 import pl.dawid0604.realestate.domain.shared.exception.UserCannotBeActivatedException;
@@ -57,7 +57,7 @@ public final class User extends AggregateRoot {
 
     public void verifyUser() {
         if (this.status != UserStatus.ACTIVE) {
-            throw new UnauthorizedAccessException(
+            throw new ForbiddenException(
                     "User account has no permissions to perform this action");
         }
     }
@@ -124,7 +124,7 @@ public final class User extends AggregateRoot {
 
     public User register() {
         if (!createMode) {
-            throw new UnauthorizedAccessException("User is already registered");
+            throw new ForbiddenException("User is already registered");
         }
 
         final User currentObj = copy().build();

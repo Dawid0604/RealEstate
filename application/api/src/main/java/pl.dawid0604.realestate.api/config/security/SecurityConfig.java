@@ -6,15 +6,20 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 
 import lombok.RequiredArgsConstructor;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -22,10 +27,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor(access = PACKAGE)
 class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final UserDetailsService userDetailsService;
+    private final AccessDeniedHandlerCustom accessDeniedHandler;
+    private final AuthenticationEntryPointCustom authenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(final HttpSecurity httpSecurity) {
@@ -34,25 +42,46 @@ class SecurityConfig {
                 .sessionManagement(c -> c.sessionCreationPolicy(STATELESS))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .authenticationProvider(authenticationProvider())
-                .authorizeHttpRequests(
-                        auth ->
-                                auth.requestMatchers(getPermittedPaths())
-                                        .permitAll()
-                                        .anyRequest()
-                                        .authenticated())
+                .authorizeHttpRequests(getAuthorizedHttpRequests())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(
+                        ex ->
+                                ex.accessDeniedHandler(accessDeniedHandler)
+                                        .authenticationEntryPoint(authenticationEntryPoint))
                 .build();
     }
 
-    private static String[] getPermittedPaths() {
-        return new String[] {
-            "/api/auth/**",
-            "/api/advertisement",
-            "/api/advertisement/{id}",
-            "/api/user/advertisement",
-            "/v3/api-docs/**",
-            "/swagger-ui/**"
-        };
+    private static @NonNull
+            Customizer<
+                    AuthorizeHttpRequestsConfigurer<HttpSecurity>
+                            .AuthorizationManagerRequestMatcherRegistry>
+            getAuthorizedHttpRequests() {
+
+        return auth ->
+                auth.requestMatchers("/api/auth/**")
+                        .permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**")
+                        .permitAll()
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/advertisement/flat/find",
+                                "/api/advertisement/house/find",
+                                "/api/advertisement/commercial/find",
+                                "/api/advertisement/plot/find")
+                        .permitAll()
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/advertisement/flat/{slug}",
+                                "/api/advertisement/house/{slug}",
+                                "/api/advertisement/commercial/{slug}",
+                                "/api/advertisement/plot/{slug}")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/locality", "/api/locality/{id}")
+                        .permitAll()
+                        .requestMatchers("/actuator/**")
+                        .permitAll()
+                        .anyRequest()
+                        .authenticated();
     }
 
     @Bean

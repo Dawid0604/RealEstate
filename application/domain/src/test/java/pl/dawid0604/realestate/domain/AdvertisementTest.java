@@ -21,9 +21,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.event.AdvertisementPriceChangedEvent;
 import pl.dawid0604.realestate.domain.shared.event.AdvertisementStatusChangedEvent;
+import pl.dawid0604.realestate.domain.shared.exception.ForbiddenException;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 import pl.dawid0604.realestate.domain.shared.exception.MaxPhotosExceededException;
-import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -2658,7 +2658,7 @@ class AdvertisementTest {
             // When
             // Then
             Assertions.assertThatThrownBy(() -> instance.verifyOwner(user))
-                    .isExactlyInstanceOf(UnauthorizedAccessException.class)
+                    .isExactlyInstanceOf(ForbiddenException.class)
                     .hasMessage("No permissions to modify this advertisement");
         }
 

@@ -6,10 +6,9 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+
 import static pl.dawid0604.realestate.application.fixture.UserFixture.getDummyEmail;
 import static pl.dawid0604.realestate.application.fixture.UserFixture.getDummyUserBuilder;
-
-import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,8 +27,10 @@ import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.port.out.PasswordRepository;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.exception.DifferentPasswordException;
-import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
+import pl.dawid0604.realestate.domain.shared.exception.ForbiddenException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
+
+import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 class UpdateUserPasswordHandlerTest {
@@ -70,7 +71,7 @@ class UpdateUserPasswordHandlerTest {
         // When
         // Then
         Assertions.assertThatThrownBy(() -> handler.handle(command))
-                .isExactlyInstanceOf(UnauthorizedAccessException.class);
+                .isExactlyInstanceOf(ForbiddenException.class);
 
         verify(userRepository, never()).save(any());
     }
