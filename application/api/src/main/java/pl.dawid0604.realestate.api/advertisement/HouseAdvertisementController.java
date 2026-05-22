@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.api.advertisement;
 
 import static lombok.AccessLevel.PACKAGE;
@@ -41,6 +42,7 @@ import pl.dawid0604.realestate.application.bus.CommandBus;
 import pl.dawid0604.realestate.application.bus.QueryBus;
 import pl.dawid0604.realestate.application.command.CreateHouseAdvertisementCommand;
 import pl.dawid0604.realestate.application.command.UpdateHouseAdvertisementCommand;
+import pl.dawid0604.realestate.application.dto.advertisement.HouseAdvertisementCardDto;
 import pl.dawid0604.realestate.application.dto.advertisement.HouseAdvertisementDetailsDto;
 import pl.dawid0604.realestate.application.query.HouseAdvertisementDetailsQuery;
 import pl.dawid0604.realestate.application.query.SearchHouseAdvertisementsQuery;
@@ -48,7 +50,7 @@ import pl.dawid0604.realestate.domain.shared.Page;
 
 @RestController
 @RequiredArgsConstructor(access = PACKAGE)
-@RequestMapping(value = "/api/advertisement/house")
+@RequestMapping("/api/advertisement/house")
 @Tag(name = "House advertisement", description = "House advertisements management")
 class HouseAdvertisementController {
     private final CommandBus commandBus;
@@ -131,14 +133,14 @@ class HouseAdvertisementController {
             responseCode = "200",
             description = "Advertisements has been successfully found",
             content = @Content(schema = @Schema(implementation = Page.class)))
-    void searchByCriteria(
+    Page<HouseAdvertisementCardDto> searchByCriteria(
             @Validated @RequestBody final SearchHouseAdvertisementsRequest request,
             @ValidPageNumber @RequestParam(value = "page", required = false, defaultValue = "0")
-                    int page,
+                    final int page,
             @RequestParam(value = "size", required = false, defaultValue = "25") @ValidPageSize
-                    int pageSize) {
+                    final int pageSize) {
 
-        queryBus.send(
+        return queryBus.send(
                 new SearchHouseAdvertisementsQuery(
                         request.areaFrom(),
                         request.areaTo(),

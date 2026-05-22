@@ -1,7 +1,6 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.query.handler.advertisement;
 
-import static java.util.stream.Collectors.toSet;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anySet;
@@ -11,16 +10,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
+import static java.util.stream.Collectors.toSet;
 
 import org.assertj.core.api.Assertions;
 import org.awaitility.Awaitility;
@@ -58,6 +48,17 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserHouseA
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserPlotAdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 import pl.dawid0604.realestate.domain.shared.photo.projection.PhotoProjection;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
 class UserAdvertisementsQueryHandlerTest {
@@ -167,8 +168,7 @@ class UserAdvertisementsQueryHandlerTest {
     @ParameterizedTest
     @DisplayName("Should map statuses properly")
     @MethodSource("shouldMapStatusesProperlyDataProvider")
-    void shouldMapStatusesProperly(
-            final Set<String> statuses, final Set<AdvertisementStatus> expectedStatuses) {
+    void shouldMapStatusesProperly(final Set<AdvertisementStatus> statuses) {
 
         // Given
         final int pageNumber = 1;
@@ -194,22 +194,13 @@ class UserAdvertisementsQueryHandlerTest {
                 .findAdvertisementsByUser(
                         advertisementStatusArgumentCaptor.capture(), any(), anyInt(), anyInt());
 
-        Assertions.assertThat(advertisementStatusArgumentCaptor.getValue())
-                .isEqualTo(expectedStatuses);
+        Assertions.assertThat(advertisementStatusArgumentCaptor.getValue()).isEqualTo(statuses);
     }
 
     private static Stream<Arguments> shouldMapStatusesProperlyDataProvider() {
         return Stream.of(
-                Arguments.of(
-                        Set.of(
-                                AdvertisementStatus.ACTIVE.name(),
-                                AdvertisementStatus.DELETED.name()),
-                        Set.of(AdvertisementStatus.ACTIVE, AdvertisementStatus.DELETED)),
-                Arguments.of(
-                        Arrays.stream(AdvertisementStatus.values())
-                                .map(AdvertisementStatus::name)
-                                .collect(toSet()),
-                        Arrays.stream(AdvertisementStatus.values()).collect(toSet())));
+                Arguments.of(Set.of(AdvertisementStatus.ACTIVE, AdvertisementStatus.DELETED)),
+                Arguments.of(Arrays.stream(AdvertisementStatus.values()).collect(toSet())));
     }
 
     @Test

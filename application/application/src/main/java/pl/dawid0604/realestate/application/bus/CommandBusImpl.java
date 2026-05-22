@@ -52,17 +52,27 @@ non-sealed class CommandBusImpl implements CommandBus {
 
     private CommandHandler<?, ?> findHandler(final Class<?> commandType) {
         var handler = handlers.get(commandType);
-        if (handler != null) return handler;
 
-        var superType = commandType.getSuperclass();
-        if (superType != null) {
-            handler = handlers.get(superType);
-            if (handler != null) return handler;
+        if (handler != null) {
+            return handler;
         }
 
-        for (var iface : commandType.getInterfaces()) {
+        final var superType = commandType.getSuperclass();
+
+        if (superType != null) {
+            handler = handlers.get(superType);
+
+            if (handler != null) {
+                return handler;
+            }
+        }
+
+        for (final var iface : commandType.getInterfaces()) {
             handler = handlers.get(iface);
-            if (handler != null) return handler;
+
+            if (handler != null) {
+                return handler;
+            }
         }
 
         return null;

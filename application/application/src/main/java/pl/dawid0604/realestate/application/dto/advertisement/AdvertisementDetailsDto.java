@@ -2,7 +2,6 @@
 package pl.dawid0604.realestate.application.dto.advertisement;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 
@@ -30,7 +29,7 @@ public sealed interface AdvertisementDetailsDto
 
     Owner owner();
 
-    Instant createdAt();
+    String createdAt();
 
     boolean isFeatured();
 

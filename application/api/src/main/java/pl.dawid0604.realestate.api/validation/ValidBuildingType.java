@@ -15,8 +15,7 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Constraint(validatedBy = {})
 @Target({FIELD, RECORD_COMPONENT})
-@NotNull(message = "BuildingType cannot be null")
-public @interface ValidBuildingType {
+@NotNull(message = "BuildingType cannot be null") public @interface ValidBuildingType {
 
     String message() default "";
 

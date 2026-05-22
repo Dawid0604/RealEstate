@@ -8,4 +8,4 @@ management:
       exposure:
         include: health,prometheus
   endpoint.health:
-    show-details: when-authorized
+    show-details: never

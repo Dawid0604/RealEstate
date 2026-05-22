@@ -122,9 +122,7 @@ class DeactivateAdvertisementHandlerTest {
                 spy(getDummyAdvertisementBuilder(details).userId(foundUser.getId()).build());
 
         given(userRepository.findByEmail(command.userEmail())).willReturn(Optional.of(foundUser));
-        given(
-                        advertisementRepository.findBySlug(
-                                command.slug(), AdvertisementType.of(command.advertisementType())))
+        given(advertisementRepository.findBySlug(command.slug(), command.advertisementType()))
                 .willReturn(Optional.of(foundAdvertisement));
 
         // When
@@ -146,7 +144,6 @@ class DeactivateAdvertisementHandlerTest {
     }
 
     private static DeactivateAdvertisementCommand getCommand() {
-        return new DeactivateAdvertisementCommand(
-                "abcde", AdvertisementType.FLAT.name(), getDummyEmail());
+        return new DeactivateAdvertisementCommand("abcde", AdvertisementType.FLAT, getDummyEmail());
     }
 }

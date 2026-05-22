@@ -3,6 +3,6 @@ package pl.dawid0604.realestate.domain.shared.exception;
 
 public final class UserBannedException extends DomainException {
     public UserBannedException() {
-        super("User is banned");
+        super("User is already banned");
     }
 }

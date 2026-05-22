@@ -51,7 +51,7 @@ class LoginUserHandler implements CommandHandler<LoginUserCommand, TokenResponse
         refreshTokenRepository.deleteIfExistsByUserId(user.getId());
         refreshTokenRepository.save(generateRefreshToken(user.getId(), response.refreshToken()));
 
-        user.handleLogin();
+        user = user.handleLogin();
         userRepository.save(user);
         return response;
     }

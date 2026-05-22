@@ -57,8 +57,7 @@ public final class User extends AggregateRoot {
 
     public void verifyUser() {
         if (this.status != UserStatus.ACTIVE) {
-            throw new ForbiddenException(
-                    "User account has no permissions to perform this action");
+            throw new ForbiddenException("User account has no permissions to perform this action");
         }
     }
 

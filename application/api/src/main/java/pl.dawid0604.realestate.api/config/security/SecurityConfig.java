@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.api.config.security;
 
 import static lombok.AccessLevel.PACKAGE;
@@ -51,8 +52,7 @@ class SecurityConfig {
                 .build();
     }
 
-    private static @NonNull
-            Customizer<
+    private static @NonNull Customizer<
                     AuthorizeHttpRequestsConfigurer<HttpSecurity>
                             .AuthorizationManagerRequestMatcherRegistry>
             getAuthorizedHttpRequests() {

@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.api.config.openapi;
 
 import static io.swagger.v3.oas.models.security.SecurityScheme.Type.HTTP;

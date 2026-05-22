@@ -132,7 +132,6 @@ class CreateAdvertisementHandler implements CommandHandler<CreateAdvertisementCo
         };
     }
 
-    // TODO: test it
     private static Set<AdvertisementClaim> mapClaims(final Map<String, String> claims) {
         return claims.entrySet().stream()
                 .map(e -> new AdvertisementClaim(Identifier.generate(), e.getKey(), e.getValue()))

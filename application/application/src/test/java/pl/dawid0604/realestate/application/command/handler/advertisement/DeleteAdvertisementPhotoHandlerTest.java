@@ -131,9 +131,7 @@ class DeleteAdvertisementPhotoHandlerTest {
                                 .build());
 
         given(userRepository.findByEmail(command.userEmail())).willReturn(Optional.of(foundUser));
-        given(
-                        advertisementRepository.findBySlug(
-                                command.slug(), AdvertisementType.of(command.advertisementType())))
+        given(advertisementRepository.findBySlug(command.slug(), command.advertisementType()))
                 .willReturn(Optional.of(foundAdvertisement));
 
         // When
@@ -158,9 +156,6 @@ class DeleteAdvertisementPhotoHandlerTest {
 
     private static DeleteAdvertisementPhotoCommand getCommand() {
         return new DeleteAdvertisementPhotoCommand(
-                "abcde",
-                Identifier.generate().getValue(),
-                AdvertisementType.FLAT.name(),
-                getDummyEmail());
+                "abcde", Identifier.generate().getValue(), AdvertisementType.FLAT, getDummyEmail());
     }
 }

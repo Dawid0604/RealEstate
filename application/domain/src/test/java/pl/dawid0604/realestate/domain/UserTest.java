@@ -14,6 +14,10 @@ import org.junit.jupiter.params.provider.EnumSource;
 import pl.dawid0604.realestate.domain.shared.event.UserRegisteredEvent;
 import pl.dawid0604.realestate.domain.shared.exception.ForbiddenException;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
+import pl.dawid0604.realestate.domain.shared.exception.UserAlreadyActiveException;
+import pl.dawid0604.realestate.domain.shared.exception.UserBannedException;
+import pl.dawid0604.realestate.domain.shared.exception.UserCannotBeActivatedException;
+import pl.dawid0604.realestate.domain.shared.exception.UserCannotBeUnbannedException;
 
 import java.time.Instant;
 
@@ -781,7 +785,7 @@ class UserTest {
 
             // Then
             Assertions.assertThatThrownBy(instance::ban)
-                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
+                    .isExactlyInstanceOf(UserBannedException.class)
                     .hasMessage("User is already banned");
         }
 
@@ -844,8 +848,8 @@ class UserTest {
 
             // Then
             Assertions.assertThatThrownBy(instance::unban)
-                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
-                    .hasMessage("User is not banned");
+                    .isExactlyInstanceOf(UserCannotBeUnbannedException.class)
+                    .hasMessage("User cannot be unbanned");
         }
 
         @ParameterizedTest
@@ -902,7 +906,7 @@ class UserTest {
 
             // Then
             Assertions.assertThatThrownBy(instance::activate)
-                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
+                    .isExactlyInstanceOf(UserAlreadyActiveException.class)
                     .hasMessage("User is already active");
         }
 
@@ -926,8 +930,8 @@ class UserTest {
 
             // Then
             Assertions.assertThatThrownBy(instance::activate)
-                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
-                    .hasMessage("User must be deactivated");
+                    .isExactlyInstanceOf(UserCannotBeActivatedException.class)
+                    .hasMessage("User is already active");
         }
 
         @Test
@@ -1007,61 +1011,6 @@ class UserTest {
             // Then
             Assertions.assertThat(updatedInstance).isEqualTo(instance);
             Assertions.assertThat(updatedInstance.getPassword()).isEqualTo(newPassword);
-        }
-    }
-
-    @Nested
-    final class UpdateEmailTests {
-
-        @Test
-        @DisplayName("Should throw exception when email is null")
-        void shouldThrowExceptionWhenEmailIsNull() {
-            // Given
-            // When
-            final User instance =
-                    User.reconstitute()
-                            .email(getValidEmail())
-                            .password(getValidPassword())
-                            .fullName(getValidFullName())
-                            .role(UserRole.ROLE_USER)
-                            .contactDetails(getValidContactDetails())
-                            .status(UserStatus.ACTIVE)
-                            .id(getValidIdentifier())
-                            .createdAt(Instant.now())
-                            .type(UserType.AGENCY)
-                            .build();
-
-            // Then
-            Assertions.assertThatThrownBy(() -> instance.updateEmail(null))
-                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
-                    .hasMessage("Email cannot be null");
-        }
-
-        @Test
-        @DisplayName("Should update email successfully")
-        void shouldUpdateEmailSuccessfully() {
-            // Given
-            final Email newEmail = new Email("abc@mail.com");
-
-            final User instance =
-                    User.reconstitute()
-                            .email(getValidEmail())
-                            .password(getValidPassword())
-                            .fullName(getValidFullName())
-                            .role(UserRole.ROLE_USER)
-                            .contactDetails(getValidContactDetails())
-                            .status(UserStatus.ACTIVE)
-                            .id(getValidIdentifier())
-                            .createdAt(Instant.now())
-                            .type(UserType.AGENCY)
-                            .build();
-
-            // When
-            final User updatedInstance = instance.updateEmail(newEmail);
-
-            // Then
-            Assertions.assertThat(updatedInstance).isEqualTo(instance);
-            Assertions.assertThat(updatedInstance.getEmail()).isEqualTo(newEmail);
         }
     }
 
@@ -1203,7 +1152,7 @@ class UserTest {
 
             // Then
             Assertions.assertThat(updatedInstance).isEqualTo(instance);
-            Assertions.assertThat(updatedInstance.getAvatar()).isPresent().hasValue(newAvatar);
+            Assertions.assertThat(updatedInstance.getAvatar()).isEqualTo(newAvatar);
         }
 
         @Test
@@ -1228,7 +1177,7 @@ class UserTest {
 
             // Then
             Assertions.assertThat(updatedInstance).isEqualTo(instance);
-            Assertions.assertThat(updatedInstance.getAvatar()).isEmpty();
+            Assertions.assertThat(updatedInstance.getAvatar()).isNull();
         }
     }
 

@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.api.user;
 
 import static lombok.AccessLevel.PACKAGE;
@@ -48,7 +49,7 @@ import pl.dawid0604.realestate.application.dto.user.UserProfileDto;
 import pl.dawid0604.realestate.application.query.UserProfileQuery;
 
 @RestController
-@RequestMapping(value = "/api/user")
+@RequestMapping("/api/user")
 @RequiredArgsConstructor(access = PACKAGE)
 @Tag(name = "User", description = "User account management")
 @SecurityRequirement(name = OpenApiProperties.AUTHENTICATION_REQUIREMENT)
@@ -157,6 +158,6 @@ class UserController {
             description = "User account not found",
             content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     UserProfileDto getProfile(@AuthenticationPrincipal final AuthenticatedUser loggedUser) {
-        return queryBus.send(new UserProfileQuery(loggedUser.email()));
+        return queryBus.send(new UserProfileQuery(loggedUser.getUsername()));
     }
 }

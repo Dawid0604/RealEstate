@@ -17,12 +17,12 @@ interface LocalityJpaRepository extends JpaRepository<LocalityEntity, UUID> {
 
     boolean existsByName(String name);
 
-    @Query("SELECT e FROM #{#entityName} e")
+    @Query("SELECT e.id as id, e.name as name FROM #{#entityName} e")
     List<LocalityProjection> findAllCustom();
 
-    @Query("SELECT e FROM #{#entityName} e WHERE e.id = :id")
+    @Query("SELECT e.id as id, e.name as name FROM #{#entityName} e WHERE e.id = :id")
     Optional<LocalityProjection> findByIdCustom(@Param("id") UUID localityId);
 
-    @Query("SELECT e FROM #{#entityName} e WHERE e.id IN :localityIds")
+    @Query("SELECT e.id as id, e.name as name FROM #{#entityName} e WHERE e.id IN :localityIds")
     List<LocalityProjection> findAllFullNamesByIdIn(Iterable<UUID> localityIds);
 }

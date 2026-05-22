@@ -5,9 +5,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import pl.dawid0604.realestate.application.fixture.AnnotationAssertions;
-import pl.dawid0604.realestate.application.validation.ValidEmail;
-
-import java.util.List;
 
 class UserProfileQueryTest {
 
@@ -18,15 +15,5 @@ class UserProfileQueryTest {
         // When
         // Then
         AnnotationAssertions.assertImplementsQueryInterface(UserProfileQuery.class);
-    }
-
-    @Test
-    @DisplayName("Should have username field with required annotations")
-    void shouldHaveEmailFieldWithRequiredAnnotations() {
-        // Given
-        // When
-        // Then
-        AnnotationAssertions.assertFieldAnnotations(
-                UserProfileQuery.class, "username", List.of(ValidEmail.class));
     }
 }

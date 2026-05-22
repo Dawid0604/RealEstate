@@ -1,10 +1,11 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.api.advertisement.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import pl.dawid0604.realestate.api.validation.ValidArea;
-import pl.dawid0604.realestate.api.validation.ValidLocalityId;
-import pl.dawid0604.realestate.api.validation.ValidPrice;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
+
 import pl.dawid0604.realestate.domain.PlotBuildingType;
 
 import java.math.BigDecimal;
@@ -14,18 +15,26 @@ import java.util.UUID;
 
 @Schema(description = "Search plot advertisements request")
 public record SearchPlotAdvertisementsRequest(
-        @ValidArea @Schema(description = "Area from value", example = "34.5") BigDecimal areaFrom,
-        @ValidArea @Schema(description = "Area to value", example = "44.5") BigDecimal areaTo,
-        @ValidPrice @Schema(description = "Price from value", example = "250000")
+        @Schema(description = "Area from value", example = "34.5")
+                @DecimalMin(value = "0.01", message = "Value must be greater than 0.01")
+                BigDecimal areaFrom,
+        @Schema(description = "Area to value", example = "44.5")
+                @DecimalMin(value = "0.01", message = "Value must be greater than 0.01")
+                BigDecimal areaTo,
+        @Schema(description = "Price from value", example = "250000")
+                @DecimalMin(value = "0.01", message = "Value must be greater than 0.01")
                 BigDecimal priceFrom,
-        @ValidPrice @Schema(description = "Price to value", example = "350000") BigDecimal priceTo,
-        @ValidPrice @Schema(description = "PricePerSquareMeter from value", example = "3500")
+        @Schema(description = "Price to value", example = "350000")
+                @DecimalMin(value = "0.01", message = "Value must be greater than 0.01")
+                BigDecimal priceTo,
+        @Schema(description = "PricePerSquareMeter from value", example = "3500")
+                @DecimalMin(value = "0.01", message = "Value must be greater than 0.01")
                 BigDecimal pricePerSquareMeterFrom,
-        @ValidPrice @Schema(description = "PricePerSquareMeter to value", example = "4500")
+        @Schema(description = "PricePerSquareMeter to value", example = "4500")
+                @DecimalMin(value = "0.01", message = "Value must be greater than 0.01")
                 BigDecimal pricePerSquareMeterTo,
         @Schema(description = "Plot types") Set<PlotBuildingType> types,
-        @ValidLocalityId
-                @Schema(
+        @NotNull(message = "Value cannot be null") @Schema(
                         description = "Locality id",
                         example = "019e2325-d92b-70ad-94e3-609123e34a79")
                 UUID localityId,

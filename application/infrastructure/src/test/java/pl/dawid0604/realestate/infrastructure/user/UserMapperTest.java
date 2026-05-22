@@ -80,7 +80,9 @@ class UserMapperTest {
                     .returns(entity.getId(), u -> u.getId().getValue())
                     .returns(entity.getEmail().toLowerCase(), u -> u.getEmail().value())
                     .returns(entity.getPassword(), u -> u.getPassword().getValue())
-                    .returns(entity.getAvatarUrl(), u -> u.getAvatar().map(Url::value).orElse(null))
+                    .returns(
+                            entity.getAvatarUrl(),
+                            u -> u.getAvatar() != null ? u.getAvatar().value() : null)
                     .returns(entity.getRole(), User::getRole)
                     .returns(entity.getStatus(), User::getStatus)
                     .returns(entity.getType(), User::getType)
@@ -88,14 +90,16 @@ class UserMapperTest {
                     .returns(entity.getLastLoginAt(), u -> u.getLastLoginAt().orElse(null))
                     .returns(
                             entity.getNotificationEmail().toLowerCase(),
-                            u -> u.getContactDetails().email().map(Email::value).orElse(null))
+                            u ->
+                                    u.getContactDetails().email() != null
+                                            ? u.getContactDetails().email().value()
+                                            : null)
                     .returns(
                             entity.getNotificationPhoneNumber(),
                             u ->
-                                    u.getContactDetails()
-                                            .phoneNumber()
-                                            .map(PhoneNumber::value)
-                                            .orElse(null))
+                                    u.getContactDetails().phoneNumber() != null
+                                            ? u.getContactDetails().phoneNumber().value()
+                                            : null)
                     .returns(entity.getFirstName(), u -> u.getFullName().firstName())
                     .returns(entity.getLastName(), u -> u.getFullName().lastName());
         }
@@ -146,17 +150,18 @@ class UserMapperTest {
                     .returns(domain.getFullName().firstName(), UserEntity::getFirstName)
                     .returns(domain.getFullName().lastName(), UserEntity::getLastName)
                     .returns(
-                            domain.getContactDetails().email().map(Email::value).orElse(null),
+                            domain.getContactDetails().email() != null
+                                    ? domain.getContactDetails().email().value()
+                                    : null,
                             UserEntity::getNotificationEmail)
                     .returns(
-                            domain.getContactDetails()
-                                    .phoneNumber()
-                                    .map(PhoneNumber::value)
-                                    .orElse(null),
+                            domain.getContactDetails().phoneNumber() != null
+                                    ? domain.getContactDetails().phoneNumber().value()
+                                    : null,
                             UserEntity::getNotificationPhoneNumber)
                     .returns(domain.getLastLoginAt().orElse(null), UserEntity::getLastLoginAt)
                     .returns(
-                            domain.getAvatar().map(Url::value).orElse(null),
+                            domain.getAvatar() != null ? domain.getAvatar().value() : null,
                             UserEntity::getAvatarUrl)
                     .returns(domain.getRole(), UserEntity::getRole)
                     .returns(domain.getStatus(), UserEntity::getStatus)

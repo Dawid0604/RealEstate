@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.api.config.security;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;

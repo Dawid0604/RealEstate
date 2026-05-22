@@ -52,20 +52,29 @@ non-sealed class QueryBusImpl implements QueryBus {
 
     private QueryHandler<?, ?> findHandler(final Class<?> queryType) {
         var handler = handlers.get(queryType);
-        if (handler != null) return handler;
 
-        var superType = queryType.getSuperclass();
-        if (superType != null) {
-            handler = handlers.get(superType);
-            if (handler != null) return handler;
+        if (handler != null) {
+            return handler;
         }
 
-        for (var iface : queryType.getInterfaces()) {
+        final var superType = queryType.getSuperclass();
+
+        if (superType != null) {
+            handler = handlers.get(superType);
+
+            if (handler != null) {
+                return handler;
+            }
+        }
+
+        for (final var iface : queryType.getInterfaces()) {
             handler = handlers.get(iface);
-            if (handler != null) return handler;
+
+            if (handler != null) {
+                return handler;
+            }
         }
 
         return null;
     }
-
 }

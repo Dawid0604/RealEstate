@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.api.config.security;
 
 import static lombok.AccessLevel.PACKAGE;
@@ -20,9 +21,7 @@ class UserDetailsServiceCustom implements UserDetailsService {
 
     @Nonnull
     @Override
-    public UserDetails loadUserByUsername(@Nonnull final String username)
-            throws UsernameNotFoundException {
-
+    public UserDetails loadUserByUsername(@Nonnull final String username) {
         return userRepository
                 .findUserRoleByEmail(username)
                 .map(role -> new AuthenticatedUser(username, role))

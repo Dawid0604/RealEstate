@@ -1,29 +1,20 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.query;
 
-import java.lang.annotation.Annotation;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import pl.dawid0604.realestate.application.fixture.AnnotationAssertions;
-import pl.dawid0604.realestate.application.validation.ValidArea;
-import pl.dawid0604.realestate.application.validation.ValidBuiltYear;
-import pl.dawid0604.realestate.application.validation.ValidFloor;
-import pl.dawid0604.realestate.application.validation.ValidFloors;
-import pl.dawid0604.realestate.application.validation.ValidLocalityId;
-import pl.dawid0604.realestate.application.validation.ValidNumberOfRooms;
-import pl.dawid0604.realestate.application.validation.ValidPageNumber;
-import pl.dawid0604.realestate.application.validation.ValidPageSize;
-import pl.dawid0604.realestate.application.validation.ValidPrice;
 import pl.dawid0604.realestate.domain.shared.advertisement.SearchFlatAdvertisementsCriteria;
+
+import java.lang.annotation.Annotation;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 class SearchFlatAdvertisementsQueryTest {
 
@@ -34,71 +25,6 @@ class SearchFlatAdvertisementsQueryTest {
         // When
         // Then
         AnnotationAssertions.assertImplementsQueryInterface(SearchFlatAdvertisementsQuery.class);
-    }
-
-    @Test
-    @DisplayName("Should have area field with required annotations")
-    void shouldHaveAreaFieldWithRequiredAnnotations() {
-        // Given
-        // When
-        // Then
-        assertFieldAnnotations("areaFrom", List.of(ValidArea.class));
-        assertFieldAnnotations("areaTo", List.of(ValidArea.class));
-    }
-
-    @Test
-    @DisplayName("Should have price fields with required annotations")
-    void shouldHavePriceFieldsWithRequiredAnnotations() {
-        assertFieldAnnotations("priceFrom", List.of(ValidPrice.class));
-        assertFieldAnnotations("priceTo", List.of(ValidPrice.class));
-    }
-
-    @Test
-    @DisplayName("Should have pricePerSquareMeter fields with required annotations")
-    void shouldHavePricePerSquareMeterFieldsWithRequiredAnnotations() {
-        assertFieldAnnotations("pricePerSquareMeterFrom", List.of(ValidPrice.class));
-        assertFieldAnnotations("pricePerSquareMeterTo", List.of(ValidPrice.class));
-    }
-
-    @Test
-    @DisplayName("Should have pagination fields with required annotations")
-    void shouldHavePaginationFieldsWithRequiredAnnotations() {
-        assertFieldAnnotations("page", List.of(ValidPageNumber.class));
-        assertFieldAnnotations("pageSize", List.of(ValidPageSize.class));
-    }
-
-    @Test
-    @DisplayName("Should have floor fields with required annotations")
-    void shouldHaveFloorFieldsWithRequiredAnnotations() {
-        assertFieldAnnotations("floorFrom", List.of(ValidFloor.class));
-        assertFieldAnnotations("floorTo", List.of(ValidFloor.class));
-    }
-
-    @Test
-    @DisplayName("Should have floors fields with required annotations")
-    void shouldHaveFloorsFieldsWithRequiredAnnotations() {
-        assertFieldAnnotations("floorsFrom", List.of(ValidFloors.class));
-        assertFieldAnnotations("floorsTo", List.of(ValidFloors.class));
-    }
-
-    @Test
-    @DisplayName("Should have number of rooms fields with required annotations")
-    void shouldHaveNumberOfRoomsFieldsWithRequiredAnnotations() {
-        assertFieldAnnotations("numberOfRoomsFrom", List.of(ValidNumberOfRooms.class));
-        assertFieldAnnotations("numberOfRoomsTo", List.of(ValidNumberOfRooms.class));
-    }
-
-    @Test
-    @DisplayName("Should have built year fields with required annotations")
-    void shouldHaveBuiltYearFieldsWithRequiredAnnotations() {
-        assertFieldAnnotations("builtYearFrom", List.of(ValidBuiltYear.class));
-        assertFieldAnnotations("builtYearTo", List.of(ValidBuiltYear.class));
-    }
-
-    @Test
-    @DisplayName("Should have localityId field with required annotations")
-    void shouldHaveLocalityIdFieldWithRequiredAnnotations() {
-        assertFieldAnnotations("localityId", List.of(ValidLocalityId.class));
     }
 
     @Test

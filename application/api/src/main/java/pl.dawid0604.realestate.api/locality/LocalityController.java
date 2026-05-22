@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.api.locality;
 
 import static lombok.AccessLevel.PACKAGE;
@@ -37,7 +38,7 @@ import pl.dawid0604.realestate.application.query.FindLocalityByIdQuery;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(value = "/api/locality")
+@RequestMapping("/api/locality")
 @RequiredArgsConstructor(access = PACKAGE)
 @Tag(name = "Locality", description = "Locality management")
 class LocalityController {

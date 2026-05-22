@@ -15,7 +15,6 @@
     <properties>
         <uuid-creator.version>6.1.1</uuid-creator.version>
         <slugify.version>3.0.7</slugify.version>
-        <commons-codec.version>1.22.0</commons-codec.version>
     </properties>
 
     <dependencies>
@@ -31,10 +30,10 @@
             <artifactId>slugify</artifactId>
             <version>${slugify.version}</version>
         </dependency>
+
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>${commons-codec.version}</version>
             <scope>compile</scope>
         </dependency>
 

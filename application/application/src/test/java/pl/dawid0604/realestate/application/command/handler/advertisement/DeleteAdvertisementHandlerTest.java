@@ -117,9 +117,7 @@ class DeleteAdvertisementHandlerTest {
                 spy(getDummyAdvertisementBuilder(details).userId(foundUser.getId()).build());
 
         given(userRepository.findByEmail(command.userEmail())).willReturn(Optional.of(foundUser));
-        given(
-                        advertisementRepository.findBySlug(
-                                command.slug(), AdvertisementType.of(command.advertisementType())))
+        given(advertisementRepository.findBySlug(command.slug(), command.advertisementType()))
                 .willReturn(Optional.of(foundAdvertisement));
 
         // When
@@ -140,7 +138,6 @@ class DeleteAdvertisementHandlerTest {
     }
 
     private static DeleteAdvertisementCommand getCommand() {
-        return new DeleteAdvertisementCommand(
-                "abcde", AdvertisementType.FLAT.name(), getDummyEmail());
+        return new DeleteAdvertisementCommand("abcde", AdvertisementType.FLAT, getDummyEmail());
     }
 }

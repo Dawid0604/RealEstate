@@ -1,11 +1,10 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.dto.advertisement;
 
-import pl.dawid0604.realestate.domain.AdvertisementStatus;
-
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.Set;
+
+import pl.dawid0604.realestate.domain.AdvertisementStatus;
 
 public sealed interface UserAdvertisementCardDto
         permits UserCommercialAdvertisementCardDto,
@@ -27,7 +26,7 @@ public sealed interface UserAdvertisementCardDto
 
     AdvertisementStatus status();
 
-    Instant createdAt();
+    String createdAt();
 
     boolean isFeatured();
 

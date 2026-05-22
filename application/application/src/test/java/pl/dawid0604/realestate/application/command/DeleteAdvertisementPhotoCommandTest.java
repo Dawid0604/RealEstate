@@ -5,12 +5,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import pl.dawid0604.realestate.application.fixture.AnnotationAssertions;
-import pl.dawid0604.realestate.application.validation.ValidEmail;
-import pl.dawid0604.realestate.application.validation.ValidPhotoId;
-import pl.dawid0604.realestate.application.validation.ValidSlug;
-
-import java.lang.annotation.Annotation;
-import java.util.List;
 
 class DeleteAdvertisementPhotoCommandTest {
 
@@ -22,39 +16,5 @@ class DeleteAdvertisementPhotoCommandTest {
         // Then
         AnnotationAssertions.assertImplementsCommandInterface(
                 DeleteAdvertisementPhotoCommand.class);
-    }
-
-    @Test
-    @DisplayName("Should have slug field with required annotations")
-    void shouldHaveSlugFieldWithRequiredAnnotations() {
-        // Given
-        // When
-        // Then
-        assertFieldAnnotations("slug", List.of(ValidSlug.class));
-    }
-
-    @Test
-    @DisplayName("Should have photoId field with required annotations")
-    void shouldHavePhotoIdFieldWithRequiredAnnotations() {
-        // Given
-        // When
-        // Then
-        assertFieldAnnotations("photoId", List.of(ValidPhotoId.class));
-    }
-
-    @Test
-    @DisplayName("Should have userEmail field with required annotations")
-    void shouldHaveUserEmailFieldWithRequiredAnnotations() {
-        // Given
-        // When
-        // Then
-        assertFieldAnnotations("userEmail", List.of(ValidEmail.class));
-    }
-
-    private static void assertFieldAnnotations(
-            final String fieldName, final List<Class<? extends Annotation>> requiredAnnotations) {
-
-        AnnotationAssertions.assertFieldAnnotations(
-                DeleteAdvertisementPhotoCommand.class, fieldName, requiredAnnotations);
     }
 }

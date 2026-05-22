@@ -82,11 +82,12 @@ class LocalityAdapterTest {
     @ExtendWith(MockitoExtension.class)
     final class ExistsByIdTests {
         @Mock private LocalityJpaRepository repository;
+        @Mock private LocalityMapper localityMapper;
         private LocalityAdapter localityAdapter;
 
         @BeforeEach
         void setUp() {
-            localityAdapter = new LocalityAdapter(repository);
+            localityAdapter = new LocalityAdapter(repository, localityMapper);
         }
 
         @ParameterizedTest

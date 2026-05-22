@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import pl.dawid0604.realestate.domain.Advertisement;
 import pl.dawid0604.realestate.domain.AdvertisementClaim;
+import pl.dawid0604.realestate.domain.AdvertisementLocality;
 import pl.dawid0604.realestate.domain.AdvertisementPhoto;
 import pl.dawid0604.realestate.domain.AdvertisementStatus;
 import pl.dawid0604.realestate.domain.Area;
@@ -33,7 +34,6 @@ import pl.dawid0604.realestate.domain.FlooredDetails;
 import pl.dawid0604.realestate.domain.HouseBuildingType;
 import pl.dawid0604.realestate.domain.HouseDetails;
 import pl.dawid0604.realestate.domain.Identifier;
-import pl.dawid0604.realestate.domain.Locality;
 import pl.dawid0604.realestate.domain.MoneyCurrency;
 import pl.dawid0604.realestate.domain.NumberOfRooms;
 import pl.dawid0604.realestate.domain.PlotBuildingType;
@@ -574,7 +574,7 @@ class AdvertisementMapperTest {
                     .slug(Slug.create(new Title(getTitle())))
                     .description(new Description(getDescription()))
                     .price(new Price(getPrice(), MoneyCurrency.PLN))
-                    .locality(new Locality(Identifier.generate()))
+                    .locality(new AdvertisementLocality(Identifier.generate()))
                     .details(details)
                     .status(getStatus())
                     .userId(Identifier.generate())
@@ -698,7 +698,7 @@ class AdvertisementMapperTest {
                     .slug(Slug.create(new Title(getTitle())))
                     .description(new Description(getDescription()))
                     .price(new Price(getPrice(), MoneyCurrency.PLN))
-                    .locality(new Locality(Identifier.generate()))
+                    .locality(new AdvertisementLocality(Identifier.generate()))
                     .details(details)
                     .status(getStatus())
                     .userId(Identifier.generate())
@@ -831,7 +831,7 @@ class AdvertisementMapperTest {
                     .slug(Slug.create(new Title(getTitle())))
                     .description(new Description(getDescription()))
                     .price(new Price(getPrice(), MoneyCurrency.PLN))
-                    .locality(new Locality(Identifier.generate()))
+                    .locality(new AdvertisementLocality(Identifier.generate()))
                     .details(details)
                     .status(getStatus())
                     .userId(Identifier.generate())
@@ -943,7 +943,7 @@ class AdvertisementMapperTest {
                     .slug(Slug.create(new Title(getTitle())))
                     .description(new Description(getDescription()))
                     .price(new Price(getPrice(), MoneyCurrency.PLN))
-                    .locality(new Locality(Identifier.generate()))
+                    .locality(new AdvertisementLocality(Identifier.generate()))
                     .details(details)
                     .status(getStatus())
                     .userId(Identifier.generate())

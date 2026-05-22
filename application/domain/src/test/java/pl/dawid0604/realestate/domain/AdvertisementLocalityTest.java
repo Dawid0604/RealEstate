@@ -4,12 +4,10 @@ package pl.dawid0604.realestate.domain;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
 
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 
-class LocalityTest {
+class AdvertisementLocalityTest {
 
     @Test
     @DisplayName("Should throw exception when id is null")
@@ -17,21 +15,9 @@ class LocalityTest {
         // Given
         // When
         // Then
-        Assertions.assertThatThrownBy(() -> new Locality(null, "abc"))
+        Assertions.assertThatThrownBy(() -> new AdvertisementLocality(null))
                 .isExactlyInstanceOf(InvalidArgumentValueException.class)
                 .hasMessage("Id cannot be null");
-    }
-
-    @ParameterizedTest
-    @NullAndEmptySource
-    @DisplayName("Should throw exception when name is blank")
-    void shouldThrowExceptionWhenNameIsBlank(final String name) {
-        // Given
-        // When
-        // Then
-        Assertions.assertThatThrownBy(() -> new Locality(Identifier.generate(), name))
-                .isExactlyInstanceOf(InvalidArgumentValueException.class)
-                .hasMessage("Name cannot be blank");
     }
 
     @Test
@@ -39,13 +25,11 @@ class LocalityTest {
     void shouldCreateInstanceSuccessfullyAndReturnSameValue() {
         // Given
         final Identifier id = Identifier.generate();
-        final String name = "Warsaw";
 
         // When
-        final Locality instance = new Locality(id, name);
+        final AdvertisementLocality instance = new AdvertisementLocality(id);
 
         // Then
         Assertions.assertThat(instance.id()).isEqualTo(id);
-        Assertions.assertThat(instance.name()).isEqualTo(name);
     }
 }

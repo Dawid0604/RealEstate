@@ -50,6 +50,6 @@ interface UserJpaRepository extends JpaRepository<UserEntity, UUID> {
 
     int deleteByEmail(String email);
 
-    @Query("SELECT u FROM #{#entityName} u WHERE u.id IN :ids")
+    @Query("SELECT u.id as id, u.type as type FROM #{#entityName} u WHERE u.id IN :ids")
     List<UserTypeProjection> findUserTypesByIdIn(@Param("ids") Iterable<UUID> userIds);
 }

@@ -475,7 +475,7 @@ class AdvertisementPhotoAdapterTest {
                             PhotoProjection::getId,
                             PhotoProjection::getUrl,
                             PhotoProjection::getPosition,
-                            p -> p.getAdvertisement().getId())
+                            PhotoProjection::getAdvertisementId)
                     .containsExactlyInAnyOrder(entityPhotosTuples);
         }
     }

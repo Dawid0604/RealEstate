@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.infrastructure.token;
 
 import org.springframework.data.jpa.repository.JpaRepository;

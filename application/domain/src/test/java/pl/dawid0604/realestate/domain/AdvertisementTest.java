@@ -1432,8 +1432,9 @@ class AdvertisementTest {
         @DisplayName("Should update locality successfully")
         void shouldUpdateLocalitySuccessfully() {
             // Given
-            final Locality locality = new Locality(Identifier.generate());
-            final Locality incomingLocality = new Locality(Identifier.generate());
+            final AdvertisementLocality locality = new AdvertisementLocality(Identifier.generate());
+            final AdvertisementLocality incomingLocality =
+                    new AdvertisementLocality(Identifier.generate());
 
             final Advertisement instance =
                     Advertisement.reconstitute()
@@ -2865,8 +2866,8 @@ class AdvertisementTest {
         return new Price(null, MoneyCurrency.PLN);
     }
 
-    private static Locality getValidLocality() {
-        return new Locality(Identifier.generate());
+    private static AdvertisementLocality getValidLocality() {
+        return new AdvertisementLocality(Identifier.generate());
     }
 
     private static AdvertisementStatus getValidStatus() {

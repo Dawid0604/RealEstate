@@ -114,9 +114,7 @@ class ActivateAdvertisementHandlerTest {
         final Advertisement foundAdvertisement = getDummyAdvertisementBuilder(details).build();
 
         given(userRepository.findByEmail(command.userEmail())).willReturn(Optional.of(foundUser));
-        given(
-                        advertisementRepository.findBySlug(
-                                command.slug(), AdvertisementType.of(command.advertisementType())))
+        given(advertisementRepository.findBySlug(command.slug(), command.advertisementType()))
                 .willReturn(Optional.of(foundAdvertisement));
 
         // When
@@ -143,9 +141,7 @@ class ActivateAdvertisementHandlerTest {
                                 .build());
 
         given(userRepository.findByEmail(command.userEmail())).willReturn(Optional.of(foundUser));
-        given(
-                        advertisementRepository.findBySlug(
-                                command.slug(), AdvertisementType.of(command.advertisementType())))
+        given(advertisementRepository.findBySlug(command.slug(), command.advertisementType()))
                 .willReturn(Optional.of(foundAdvertisement));
 
         // When
@@ -167,7 +163,6 @@ class ActivateAdvertisementHandlerTest {
     }
 
     private static ActivateAdvertisementCommand getCommand() {
-        return new ActivateAdvertisementCommand(
-                "abcde", AdvertisementType.FLAT.name(), getDummyEmail());
+        return new ActivateAdvertisementCommand("abcde", AdvertisementType.FLAT, getDummyEmail());
     }
 }

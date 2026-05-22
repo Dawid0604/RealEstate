@@ -6,7 +6,6 @@ import static java.util.Collections.emptySet;
 import pl.dawid0604.realestate.domain.AdvertisementStatus;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.Set;
 
 public record UserPlotAdvertisementCardDto(
@@ -17,7 +16,7 @@ public record UserPlotAdvertisementCardDto(
         BigDecimal pricePerSquareMeter,
         String localityFullName,
         AdvertisementStatus status,
-        Instant createdAt,
+        String createdAt,
         boolean isFeatured,
         Set<AdvertisementPhotoDto> photos,
         String plotType)

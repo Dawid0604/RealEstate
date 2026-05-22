@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.api.auth;
 
 import static lombok.AccessLevel.PACKAGE;
@@ -31,7 +32,7 @@ import pl.dawid0604.realestate.application.command.RegisterUserCommand;
 import pl.dawid0604.realestate.application.dto.auth.TokenResponseDto;
 
 @RestController
-@RequestMapping(value = "/api/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor(access = PACKAGE)
 @Tag(name = "Authentication", description = "User access management")
 class AuthController {

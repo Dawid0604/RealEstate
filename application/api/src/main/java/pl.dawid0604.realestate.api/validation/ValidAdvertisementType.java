@@ -15,8 +15,7 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Constraint(validatedBy = {})
 @Target({FIELD, RECORD_COMPONENT})
-@NotNull(message = "AdvertisementType cannot be null")
-public @interface ValidAdvertisementType {
+@NotNull(message = "AdvertisementType cannot be null") public @interface ValidAdvertisementType {
 
     String message() default "";
 

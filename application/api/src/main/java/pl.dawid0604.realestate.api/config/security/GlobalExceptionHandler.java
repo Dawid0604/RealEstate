@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.api.config.security;
 
 import jakarta.validation.ConstraintViolationException;
@@ -39,7 +40,7 @@ import java.util.Objects;
 @Slf4j
 @RestControllerAdvice
 class GlobalExceptionHandler {
-    private static final String PROBLEM_DETAILS_TYPE_URI_PREFIX = "https://realestate.pl/errors/";
+    private static final String TYPE_URI_PREFIX = "https://realestate.pl/errors/";
 
     @ExceptionHandler(AdvertisementNotFoundException.class)
     ProblemDetail handleAdvertisementNotFoundException(final AdvertisementNotFoundException ex) {
@@ -169,7 +170,7 @@ class GlobalExceptionHandler {
     }
 
     private static URI getProblemType(final String errorCode) {
-        return URI.create(PROBLEM_DETAILS_TYPE_URI_PREFIX + errorCode);
+        return URI.create(TYPE_URI_PREFIX + errorCode);
     }
 
     private static List<Map<String, String>> getValidationErrors(

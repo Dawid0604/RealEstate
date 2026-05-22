@@ -56,7 +56,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
@@ -113,14 +112,14 @@ class CreateAdvertisementHandlerTest {
         given(userRepository.findByEmail(command.userEmail())).willReturn(Optional.of(foundUser));
 
         // When
-        final UUID result = handler.handle(command);
+        final String result = handler.handle(command);
 
         // Then
         verify(advertisementRepository).save(advertisementArgumentCaptor.capture());
         Assertions.assertThat(advertisementArgumentCaptor.getValue())
                 .satisfies(
                         advertisement -> {
-                            Assertions.assertThat(advertisement.getId().getValue())
+                            Assertions.assertThat(advertisement.getSlug().getValue())
                                     .isEqualTo(result);
 
                             Assertions.assertThat(advertisement.getTitle().value())
@@ -213,6 +212,8 @@ class CreateAdvertisementHandlerTest {
                 .satisfies(
                         details ->
                                 Assertions.assertThat(details.getClaims())
+                                        .usingRecursiveFieldByFieldElementComparatorIgnoringFields(
+                                                "id")
                                         .isEqualTo(expectedClaims));
     }
 
@@ -355,7 +356,8 @@ class CreateAdvertisementHandlerTest {
 
     private static Stream<Arguments> commandsWithCustomClaimsDataProvider() {
         final Map<String, String> claims = Map.of("abc", "cde");
-        final Set<AdvertisementClaim> expectedClaims = Set.of(new AdvertisementClaim("abc", "cde"));
+        final Set<AdvertisementClaim> expectedClaims =
+                Set.of(new AdvertisementClaim(Identifier.generate(), "abc", "cde"));
 
         return Stream.of(
                 Arguments.of(getFlatCommand(null, null), emptySet()),

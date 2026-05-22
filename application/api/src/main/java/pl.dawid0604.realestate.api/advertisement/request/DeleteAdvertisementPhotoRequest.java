@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.api.advertisement.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;

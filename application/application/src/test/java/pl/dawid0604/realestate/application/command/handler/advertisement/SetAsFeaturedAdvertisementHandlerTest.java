@@ -117,9 +117,7 @@ class SetAsFeaturedAdvertisementHandlerTest {
                 spy(getDummyAdvertisementBuilder(details).userId(foundUser.getId()).build());
 
         given(userRepository.findByEmail(command.userEmail())).willReturn(Optional.of(foundUser));
-        given(
-                        advertisementRepository.findBySlug(
-                                command.slug(), AdvertisementType.of(command.advertisementType())))
+        given(advertisementRepository.findBySlug(command.slug(), command.advertisementType()))
                 .willReturn(Optional.of(foundAdvertisement));
 
         // When
@@ -141,6 +139,6 @@ class SetAsFeaturedAdvertisementHandlerTest {
 
     private static SetAsFeaturedAdvertisementCommand getCommand() {
         return new SetAsFeaturedAdvertisementCommand(
-                "abcde", AdvertisementType.FLAT.name(), getDummyEmail());
+                "abcde", AdvertisementType.FLAT, getDummyEmail());
     }
 }

@@ -4,7 +4,6 @@ package pl.dawid0604.realestate.application.dto.advertisement;
 import static java.util.Collections.emptySet;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.Set;
 
 public record CommercialAdvertisementDetailsDto(
@@ -17,7 +16,7 @@ public record CommercialAdvertisementDetailsDto(
         String localityFullName,
         String status,
         Owner owner,
-        Instant createdAt,
+        String createdAt,
         boolean isFeatured,
         Set<AdvertisementPhotoDto> photos,
         Set<Claim> claims,

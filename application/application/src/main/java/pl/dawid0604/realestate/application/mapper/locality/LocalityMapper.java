@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.mapper.locality;
 
 import org.mapstruct.Mapper;

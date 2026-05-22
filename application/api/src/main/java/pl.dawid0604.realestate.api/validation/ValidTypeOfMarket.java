@@ -15,8 +15,7 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Constraint(validatedBy = {})
 @Target({FIELD, RECORD_COMPONENT})
-@NotNull(message = "TypeOfMarket cannot be null")
-public @interface ValidTypeOfMarket {
+@NotNull(message = "TypeOfMarket cannot be null") public @interface ValidTypeOfMarket {
 
     String message() default "";
 

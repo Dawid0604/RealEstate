@@ -123,9 +123,7 @@ class AddAdvertisementPhotoHandlerTest {
                                 .build());
 
         given(userRepository.findByEmail(command.userEmail())).willReturn(Optional.of(foundUser));
-        given(
-                        advertisementRepository.findBySlug(
-                                command.slug(), AdvertisementType.of(command.advertisementType())))
+        given(advertisementRepository.findBySlug(command.slug(), command.advertisementType()))
                 .willReturn(Optional.of(foundAdvertisement));
 
         // When
@@ -161,6 +159,6 @@ class AddAdvertisementPhotoHandlerTest {
 
     private static AddAdvertisementPhotoCommand getCommand() {
         return new AddAdvertisementPhotoCommand(
-                "abcde", AdvertisementType.FLAT.name(), "https://photo", 0, getDummyEmail());
+                "abcde", AdvertisementType.FLAT, "https://photo", 0, getDummyEmail());
     }
 }

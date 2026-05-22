@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.api.advertisement;
 
 import static lombok.AccessLevel.PACKAGE;
@@ -50,8 +51,8 @@ import pl.dawid0604.realestate.application.query.UserAdvertisementsQuery;
 import pl.dawid0604.realestate.domain.shared.Page;
 
 @RestController
+@RequestMapping("/api/advertisement")
 @RequiredArgsConstructor(access = PACKAGE)
-@RequestMapping(value = "/api/advertisement")
 @Tag(name = "Advertisement", description = "Advertisements common management")
 class AdvertisementController {
     private final CommandBus commandBus;
@@ -200,9 +201,9 @@ class AdvertisementController {
     Page<UserAdvertisementCardDto> searchByUser(
             @Validated @RequestBody final SearchUserAdvertisementsRequest request,
             @ValidPageNumber @RequestParam(value = "page", required = false, defaultValue = "0")
-                    int page,
+                    final int page,
             @RequestParam(value = "size", required = false, defaultValue = "25") @ValidPageSize
-                    int pageSize,
+                    final int pageSize,
             @AuthenticationPrincipal final AuthenticatedUser loggedUser) {
 
         return queryBus.send(
@@ -210,9 +211,3 @@ class AdvertisementController {
                         loggedUser.getUsername(), page, pageSize, request.statuses()));
     }
 }
-// {
-//  "accessToken":
-// "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrb2NoYW1nb3NpZTIyMDRAbWFpbC5jb20iLCJyb2xlIjoiUk9MRV9VU0VSIiwiaWF0IjoxNzc5MDQyMzExLCJleHAiOjE3NzkwNDMyMTEsInR5cGUiOiJhY2Nlc3MifQ.SOiArhgQLSXiNOWNBFU6K7BU5kOcJxYP9oYAuGqeNhw",
-//  "refreshToken":
-// "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrb2NoYW1nb3NpZTIyMDRAbWFpbC5jb20iLCJpYXQiOjE3NzkwNDIzMTEsImV4cCI6MTc3OTY0NzExMSwidHlwZSI6InJlZnJlc2gifQ.2OPyXivFMyzVHzMmLg7NH81s2tIcbnxX3zgLPKKeMcI"
-// }

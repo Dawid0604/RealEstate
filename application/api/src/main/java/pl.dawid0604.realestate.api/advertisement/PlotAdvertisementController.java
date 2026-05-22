@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.api.advertisement;
 
 import static lombok.AccessLevel.PACKAGE;
@@ -41,6 +42,7 @@ import pl.dawid0604.realestate.application.bus.CommandBus;
 import pl.dawid0604.realestate.application.bus.QueryBus;
 import pl.dawid0604.realestate.application.command.CreatePlotAdvertisementCommand;
 import pl.dawid0604.realestate.application.command.UpdatePlotAdvertisementCommand;
+import pl.dawid0604.realestate.application.dto.advertisement.PlotAdvertisementCardDto;
 import pl.dawid0604.realestate.application.dto.advertisement.PlotAdvertisementDetailsDto;
 import pl.dawid0604.realestate.application.query.PlotAdvertisementDetailsQuery;
 import pl.dawid0604.realestate.application.query.SearchPlotAdvertisementsQuery;
@@ -48,7 +50,7 @@ import pl.dawid0604.realestate.domain.shared.Page;
 
 @RestController
 @RequiredArgsConstructor(access = PACKAGE)
-@RequestMapping(value = "/api/advertisement/plot")
+@RequestMapping("/api/advertisement/plot")
 @Tag(name = "Plot advertisement", description = "Plot advertisements management")
 class PlotAdvertisementController {
     private final CommandBus commandBus;
@@ -123,14 +125,14 @@ class PlotAdvertisementController {
             responseCode = "200",
             description = "Advertisements has been successfully found",
             content = @Content(schema = @Schema(implementation = Page.class)))
-    void searchByCriteria(
+    Page<PlotAdvertisementCardDto> searchByCriteria(
             @Validated @RequestBody final SearchPlotAdvertisementsRequest request,
             @ValidPageNumber @RequestParam(value = "page", required = false, defaultValue = "0")
-                    int page,
+                    final int page,
             @RequestParam(value = "size", required = false, defaultValue = "25") @ValidPageSize
-                    int pageSize) {
+                    final int pageSize) {
 
-        queryBus.send(
+        return queryBus.send(
                 new SearchPlotAdvertisementsQuery(
                         request.areaFrom(),
                         request.areaTo(),

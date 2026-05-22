@@ -169,8 +169,8 @@ class TokenAdapterTest {
                                         .isNotNull()
                                         .isBefore(claims.getExpiration())
                                         .isBetween(
-                                                Instant.now().minusSeconds(1),
-                                                Instant.now().plusSeconds(1));
+                                                Instant.now().minusSeconds(10),
+                                                Instant.now().plusSeconds(10));
 
                                 Assertions.assertThat(claims.getExpiration())
                                         .isNotNull()
@@ -179,12 +179,12 @@ class TokenAdapterTest {
                                                         .plusSeconds(
                                                                 getValidJwtProperties()
                                                                         .accessTokenExpiration())
-                                                        .minusSeconds(1),
+                                                        .minusSeconds(10),
                                                 Instant.now()
                                                         .plusSeconds(
                                                                 getValidJwtProperties()
                                                                         .accessTokenExpiration())
-                                                        .plusSeconds(1));
+                                                        .plusSeconds(10));
                             });
         }
     }

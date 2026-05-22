@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.infrastructure.token;
 
 import static lombok.AccessLevel.PACKAGE;
@@ -40,10 +41,7 @@ class RefreshTokenEntity {
     @LastModifiedDate private Instant updatedAt;
 
     RefreshTokenEntity(
-            final UUID id,
-            final UUID userId,
-            final String hashedToken,
-            final Instant expiresAt) {
+            final UUID id, final UUID userId, final String hashedToken, final Instant expiresAt) {
 
         this.id = id;
         this.userId = userId;

@@ -1,11 +1,12 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.fixture;
 
+import lombok.experimental.UtilityClass;
+
+import pl.dawid0604.realestate.domain.*;
+
 import java.math.BigDecimal;
 import java.time.Instant;
-
-import lombok.experimental.UtilityClass;
-import pl.dawid0604.realestate.domain.*;
 
 @UtilityClass
 public class AdvertisementFixture {
@@ -25,7 +26,7 @@ public class AdvertisementFixture {
                 .title(title)
                 .description(new Description("any description content"))
                 .price(new Price(BigDecimal.valueOf(2_500_00), MoneyCurrency.PLN))
-                .locality(new Locality(Identifier.generate()))
+                .locality(new AdvertisementLocality(Identifier.generate()))
                 .details(details)
                 .status(AdvertisementStatus.ACTIVE)
                 .userId(Identifier.generate())

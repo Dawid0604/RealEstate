@@ -36,6 +36,9 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserPlotAd
 import pl.dawid0604.realestate.domain.shared.photo.projection.PhotoProjection;
 import pl.dawid0604.realestate.domain.shared.user.projection.AdvertisementUserProjection;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Set;
 
 @SuppressWarnings("CPD-START")
@@ -52,7 +55,7 @@ public interface AdvertisementMapper {
     @Mapping(target = "area", source = "projection.area")
     @Mapping(target = "pricePerSquareMeter", source = "projection.pricePerSquareMeter")
     @Mapping(target = "status", source = "projection.status")
-    @Mapping(target = "createdAt", source = "projection.createdAt")
+    @Mapping(target = "createdAt", source = "projection.createdAt", qualifiedByName = "formatDate")
     @Mapping(target = "isFeatured", source = "projection.featured")
     @Mapping(target = "buildingType", source = "projection.buildingType")
     @Mapping(target = "numberOfRooms", source = "projection.numberOfRooms")
@@ -76,7 +79,7 @@ public interface AdvertisementMapper {
     @Mapping(target = "area", source = "projection.area")
     @Mapping(target = "pricePerSquareMeter", source = "projection.pricePerSquareMeter")
     @Mapping(target = "status", source = "projection.status")
-    @Mapping(target = "createdAt", source = "projection.createdAt")
+    @Mapping(target = "createdAt", source = "projection.createdAt", qualifiedByName = "formatDate")
     @Mapping(target = "isFeatured", source = "projection.featured")
     @Mapping(target = "buildingType", source = "projection.buildingType")
     @Mapping(target = "numberOfRooms", source = "projection.numberOfRooms")
@@ -99,7 +102,7 @@ public interface AdvertisementMapper {
     @Mapping(target = "area", source = "projection.area")
     @Mapping(target = "pricePerSquareMeter", source = "projection.pricePerSquareMeter")
     @Mapping(target = "status", source = "projection.status")
-    @Mapping(target = "createdAt", source = "projection.createdAt")
+    @Mapping(target = "createdAt", source = "projection.createdAt", qualifiedByName = "formatDate")
     @Mapping(target = "isFeatured", source = "projection.featured")
     @Mapping(target = "buildingType", source = "projection.buildingType")
     @Mapping(target = "numberOfRooms", source = "projection.numberOfRooms")
@@ -123,7 +126,7 @@ public interface AdvertisementMapper {
     @Mapping(target = "area", source = "projection.area")
     @Mapping(target = "pricePerSquareMeter", source = "projection.pricePerSquareMeter")
     @Mapping(target = "status", source = "projection.status")
-    @Mapping(target = "createdAt", source = "projection.createdAt")
+    @Mapping(target = "createdAt", source = "projection.createdAt", qualifiedByName = "formatDate")
     @Mapping(target = "isFeatured", source = "projection.featured")
     @Mapping(target = "plotType", source = "projection.plotType")
     PlotAdvertisementDetailsDto toPlotDetailsDto(
@@ -140,7 +143,7 @@ public interface AdvertisementMapper {
     @Mapping(target = "area", source = "projection.area")
     @Mapping(target = "pricePerSquareMeter", source = "projection.pricePerSquareMeter")
     @Mapping(target = "status", source = "projection.status")
-    @Mapping(target = "createdAt", source = "projection.createdAt")
+    @Mapping(target = "createdAt", source = "projection.createdAt", qualifiedByName = "formatDate")
     @Mapping(target = "isFeatured", source = "projection.featured")
     @Mapping(target = "buildingType", source = "projection.buildingType")
     @Mapping(target = "numberOfRooms", source = "projection.numberOfRooms")
@@ -160,7 +163,7 @@ public interface AdvertisementMapper {
     @Mapping(target = "area", source = "projection.area")
     @Mapping(target = "pricePerSquareMeter", source = "projection.pricePerSquareMeter")
     @Mapping(target = "status", source = "projection.status")
-    @Mapping(target = "createdAt", source = "projection.createdAt")
+    @Mapping(target = "createdAt", source = "projection.createdAt", qualifiedByName = "formatDate")
     @Mapping(target = "isFeatured", source = "projection.featured")
     @Mapping(target = "buildingType", source = "projection.buildingType")
     @Mapping(target = "numberOfRooms", source = "projection.numberOfRooms")
@@ -180,7 +183,7 @@ public interface AdvertisementMapper {
     @Mapping(target = "area", source = "projection.area")
     @Mapping(target = "pricePerSquareMeter", source = "projection.pricePerSquareMeter")
     @Mapping(target = "status", source = "projection.status")
-    @Mapping(target = "createdAt", source = "projection.createdAt")
+    @Mapping(target = "createdAt", source = "projection.createdAt", qualifiedByName = "formatDate")
     @Mapping(target = "isFeatured", source = "projection.featured")
     @Mapping(target = "buildingType", source = "projection.buildingType")
     @Mapping(target = "numberOfRooms", source = "projection.numberOfRooms")
@@ -200,7 +203,7 @@ public interface AdvertisementMapper {
     @Mapping(target = "area", source = "projection.area")
     @Mapping(target = "pricePerSquareMeter", source = "projection.pricePerSquareMeter")
     @Mapping(target = "status", source = "projection.status")
-    @Mapping(target = "createdAt", source = "projection.createdAt")
+    @Mapping(target = "createdAt", source = "projection.createdAt", qualifiedByName = "formatDate")
     @Mapping(target = "isFeatured", source = "projection.featured")
     @Mapping(target = "buildingType", source = "projection.buildingType")
     @Mapping(target = "numberOfRooms", source = "projection.numberOfRooms")
@@ -220,7 +223,7 @@ public interface AdvertisementMapper {
     @Mapping(target = "area", source = "projection.area")
     @Mapping(target = "pricePerSquareMeter", source = "projection.pricePerSquareMeter")
     @Mapping(target = "status", source = "projection.status")
-    @Mapping(target = "createdAt", source = "projection.createdAt")
+    @Mapping(target = "createdAt", source = "projection.createdAt", qualifiedByName = "formatDate")
     @Mapping(target = "isFeatured", source = "projection.featured")
     @Mapping(target = "buildingType", source = "projection.buildingType")
     @Mapping(target = "numberOfRooms", source = "projection.numberOfRooms")
@@ -239,7 +242,7 @@ public interface AdvertisementMapper {
     @Mapping(target = "area", source = "projection.area")
     @Mapping(target = "pricePerSquareMeter", source = "projection.pricePerSquareMeter")
     @Mapping(target = "status", source = "projection.status")
-    @Mapping(target = "createdAt", source = "projection.createdAt")
+    @Mapping(target = "createdAt", source = "projection.createdAt", qualifiedByName = "formatDate")
     @Mapping(target = "isFeatured", source = "projection.featured")
     @Mapping(target = "buildingType", source = "projection.buildingType")
     @Mapping(target = "numberOfRooms", source = "projection.numberOfRooms")
@@ -258,7 +261,7 @@ public interface AdvertisementMapper {
     @Mapping(target = "area", source = "projection.area")
     @Mapping(target = "pricePerSquareMeter", source = "projection.pricePerSquareMeter")
     @Mapping(target = "status", source = "projection.status")
-    @Mapping(target = "createdAt", source = "projection.createdAt")
+    @Mapping(target = "createdAt", source = "projection.createdAt", qualifiedByName = "formatDate")
     @Mapping(target = "isFeatured", source = "projection.featured")
     @Mapping(target = "plotType", source = "projection.plotType")
     UserPlotAdvertisementCardDto toUserPlotCardDto(
@@ -274,7 +277,7 @@ public interface AdvertisementMapper {
     @Mapping(target = "area", source = "projection.area")
     @Mapping(target = "pricePerSquareMeter", source = "projection.pricePerSquareMeter")
     @Mapping(target = "status", source = "projection.status")
-    @Mapping(target = "createdAt", source = "projection.createdAt")
+    @Mapping(target = "createdAt", source = "projection.createdAt", qualifiedByName = "formatDate")
     @Mapping(target = "isFeatured", source = "projection.featured")
     @Mapping(target = "plotType", source = "projection.plotType")
     PlotAdvertisementCardDto toPlotCardDto(
@@ -282,6 +285,19 @@ public interface AdvertisementMapper {
             String localityFullName,
             Set<PhotoProjection> photos,
             UserType userType);
+
+    @Named("formatDate")
+    @SuppressWarnings("unused")
+    default String formatDate(final Instant datetime) {
+        if (datetime == null) {
+            return null;
+        }
+
+        final DateTimeFormatter formatter =
+                DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault());
+
+        return formatter.format(datetime);
+    }
 
     @Named("toOwner")
     @SuppressWarnings("unused")

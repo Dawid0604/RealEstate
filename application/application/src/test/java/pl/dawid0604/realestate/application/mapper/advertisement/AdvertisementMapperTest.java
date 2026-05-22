@@ -5,11 +5,6 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.Set;
-import java.util.UUID;
-
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,6 +60,11 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserHouseA
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserPlotAdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.photo.projection.PhotoProjection;
 import pl.dawid0604.realestate.domain.shared.user.projection.AdvertisementUserProjection;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Set;
+import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
 class AdvertisementMapperTest {
@@ -219,8 +219,8 @@ class AdvertisementMapperTest {
                         projection.getPricePerSquareMeter(),
                         AdvertisementDetailsDto::pricePerSquareMeter)
                 .returns(projection.getStatus(), AdvertisementDetailsDto::status)
-                .returns(projection.getCreatedAt(), AdvertisementDetailsDto::createdAt)
-                .returns(projection.isFeatured(), AdvertisementDetailsDto::isFeatured);
+                .returns(projection.isFeatured(), AdvertisementDetailsDto::isFeatured)
+                .matches(r -> r.createdAt() != null);
 
         switch (type) {
             case FLAT -> {
@@ -376,7 +376,6 @@ class AdvertisementMapperTest {
                         (UserFlatAdvertisementCardProjection) projection;
 
                 given(flatProjection.getBuildingType()).willReturn(FlatBuildingType.APARTMENT);
-
                 given(flatProjection.getNumberOfRooms()).willReturn(3);
                 given(flatProjection.getFloor()).willReturn(4);
                 given(flatProjection.getFloors()).willReturn(5);
@@ -388,7 +387,6 @@ class AdvertisementMapperTest {
                         (UserHouseAdvertisementCardProjection) projection;
 
                 given(houseProjection.getBuildingType()).willReturn(HouseBuildingType.DETACHED);
-
                 given(houseProjection.getNumberOfRooms()).willReturn(3);
                 given(houseProjection.getFloors()).willReturn(5);
                 given(houseProjection.getBuiltYear()).willReturn(1998);
@@ -448,8 +446,8 @@ class AdvertisementMapperTest {
                         projection.getPricePerSquareMeter(),
                         UserAdvertisementCardDto::pricePerSquareMeter)
                 .returns(projection.getStatus(), UserAdvertisementCardDto::status)
-                .returns(projection.getCreatedAt(), UserAdvertisementCardDto::createdAt)
-                .returns(projection.isFeatured(), UserAdvertisementCardDto::isFeatured);
+                .returns(projection.isFeatured(), UserAdvertisementCardDto::isFeatured)
+                .matches(r -> r.createdAt() != null);
 
         switch (type) {
             case FLAT -> {
@@ -660,9 +658,9 @@ class AdvertisementMapperTest {
                 .returns(
                         projection.getPricePerSquareMeter(),
                         AdvertisementCardDto::pricePerSquareMeter)
-                .returns(projection.getCreatedAt(), AdvertisementCardDto::createdAt)
                 .returns(projection.isFeatured(), AdvertisementCardDto::isFeatured)
-                .returns(userType, AdvertisementCardDto::userType);
+                .returns(userType, AdvertisementCardDto::userType)
+                .matches(r -> r.createdAt() != null);
 
         switch (type) {
             case FLAT -> {

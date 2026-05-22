@@ -17,9 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
 import pl.dawid0604.realestate.application.command.RegisterUserCommand;
-import pl.dawid0604.realestate.domain.Email;
 import pl.dawid0604.realestate.domain.Password;
-import pl.dawid0604.realestate.domain.PhoneNumber;
 import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserType;
 import pl.dawid0604.realestate.domain.port.out.PasswordRepository;
@@ -101,12 +99,24 @@ class RegisterUserHandlerTest {
                                     .satisfies(
                                             c -> {
                                                 Assertions.assertThat(c.email())
-                                                        .map(Email::value)
-                                                        .hasValue(command.notificationEmail());
+                                                        .isNotNull()
+                                                        .satisfies(
+                                                                e ->
+                                                                        Assertions.assertThat(
+                                                                                        e.value())
+                                                                                .isEqualTo(
+                                                                                        command
+                                                                                                .notificationEmail()));
 
                                                 Assertions.assertThat(c.phoneNumber())
-                                                        .map(PhoneNumber::value)
-                                                        .hasValue(command.notificationPhoneNumber());
+                                                        .isNotNull()
+                                                        .satisfies(
+                                                                e ->
+                                                                        Assertions.assertThat(
+                                                                                        e.value())
+                                                                                .isEqualTo(
+                                                                                        command
+                                                                                                .notificationPhoneNumber()));
                                             });
                         });
     }
@@ -117,7 +127,7 @@ class RegisterUserHandlerTest {
                 "Password123.@d",
                 "firstName",
                 "lastName",
-                "DEVELOPER",
+                UserType.DEVELOPER,
                 "cde@mail.com",
                 "123456789");
     }

@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.api.common;
 
 import static java.lang.annotation.ElementType.METHOD;
