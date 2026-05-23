@@ -19,6 +19,7 @@ public final class RefreshToken extends AggregateRoot {
     private final Instant expiresAt;
 
     private RefreshToken(
+            final boolean isCreateMode,
             final Identifier id,
             final Identifier userId,
             final String token,
@@ -34,6 +35,14 @@ public final class RefreshToken extends AggregateRoot {
             throw new InvalidArgumentValueException("Token cannot be blank");
         }
 
+        if (isCreateMode && expiresAt.isBefore(Instant.now())) {
+            throw new InvalidArgumentValueException("ExpiresAt cannot be from the past");
+        }
+
+        if (createdAt.isAfter(Instant.now())) {
+            throw new InvalidArgumentValueException("CreatedAt cannot be from the future");
+        }
+
         this.id = id;
         this.userId = userId;
         this.token = token;
@@ -45,7 +54,7 @@ public final class RefreshToken extends AggregateRoot {
             final Identifier userId, final String token, final Instant expiresAt) {
 
         return new RefreshToken(
-                Identifier.generate(), userId, hashToken(token), Instant.now(), expiresAt);
+                true, Identifier.generate(), userId, hashToken(token), Instant.now(), expiresAt);
     }
 
     public static RefreshToken reconstitute(
@@ -55,7 +64,7 @@ public final class RefreshToken extends AggregateRoot {
             final Instant createdAt,
             final Instant expiresAt) {
 
-        return new RefreshToken(id, userId, token, createdAt, expiresAt);
+        return new RefreshToken(false, id, userId, token, createdAt, expiresAt);
     }
 
     public boolean tokenMatches(final String incomingToken) {
