@@ -49,6 +49,7 @@ import pl.dawid0604.realestate.application.query.SearchHouseAdvertisementsQuery;
 import pl.dawid0604.realestate.domain.shared.Page;
 
 @RestController
+@SuppressWarnings("CPD-START")
 @RequiredArgsConstructor(access = PACKAGE)
 @RequestMapping("/api/advertisement/house")
 @Tag(name = "House advertisement", description = "House advertisements management")
@@ -71,20 +72,20 @@ class HouseAdvertisementController {
         final String slug =
                 commandBus.send(
                         new CreateHouseAdvertisementCommand(
-                                request.title(),
-                                request.description(),
-                                request.price(),
-                                request.localityId(),
+                                request.getTitle(),
+                                request.getDescription(),
+                                request.getPrice(),
+                                request.getLocalityId(),
                                 loggedUser.getUsername(),
-                                request.numberOfRooms(),
-                                request.floors(),
-                                request.builtYear(),
-                                request.typeOfMarket().name(),
-                                Mapper.mapPhotos(request.photos()),
-                                request.buildingType().name(),
-                                request.area(),
-                                request.claims(),
-                                request.featured()));
+                                request.getNumberOfRooms(),
+                                request.getFloors(),
+                                request.getBuiltYear(),
+                                request.getTypeOfMarket().name(),
+                                Mapper.mapPhotos(request.getPhotos()),
+                                request.getBuildingType().name(),
+                                request.getArea(),
+                                request.getClaims(),
+                                request.getFeatured()));
 
         final var locationHeader =
                 ServletUriComponentsBuilder.fromCurrentRequest()
@@ -110,20 +111,20 @@ class HouseAdvertisementController {
 
         commandBus.send(
                 new UpdateHouseAdvertisementCommand(
-                        request.slug(),
-                        request.title(),
-                        request.description(),
-                        request.price(),
-                        request.localityId(),
+                        request.getSlug(),
+                        request.getTitle(),
+                        request.getDescription(),
+                        request.getPrice(),
+                        request.getLocalityId(),
                         loggedUser.getUsername(),
-                        request.numberOfRooms(),
-                        request.floors(),
-                        request.builtYear(),
-                        request.typeOfMarket().name(),
-                        request.buildingType().name(),
-                        request.area(),
-                        request.claims(),
-                        request.featured()));
+                        request.getNumberOfRooms(),
+                        request.getFloors(),
+                        request.getBuiltYear(),
+                        request.getTypeOfMarket().name(),
+                        request.getBuildingType().name(),
+                        request.getArea(),
+                        request.getClaims(),
+                        request.getFeatured()));
     }
 
     @ResponseStatus(OK)
@@ -142,25 +143,25 @@ class HouseAdvertisementController {
 
         return queryBus.send(
                 new SearchHouseAdvertisementsQuery(
-                        request.areaFrom(),
-                        request.areaTo(),
-                        request.priceFrom(),
-                        request.priceTo(),
-                        request.pricePerSquareMeterFrom(),
-                        request.pricePerSquareMeterTo(),
+                        request.getAreaFrom(),
+                        request.getAreaTo(),
+                        request.getPriceFrom(),
+                        request.getPriceTo(),
+                        request.getPricePerSquareMeterFrom(),
+                        request.getPricePerSquareMeterTo(),
                         page,
                         pageSize,
-                        Mapper.mapEnumCollectionToSet(request.types()),
-                        Mapper.mapEnumCollectionToSet(request.typeOfMarkets()),
-                        request.floorsFrom(),
-                        request.floorsTo(),
-                        request.numberOfRoomsFrom(),
-                        request.numberOfRoomsTo(),
-                        request.builtYearFrom(),
-                        request.builtYearTo(),
-                        request.dateFrom(),
-                        request.dateTo(),
-                        request.localityId()));
+                        Mapper.mapEnumCollectionToSet(request.getTypes()),
+                        Mapper.mapEnumCollectionToSet(request.getTypeOfMarkets()),
+                        request.getFloorsFrom(),
+                        request.getFloorsTo(),
+                        request.getNumberOfRoomsFrom(),
+                        request.getNumberOfRoomsTo(),
+                        request.getBuiltYearFrom(),
+                        request.getBuiltYearTo(),
+                        request.getDateFrom(),
+                        request.getDateTo(),
+                        request.getLocalityId()));
     }
 
     @ResponseStatus(OK)

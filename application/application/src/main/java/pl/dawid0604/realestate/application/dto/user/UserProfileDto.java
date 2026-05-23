@@ -1,13 +1,12 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.dto.user;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.UUID;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import pl.dawid0604.realestate.domain.UserRole;
 import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.UserType;
-
-import java.util.UUID;
 
 @Schema(description = "User profile")
 public record UserProfileDto(

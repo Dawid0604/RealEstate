@@ -49,6 +49,7 @@ import pl.dawid0604.realestate.application.query.SearchCommercialAdvertisementsQ
 import pl.dawid0604.realestate.domain.shared.Page;
 
 @RestController
+@SuppressWarnings("CPD-START")
 @RequiredArgsConstructor(access = PACKAGE)
 @RequestMapping("/api/advertisement/commercial")
 @Tag(name = "Commercial advertisement", description = "Commercial advertisements management")
@@ -71,21 +72,21 @@ class CommercialAdvertisementController {
         final String slug =
                 commandBus.send(
                         new CreateCommercialAdvertisementCommand(
-                                request.title(),
-                                request.description(),
-                                request.price(),
-                                request.localityId(),
+                                request.getTitle(),
+                                request.getDescription(),
+                                request.getPrice(),
+                                request.getLocalityId(),
                                 loggedUser.getUsername(),
-                                request.numberOfRooms(),
-                                request.floor(),
-                                request.floors(),
-                                request.builtYear(),
-                                request.typeOfMarket().name(),
-                                Mapper.mapPhotos(request.photos()),
-                                request.buildingType().name(),
-                                request.area(),
-                                request.claims(),
-                                request.featured()));
+                                request.getNumberOfRooms(),
+                                request.getFloor(),
+                                request.getFloors(),
+                                request.getBuiltYear(),
+                                request.getTypeOfMarket().name(),
+                                Mapper.mapPhotos(request.getPhotos()),
+                                request.getBuildingType().name(),
+                                request.getArea(),
+                                request.getClaims(),
+                                request.getFeatured()));
 
         final var locationHeader =
                 ServletUriComponentsBuilder.fromCurrentRequest()
@@ -111,21 +112,21 @@ class CommercialAdvertisementController {
 
         commandBus.send(
                 new UpdateCommercialAdvertisementCommand(
-                        request.slug(),
-                        request.title(),
-                        request.description(),
-                        request.price(),
-                        request.localityId(),
+                        request.getSlug(),
+                        request.getTitle(),
+                        request.getDescription(),
+                        request.getPrice(),
+                        request.getLocalityId(),
                         loggedUser.getUsername(),
-                        request.numberOfRooms(),
-                        request.floor(),
-                        request.floors(),
-                        request.builtYear(),
-                        request.typeOfMarket().name(),
-                        request.buildingType().name(),
-                        request.area(),
-                        request.claims(),
-                        request.featured()));
+                        request.getNumberOfRooms(),
+                        request.getFloor(),
+                        request.getFloors(),
+                        request.getBuiltYear(),
+                        request.getTypeOfMarket().name(),
+                        request.getBuildingType().name(),
+                        request.getArea(),
+                        request.getClaims(),
+                        request.getFeatured()));
     }
 
     @ResponseStatus(OK)
@@ -144,27 +145,27 @@ class CommercialAdvertisementController {
 
         return queryBus.send(
                 new SearchCommercialAdvertisementsQuery(
-                        request.areaFrom(),
-                        request.areaTo(),
-                        request.priceFrom(),
-                        request.priceTo(),
-                        request.pricePerSquareMeterFrom(),
-                        request.pricePerSquareMeterTo(),
+                        request.getAreaFrom(),
+                        request.getAreaTo(),
+                        request.getPriceFrom(),
+                        request.getPriceTo(),
+                        request.getPricePerSquareMeterFrom(),
+                        request.getPricePerSquareMeterTo(),
                         page,
                         pageSize,
-                        Mapper.mapEnumCollectionToSet(request.types()),
-                        Mapper.mapEnumCollectionToSet(request.typeOfMarkets()),
-                        request.floorFrom(),
-                        request.floorTo(),
-                        request.floorsFrom(),
-                        request.floorsTo(),
-                        request.numberOfRoomsFrom(),
-                        request.numberOfRoomsTo(),
-                        request.builtYearFrom(),
-                        request.builtYearTo(),
-                        request.dateFrom(),
-                        request.dateTo(),
-                        request.localityId()));
+                        Mapper.mapEnumCollectionToSet(request.getTypes()),
+                        Mapper.mapEnumCollectionToSet(request.getTypeOfMarkets()),
+                        request.getFloorFrom(),
+                        request.getFloorTo(),
+                        request.getFloorsFrom(),
+                        request.getFloorsTo(),
+                        request.getNumberOfRoomsFrom(),
+                        request.getNumberOfRoomsTo(),
+                        request.getBuiltYearFrom(),
+                        request.getBuiltYearTo(),
+                        request.getDateFrom(),
+                        request.getDateTo(),
+                        request.getLocalityId()));
     }
 
     @ResponseStatus(OK)

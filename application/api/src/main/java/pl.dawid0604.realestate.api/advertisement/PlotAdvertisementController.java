@@ -49,6 +49,7 @@ import pl.dawid0604.realestate.application.query.SearchPlotAdvertisementsQuery;
 import pl.dawid0604.realestate.domain.shared.Page;
 
 @RestController
+@SuppressWarnings("CPD-START")
 @RequiredArgsConstructor(access = PACKAGE)
 @RequestMapping("/api/advertisement/plot")
 @Tag(name = "Plot advertisement", description = "Plot advertisements management")
@@ -71,16 +72,16 @@ class PlotAdvertisementController {
         final String slug =
                 commandBus.send(
                         new CreatePlotAdvertisementCommand(
-                                request.title(),
-                                request.description(),
-                                request.price(),
-                                request.localityId(),
+                                request.getTitle(),
+                                request.getDescription(),
+                                request.getPrice(),
+                                request.getLocalityId(),
                                 loggedUser.getUsername(),
-                                Mapper.mapPhotos(request.photos()),
-                                request.buildingType().name(),
-                                request.area(),
-                                request.claims(),
-                                request.featured()));
+                                Mapper.mapPhotos(request.getPhotos()),
+                                request.getBuildingType().name(),
+                                request.getArea(),
+                                request.getClaims(),
+                                request.getFeatured()));
 
         final var locationHeader =
                 ServletUriComponentsBuilder.fromCurrentRequest()
@@ -106,16 +107,16 @@ class PlotAdvertisementController {
 
         commandBus.send(
                 new UpdatePlotAdvertisementCommand(
-                        request.slug(),
-                        request.title(),
-                        request.description(),
-                        request.price(),
-                        request.localityId(),
+                        request.getSlug(),
+                        request.getTitle(),
+                        request.getDescription(),
+                        request.getPrice(),
+                        request.getLocalityId(),
                         loggedUser.getUsername(),
-                        request.buildingType().name(),
-                        request.area(),
-                        request.claims(),
-                        request.featured()));
+                        request.getPlotType().name(),
+                        request.getArea(),
+                        request.getClaims(),
+                        request.getFeatured()));
     }
 
     @ResponseStatus(OK)
@@ -134,18 +135,18 @@ class PlotAdvertisementController {
 
         return queryBus.send(
                 new SearchPlotAdvertisementsQuery(
-                        request.areaFrom(),
-                        request.areaTo(),
-                        request.priceFrom(),
-                        request.priceTo(),
-                        request.pricePerSquareMeterFrom(),
-                        request.pricePerSquareMeterTo(),
+                        request.getAreaFrom(),
+                        request.getAreaTo(),
+                        request.getPriceFrom(),
+                        request.getPriceTo(),
+                        request.getPricePerSquareMeterFrom(),
+                        request.getPricePerSquareMeterTo(),
                         page,
                         pageSize,
-                        Mapper.mapEnumCollectionToSet(request.types()),
-                        request.dateFrom(),
-                        request.dateTo(),
-                        request.localityId()));
+                        Mapper.mapEnumCollectionToSet(request.getTypes()),
+                        request.getDateFrom(),
+                        request.getDateTo(),
+                        request.getLocalityId()));
     }
 
     @ResponseStatus(OK)

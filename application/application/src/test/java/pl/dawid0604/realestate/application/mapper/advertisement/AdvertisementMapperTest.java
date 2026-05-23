@@ -573,7 +573,7 @@ class AdvertisementMapperTest {
         given(projection.getPricePerSquareMeter()).willReturn(BigDecimal.valueOf(4500));
         given(projection.getStatus()).willReturn(AdvertisementStatus.ACTIVE);
         given(projection.getCreatedAt()).willReturn(Instant.now().minusMillis(25_000));
-        given(projection.isFeatured()).willReturn(true);
+        given(projection.getFeatured()).willReturn(true);
 
         switch (type) {
             case FLAT -> {
@@ -658,7 +658,7 @@ class AdvertisementMapperTest {
                 .returns(
                         projection.getPricePerSquareMeter(),
                         AdvertisementCardDto::pricePerSquareMeter)
-                .returns(projection.isFeatured(), AdvertisementCardDto::isFeatured)
+                .returns(projection.getFeatured(), AdvertisementCardDto::isFeatured)
                 .returns(userType, AdvertisementCardDto::userType)
                 .matches(r -> r.createdAt() != null);
 
