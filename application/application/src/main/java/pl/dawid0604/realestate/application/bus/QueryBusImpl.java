@@ -17,13 +17,15 @@ import java.util.Objects;
 @Component
 non-sealed class QueryBusImpl implements QueryBus {
     private final Map<Class<? extends Query>, QueryHandler<?, ?>> handlers;
-    private final PlatformTransactionManager transactionManager;
+    private final TransactionTemplate readOnlyTransactionTemplate;
 
     QueryBusImpl(
             final List<QueryHandler<? extends Query, ?>> handlerBeans,
             final PlatformTransactionManager transactionManager) {
 
-        this.transactionManager = transactionManager;
+        this.readOnlyTransactionTemplate = new TransactionTemplate(transactionManager);
+        this.readOnlyTransactionTemplate.setReadOnly(true);
+
         this.handlers =
                 Objects.requireNonNullElse(handlerBeans, List.<QueryHandler<?, ?>>of()).stream()
                         .collect(toMap(QueryHandler::getQueryType, handler -> handler));
@@ -44,10 +46,7 @@ non-sealed class QueryBusImpl implements QueryBus {
     }
 
     private <R> R transactionDecorator(final QueryHandler<Query, R> handler, final Query query) {
-        final TransactionTemplate template = new TransactionTemplate(transactionManager);
-        template.setReadOnly(true);
-
-        return template.execute(status -> handler.handle(query));
+        return readOnlyTransactionTemplate.execute(status -> handler.handle(query));
     }
 
     private QueryHandler<?, ?> findHandler(final Class<?> queryType) {

@@ -30,4 +30,6 @@ sealed interface AdvertisementClaimJpaRepository<T extends AdvertisementClaimEnt
                     WHERE a.id = :id
                 """)
     Set<AdvertisementClaimProjection> findClaimsById(@Param("id") UUID advertisementId);
+
+    void deleteByAdvertisementId(UUID id);
 }

@@ -20,6 +20,8 @@ import pl.dawid0604.realestate.domain.shared.exception.InvalidTokenException;
 import pl.dawid0604.realestate.domain.shared.exception.RefreshTokenNotFoundException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 
+import java.util.Objects;
+
 @Component
 @RequiredArgsConstructor(access = PACKAGE)
 class RefreshTokenHandler implements CommandHandler<RefreshTokenCommand, TokenResponseDto> {
@@ -29,6 +31,7 @@ class RefreshTokenHandler implements CommandHandler<RefreshTokenCommand, TokenRe
 
     @Override
     public TokenResponseDto handle(final RefreshTokenCommand command) {
+        Objects.requireNonNull(command, "Command cannot be null");
         final String userEmail = tokenRepository.getUserEmail(command.refreshToken());
         final Identifier userId = getUserId(userEmail);
 
@@ -70,7 +73,7 @@ class RefreshTokenHandler implements CommandHandler<RefreshTokenCommand, TokenRe
                         .orElseThrow(RefreshTokenNotFoundException::new);
 
         if (!refreshToken.tokenMatches(command.refreshToken())) {
-            throw new InvalidTokenException("Given token is invalid or not exists");
+            throw new InvalidTokenException("Given token does not matches");
         }
 
         if (refreshToken.isExpired()) {

@@ -43,6 +43,7 @@ import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.exception.AdvertisementNotFoundException;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 @Component
@@ -52,26 +53,25 @@ class UpdateAdvertisementHandler implements CommandHandler<UpdateAdvertisementCo
 
     @Override
     public Void handle(final UpdateAdvertisementCommand command) {
-        final Advertisement advertisement =
+        Objects.requireNonNull(command, "Command cannot be null");
+
+        Advertisement advertisement =
                 advertisementRepository
                         .findBySlug(command.slug(), getAdvertisementType(command))
                         .orElseThrow(() -> new AdvertisementNotFoundException(command.slug()));
 
-        advertisement.updateArea(new Area(command.area()));
-        advertisement.updateDescription(new Description(command.description()));
-        advertisement.updateDetails(getDetails(command));
-        advertisement.updateLocality(
-                new AdvertisementLocality(Identifier.of(command.localityId())));
-        advertisement.updatePrice(new Price(command.price(), MoneyCurrency.PLN));
-        advertisement.updateTitle(new Title(command.title()));
+        advertisement = advertisement.updateArea(new Area(command.area()));
+        advertisement = advertisement.updateDescription(new Description(command.description()));
+        advertisement = advertisement.updateDetails(getDetails(command));
+        advertisement = advertisement.updatePrice(new Price(command.price(), MoneyCurrency.PLN));
+        advertisement = advertisement.updateTitle(new Title(command.title()));
+        advertisement =
+                advertisement.updateLocality(
+                        new AdvertisementLocality(Identifier.of(command.localityId())));
 
+        advertisementRepository.clearClaims(advertisement);
         advertisementRepository.save(advertisement);
         return null;
-    }
-
-    @Override
-    public Class<UpdateAdvertisementCommand> getCommandType() {
-        return UpdateAdvertisementCommand.class;
     }
 
     private static AdvertisementType getAdvertisementType(
@@ -125,7 +125,12 @@ class UpdateAdvertisementHandler implements CommandHandler<UpdateAdvertisementCo
 
     private static Set<AdvertisementClaim> mapClaims(final Map<String, String> claims) {
         return claims.entrySet().stream()
-                .map(e -> new AdvertisementClaim(e.getKey(), e.getValue()))
+                .map(e -> new AdvertisementClaim(Identifier.generate(), e.getKey(), e.getValue()))
                 .collect(toSet());
+    }
+
+    @Override
+    public Class<UpdateAdvertisementCommand> getCommandType() {
+        return UpdateAdvertisementCommand.class;
     }
 }

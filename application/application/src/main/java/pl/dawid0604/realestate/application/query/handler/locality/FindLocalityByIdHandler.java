@@ -25,6 +25,7 @@ class FindLocalityByIdHandler implements QueryHandler<FindLocalityByIdQuery, Loc
     @Override
     public LocalityDto handle(final FindLocalityByIdQuery query) {
         Objects.requireNonNull(query, "Query cannot be null");
+
         return localityRepository
                 .findById(query.localityId())
                 .map(localityMapper::toDto)

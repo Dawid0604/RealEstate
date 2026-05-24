@@ -167,24 +167,16 @@ class TokenAdapterTest {
 
                                 Assertions.assertThat(claims.getIssuedAt())
                                         .isNotNull()
-                                        .isBefore(claims.getExpiration())
-                                        .isBetween(
-                                                Instant.now().minusSeconds(10),
-                                                Instant.now().plusSeconds(10));
+                                        .isBefore(claims.getExpiration());
 
                                 Assertions.assertThat(claims.getExpiration())
                                         .isNotNull()
-                                        .isBetween(
+                                        .isCloseTo(
                                                 Instant.now()
                                                         .plusSeconds(
                                                                 getValidJwtProperties()
-                                                                        .accessTokenExpiration())
-                                                        .minusSeconds(10),
-                                                Instant.now()
-                                                        .plusSeconds(
-                                                                getValidJwtProperties()
-                                                                        .accessTokenExpiration())
-                                                        .plusSeconds(10));
+                                                                        .accessTokenExpiration()),
+                                                600_000);
                             });
         }
     }

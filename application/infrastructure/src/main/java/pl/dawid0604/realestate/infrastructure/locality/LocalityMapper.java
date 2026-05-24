@@ -18,6 +18,6 @@ class LocalityMapper {
             return null;
         }
 
-        return new LocalityEntity(domain.id().getValue(), domain.name());
+        return new LocalityEntity(domain.getId().getValue(), domain.getName());
     }
 }

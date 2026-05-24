@@ -9,11 +9,11 @@ import org.springframework.stereotype.Component;
 
 import pl.dawid0604.realestate.application.command.CreateLocalityCommand;
 import pl.dawid0604.realestate.application.port.in.CommandHandler;
-import pl.dawid0604.realestate.domain.Identifier;
 import pl.dawid0604.realestate.domain.Locality;
 import pl.dawid0604.realestate.domain.port.out.LocalityRepository;
 import pl.dawid0604.realestate.domain.shared.exception.LocalityExistsException;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Component
@@ -23,14 +23,16 @@ class CreateLocalityHandler implements CommandHandler<CreateLocalityCommand, UUI
 
     @Override
     public UUID handle(final CreateLocalityCommand command) {
+        Objects.requireNonNull(command, "Command cannot be null");
+
         if (localityRepository.existsByName(command.name())) {
             throw new LocalityExistsException();
         }
 
-        final Locality locality = new Locality(Identifier.generate(), command.name());
+        final Locality locality = Locality.create(command.name());
         localityRepository.save(locality);
 
-        return locality.id().getValue();
+        return locality.getId().getValue();
     }
 
     @Override

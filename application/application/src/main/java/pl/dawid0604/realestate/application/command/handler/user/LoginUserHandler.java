@@ -21,6 +21,7 @@ import pl.dawid0604.realestate.domain.shared.exception.InvalidCredentialsExcepti
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 
 import java.time.Instant;
+import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor(access = PACKAGE)
@@ -32,6 +33,8 @@ class LoginUserHandler implements CommandHandler<LoginUserCommand, TokenResponse
 
     @Override
     public TokenResponseDto handle(final LoginUserCommand command) {
+        Objects.requireNonNull(command, "Command cannot be null");
+
         User user =
                 userRepository
                         .findByEmail(command.email())

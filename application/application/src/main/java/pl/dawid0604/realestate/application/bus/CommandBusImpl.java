@@ -17,13 +17,13 @@ import java.util.Objects;
 @Component
 non-sealed class CommandBusImpl implements CommandBus {
     private final Map<Class<? extends Command>, CommandHandler<?, ?>> handlers;
-    private final PlatformTransactionManager transactionManager;
+    private final TransactionTemplate transactionTemplate;
 
     CommandBusImpl(
             final List<CommandHandler<? extends Command, ?>> handlerBeans,
             final PlatformTransactionManager transactionManager) {
 
-        this.transactionManager = transactionManager;
+        this.transactionTemplate = new TransactionTemplate(transactionManager);
         this.handlers =
                 Objects.requireNonNullElse(handlerBeans, List.<CommandHandler<?, ?>>of()).stream()
                         .collect(toMap(CommandHandler::getCommandType, handler -> handler));
@@ -46,8 +46,7 @@ non-sealed class CommandBusImpl implements CommandBus {
     private <R> R transactionDecorator(
             final CommandHandler<Command, R> handler, final Command command) {
 
-        final TransactionTemplate template = new TransactionTemplate(transactionManager);
-        return template.execute(status -> handler.handle(command));
+        return transactionTemplate.execute(status -> handler.handle(command));
     }
 
     private CommandHandler<?, ?> findHandler(final Class<?> commandType) {

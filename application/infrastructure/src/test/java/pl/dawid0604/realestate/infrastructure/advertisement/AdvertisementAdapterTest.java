@@ -27,6 +27,7 @@ import org.springframework.data.domain.PageImpl;
 
 import pl.dawid0604.realestate.domain.Advertisement;
 import pl.dawid0604.realestate.domain.AdvertisementStatus;
+import pl.dawid0604.realestate.domain.Identifier;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.advertisement.SearchFlatAdvertisementsCriteria;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementCardProjection;
@@ -457,6 +458,104 @@ class AdvertisementAdapterTest {
                 Assertions.assertThat(result.getPageSize()).isEqualTo(pageSize);
                 Assertions.assertThat(result.getTotalElements()).isEqualTo(1);
                 verifyNoInteractions(advertisementMapper);
+            }
+        }
+    }
+
+    @Nested
+    final class ClearClaimsTests {
+
+        @Nested
+        @ExtendWith(MockitoExtension.class)
+        final class UnitTests {
+            @Mock private AdvertisementJpaRepository advertisementJpaRepository;
+            @Mock private AdvertisementMapper advertisementMapper;
+            private AdvertisementAdapter adapter;
+
+            @BeforeEach
+            void setUp() {
+                this.adapter =
+                        new AdvertisementAdapter(advertisementMapper, advertisementJpaRepository);
+            }
+
+            @Test
+            @DisplayName("Should throw exception when advertisement is null")
+            void shouldThrowExceptionWhenAdvertisementIsNull() {
+                // Given
+                // When
+                // Then
+                Assertions.assertThatThrownBy(() -> adapter.clearClaims(null))
+                        .isExactlyInstanceOf(NullPointerException.class)
+                        .hasMessage("Advertisement cannot be null");
+            }
+
+            @Test
+            @DisplayName("Should clear flat claims successfully")
+            void shouldClearFlatClaimsSuccessfully() {
+                // Given
+                final Advertisement advertisement = mock();
+                final Identifier advertisementId = Identifier.generate();
+
+                given(advertisement.getId()).willReturn(advertisementId);
+                given(advertisement.getAdvertisementType()).willReturn(AdvertisementType.FLAT);
+
+                // When
+                adapter.clearClaims(advertisement);
+
+                // Then
+                verify(advertisementJpaRepository).clearFlatClaims(advertisementId);
+            }
+
+            @Test
+            @DisplayName("Should clear house claims successfully")
+            void shouldClearHouseClaimsSuccessfully() {
+                // Given
+                final Advertisement advertisement = mock();
+                final Identifier advertisementId = Identifier.generate();
+
+                given(advertisement.getId()).willReturn(advertisementId);
+                given(advertisement.getAdvertisementType()).willReturn(AdvertisementType.HOUSE);
+
+                // When
+                adapter.clearClaims(advertisement);
+
+                // Then
+                verify(advertisementJpaRepository).clearHouseClaims(advertisementId);
+            }
+
+            @Test
+            @DisplayName("Should clear commercial claims successfully")
+            void shouldClearCommercialClaimsSuccessfully() {
+                // Given
+                final Advertisement advertisement = mock();
+                final Identifier advertisementId = Identifier.generate();
+
+                given(advertisement.getId()).willReturn(advertisementId);
+                given(advertisement.getAdvertisementType())
+                        .willReturn(AdvertisementType.COMMERCIAL);
+
+                // When
+                adapter.clearClaims(advertisement);
+
+                // Then
+                verify(advertisementJpaRepository).clearCommercialClaims(advertisementId);
+            }
+
+            @Test
+            @DisplayName("Should clear plot claims successfully")
+            void shouldClearPlotClaimsSuccessfully() {
+                // Given
+                final Advertisement advertisement = mock();
+                final Identifier advertisementId = Identifier.generate();
+
+                given(advertisement.getId()).willReturn(advertisementId);
+                given(advertisement.getAdvertisementType()).willReturn(AdvertisementType.PLOT);
+
+                // When
+                adapter.clearClaims(advertisement);
+
+                // Then
+                verify(advertisementJpaRepository).clearPlotClaims(advertisementId);
             }
         }
     }

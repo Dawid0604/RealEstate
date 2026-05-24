@@ -14,6 +14,8 @@ import pl.dawid0604.realestate.domain.port.out.RefreshTokenRepository;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 
+import java.util.Objects;
+
 @Component
 @RequiredArgsConstructor(access = PACKAGE)
 class UserLogoutHandler implements CommandHandler<UserLogoutCommand, Void> {
@@ -22,8 +24,11 @@ class UserLogoutHandler implements CommandHandler<UserLogoutCommand, Void> {
 
     @Override
     public Void handle(final UserLogoutCommand command) {
+        Objects.requireNonNull(command, "Command cannot be null");
+
         final Identifier userId = getUserId(command.userEmail());
         refreshTokenRepository.deleteIfExistsByUserId(userId);
+
         return null;
     }
 

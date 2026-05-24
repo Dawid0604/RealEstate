@@ -2,17 +2,14 @@
 package pl.dawid0604.realestate.infrastructure.advertisement;
 
 import static lombok.AccessLevel.PACKAGE;
+
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lombok.RequiredArgsConstructor;
 import pl.dawid0604.realestate.domain.Advertisement;
 import pl.dawid0604.realestate.domain.AdvertisementStatus;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
@@ -23,6 +20,11 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.Advertisem
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementClaimProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementDetailsProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserAdvertisementCardProjection;
+
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor(access = PACKAGE)
@@ -44,6 +46,21 @@ class AdvertisementAdapter implements AdvertisementRepository {
                 };
 
         advertisementJpaRepository.save(entity);
+    }
+
+    @Override
+    public void clearClaims(final Advertisement advertisement) {
+        Objects.requireNonNull(advertisement, "Advertisement cannot be null");
+
+        switch (advertisement.getAdvertisementType()) {
+            case FLAT -> advertisementJpaRepository.clearFlatClaims(advertisement.getId());
+            case HOUSE -> advertisementJpaRepository.clearHouseClaims(advertisement.getId());
+            case PLOT -> advertisementJpaRepository.clearPlotClaims(advertisement.getId());
+            case COMMERCIAL ->
+                    advertisementJpaRepository.clearCommercialClaims(advertisement.getId());
+
+            default -> throw new IllegalStateException("Unexpected type of advertisement type");
+        }
     }
 
     @Override

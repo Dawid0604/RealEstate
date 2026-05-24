@@ -137,6 +137,7 @@ class QueryBusImplTest {
         // When
         final QueryBusImpl instance =
                 new QueryBusImpl(List.of(handler1, handler2), transactionManager);
+
         instance.send(mock(UserAdvertisementsQuery.class));
 
         // Then

@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
 import org.assertj.core.api.Assertions;
@@ -5,12 +6,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 
 import java.time.Instant;
+import java.util.stream.Stream;
 
 class RefreshTokenTest {
 
@@ -233,6 +237,112 @@ class RefreshTokenTest {
 
             // Then
             Assertions.assertThat(result).isTrue();
+        }
+    }
+
+    @Nested
+    final class EqualsTests {
+
+        @Test
+        @DisplayName("Should be equal")
+        void shouldBeEqual() {
+            // Given
+            final RefreshToken instance =
+                    RefreshToken.reconstitute(
+                            Identifier.generate(),
+                            Identifier.generate(),
+                            getToken(),
+                            Instant.now(),
+                            Instant.now().plusMillis(125_000));
+
+            final RefreshToken instance2 =
+                    RefreshToken.reconstitute(
+                            instance.getId(),
+                            Identifier.generate(),
+                            getToken(),
+                            Instant.now(),
+                            Instant.now().plusMillis(125_000));
+
+            // When
+            final boolean result = instance.equals(instance2);
+
+            // Then
+            Assertions.assertThat(result).isTrue();
+        }
+
+        @Test
+        @DisplayName("Should not be equal")
+        void shouldNotBeEqual() {
+            // Given
+            final RefreshToken instance =
+                    RefreshToken.reconstitute(
+                            Identifier.generate(),
+                            Identifier.generate(),
+                            getToken(),
+                            Instant.now(),
+                            Instant.now().plusMillis(125_000));
+
+            final RefreshToken instance2 =
+                    RefreshToken.reconstitute(
+                            Identifier.generate(),
+                            Identifier.generate(),
+                            getToken(),
+                            Instant.now(),
+                            Instant.now().plusMillis(125_000));
+
+            // When
+            final boolean result = instance.equals(instance2);
+
+            // Then
+            Assertions.assertThat(result).isFalse();
+        }
+    }
+
+    @Nested
+    final class IsExpiredTests {
+
+        @ParameterizedTest
+        @DisplayName("Should be expired")
+        @MethodSource("shouldBeExpiredDataProvider")
+        void shouldBeExpired(final Instant expiredAt) {
+            // Given
+            final RefreshToken instance =
+                    RefreshToken.reconstitute(
+                            Identifier.generate(),
+                            Identifier.generate(),
+                            getToken(),
+                            Instant.now(),
+                            expiredAt);
+
+            // When
+            final boolean result = instance.isExpired();
+
+            // Then
+            Assertions.assertThat(result).isTrue();
+        }
+
+        @Test
+        @DisplayName("Should not be expired")
+        void shouldNotBeExpired() {
+            // Given
+            final RefreshToken instance =
+                    RefreshToken.reconstitute(
+                            Identifier.generate(),
+                            Identifier.generate(),
+                            getToken(),
+                            Instant.now(),
+                            Instant.now().plusMillis(125_000));
+
+            // When
+            final boolean result = instance.isExpired();
+
+            // Then
+            Assertions.assertThat(result).isFalse();
+        }
+
+        private static Stream<Arguments> shouldBeExpiredDataProvider() {
+            return Stream.of(
+                    Arguments.of(Instant.now().minusMillis(125_000)), Arguments.of(Instant.now()));
         }
     }
 

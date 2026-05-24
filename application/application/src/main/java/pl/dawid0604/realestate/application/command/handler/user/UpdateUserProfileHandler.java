@@ -18,6 +18,8 @@ import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 
+import java.util.Objects;
+
 @Component
 @RequiredArgsConstructor(access = PACKAGE)
 class UpdateUserProfileHandler implements CommandHandler<UpdateUserProfileCommand, Void> {
@@ -25,6 +27,8 @@ class UpdateUserProfileHandler implements CommandHandler<UpdateUserProfileComman
 
     @Override
     public Void handle(final UpdateUserProfileCommand command) {
+        Objects.requireNonNull(command, "Command cannot be null");
+
         User user =
                 userRepository
                         .findByEmail(command.email())
