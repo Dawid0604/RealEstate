@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @Component
-non-sealed class QueryBusImpl implements QueryBus {
+class QueryBusImpl implements QueryBus {
     private final Map<Class<? extends Query>, QueryHandler<?, ?>> handlers;
     private final TransactionTemplate readOnlyTransactionTemplate;
 

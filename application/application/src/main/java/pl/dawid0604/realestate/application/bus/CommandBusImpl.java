@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @Component
-non-sealed class CommandBusImpl implements CommandBus {
+class CommandBusImpl implements CommandBus {
     private final Map<Class<? extends Command>, CommandHandler<?, ?>> handlers;
     private final TransactionTemplate transactionTemplate;
 

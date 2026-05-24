@@ -3,6 +3,6 @@ package pl.dawid0604.realestate.application.bus;
 
 import pl.dawid0604.realestate.application.command.Command;
 
-public sealed interface CommandBus permits CommandBusImpl {
+public interface CommandBus {
     <R> R send(Command command);
 }
