@@ -3,10 +3,12 @@ package pl.dawid0604.realestate.application.command.handler.user;
 
 import static lombok.AccessLevel.PACKAGE;
 
-import lombok.RequiredArgsConstructor;
+import java.time.Instant;
+import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 
+import lombok.RequiredArgsConstructor;
 import pl.dawid0604.realestate.application.command.LoginUserCommand;
 import pl.dawid0604.realestate.application.dto.auth.TokenResponseDto;
 import pl.dawid0604.realestate.application.port.in.CommandHandler;
@@ -19,9 +21,6 @@ import pl.dawid0604.realestate.domain.port.out.TokenRepository;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidCredentialsException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
-
-import java.time.Instant;
-import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor(access = PACKAGE)

@@ -146,7 +146,7 @@ class AdvertisementController {
                         request.slug(), request.type(), loggedUser.getUsername()));
     }
 
-    @ResponseStatus(OK)
+    @ResponseStatus(NO_CONTENT)
     @PatchMapping("/deactivate")
     @Operation(summary = "Advertisement deactivation")
     @SecurityRequirement(name = OpenApiProperties.AUTHENTICATION_REQUIREMENT)

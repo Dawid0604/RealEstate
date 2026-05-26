@@ -3,10 +3,11 @@ package pl.dawid0604.realestate.application.command.handler.user;
 
 import static lombok.AccessLevel.PACKAGE;
 
-import lombok.RequiredArgsConstructor;
+import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 
+import lombok.RequiredArgsConstructor;
 import pl.dawid0604.realestate.application.command.UpdateUserProfileCommand;
 import pl.dawid0604.realestate.application.port.in.CommandHandler;
 import pl.dawid0604.realestate.domain.ContactDetails;
@@ -17,8 +18,6 @@ import pl.dawid0604.realestate.domain.Url;
 import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
-
-import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor(access = PACKAGE)
