@@ -8,6 +8,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
 
 import java.lang.annotation.Retention;
@@ -17,6 +18,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = {})
 @Target({FIELD, RECORD_COMPONENT})
 @DecimalMin(value = "0.01", message = "Area must be greater than 0.01")
+@Digits(integer = 6, fraction = 2, message = "Area can have maximum 2 decimal places")
 @NotNull(message = "Area cannot be null") public @interface ValidArea {
 
     String message() default "";

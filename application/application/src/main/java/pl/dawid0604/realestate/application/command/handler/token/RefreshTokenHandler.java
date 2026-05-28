@@ -3,10 +3,11 @@ package pl.dawid0604.realestate.application.command.handler.token;
 
 import static lombok.AccessLevel.PACKAGE;
 
-import lombok.RequiredArgsConstructor;
+import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 
+import lombok.RequiredArgsConstructor;
 import pl.dawid0604.realestate.application.command.RefreshTokenCommand;
 import pl.dawid0604.realestate.application.dto.auth.TokenResponseDto;
 import pl.dawid0604.realestate.application.port.in.CommandHandler;
@@ -19,8 +20,6 @@ import pl.dawid0604.realestate.domain.shared.exception.ExpiredTokenException;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidTokenException;
 import pl.dawid0604.realestate.domain.shared.exception.RefreshTokenNotFoundException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
-
-import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor(access = PACKAGE)

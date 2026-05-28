@@ -8,8 +8,8 @@ import static java.util.Collections.emptyMap;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import pl.dawid0604.realestate.api.validation.ValidArea;
 import pl.dawid0604.realestate.api.validation.ValidEmail;
@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Getter
-@NoArgsConstructor(access = PROTECTED)
+@AllArgsConstructor(access = PROTECTED)
 abstract sealed class UpdateAdvertisementRequest
         permits UpdateCommercialAdvertisementRequest,
                 UpdateFlatAdvertisementRequest,
@@ -32,40 +32,40 @@ abstract sealed class UpdateAdvertisementRequest
 
     @ValidSlug
     @Schema(description = "Slug", example = "anyslug-123-qwe")
-    private String slug;
+    private final String slug;
 
     @ValidTitle
     @Schema(description = "Advertisement title", example = "Any exampled title")
-    private String title;
+    private final String title;
 
     @ValidTitle
     @Schema(description = "Advertisement description", example = "Any exampled description")
-    private String description;
+    private final String description;
 
     @ValidPrice
     @Schema(description = "Advertisement price", example = "250000")
-    private BigDecimal price;
+    private final BigDecimal price;
 
     @Schema(
             description = "Advertisement locality",
             example = "019e2325-d92b-70ad-94e3-609123e34a79")
     @ValidLocalityId
-    private UUID localityId;
+    private final UUID localityId;
 
     @ValidEmail
     @Schema(description = "User email", example = "anyMail@mail.com")
-    private String userEmail;
+    private final String userEmail;
 
     @ValidArea
     @Schema(description = "Advertisement area", example = "100.25")
-    private BigDecimal area;
+    private final BigDecimal area;
 
     @Getter(NONE)
     @Schema(description = "Advertisement remaining data")
-    private Map<String, String> claims;
+    private final Map<String, String> claims;
 
     @Schema(description = "Advertisement featured state", example = "true")
-    private Boolean featured;
+    private final Boolean featured;
 
     public Map<String, String> getClaims() {
         return claims != null ? Map.copyOf(claims) : emptyMap();

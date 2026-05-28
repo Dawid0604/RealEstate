@@ -3,12 +3,12 @@ package pl.dawid0604.realestate.application.query;
 
 import static java.util.stream.Collectors.toSet;
 
+import java.util.Arrays;
+import java.util.Set;
+
 import org.springframework.util.CollectionUtils;
 
 import pl.dawid0604.realestate.domain.AdvertisementStatus;
-
-import java.util.Arrays;
-import java.util.Set;
 
 public record UserAdvertisementsQuery(
         String email, int page, int pageSize, Set<AdvertisementStatus> statuses) implements Query {

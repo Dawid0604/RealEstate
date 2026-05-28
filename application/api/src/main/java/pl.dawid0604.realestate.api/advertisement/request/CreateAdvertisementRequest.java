@@ -5,6 +5,7 @@ import static lombok.AccessLevel.PROTECTED;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,6 +22,7 @@ import java.util.UUID;
 
 @Getter
 @NoArgsConstructor(access = PROTECTED)
+@AllArgsConstructor(access = PROTECTED)
 abstract sealed class CreateAdvertisementRequest
         permits CreateCommercialAdvertisementRequest,
                 CreateFlatAdvertisementRequest,

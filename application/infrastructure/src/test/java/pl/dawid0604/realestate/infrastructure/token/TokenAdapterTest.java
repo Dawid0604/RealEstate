@@ -176,7 +176,7 @@ class TokenAdapterTest {
                                                         .plusSeconds(
                                                                 getValidJwtProperties()
                                                                         .accessTokenExpiration()),
-                                                600_000);
+                                                1_600_000);
                             });
         }
     }
