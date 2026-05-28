@@ -13,6 +13,7 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 import pl.dawid0604.realestate.domain.shared.exception.AdvertisementNotFoundException;
 import pl.dawid0604.realestate.domain.shared.exception.DifferentPasswordException;
@@ -149,6 +150,17 @@ class GlobalExceptionHandler {
         return problemDetail;
     }
 
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    ProblemDetail handleHandlerMethodValidationException(
+            final HandlerMethodValidationException ex) {
+
+        final ProblemDetail problemDetail =
+                toProblemDetail(HttpStatus.BAD_REQUEST, "Validation failed", "validation-error");
+
+        problemDetail.setProperty("error", ex.getMessage());
+        return problemDetail;
+    }
+
     @ExceptionHandler(ConstraintViolationException.class)
     ProblemDetail handleConstraintViolationException(final ConstraintViolationException ex) {
         final ProblemDetail problemDetail =
@@ -173,7 +185,7 @@ class GlobalExceptionHandler {
         return URI.create(TYPE_URI_PREFIX + errorCode);
     }
 
-    private static List<Map<String, String>> getValidationErrors(
+    private static List<Map<String, Object>> getValidationErrors(
             final MethodArgumentNotValidException ex) {
 
         return ex.getBindingResult().getFieldErrors().stream()
@@ -186,8 +198,7 @@ class GlobalExceptionHandler {
                                                         e.getDefaultMessage(), StringUtils.EMPTY),
                                         "rejectedValue",
                                                 Objects.requireNonNullElse(
-                                                        (String) e.getRejectedValue(),
-                                                        StringUtils.EMPTY)))
+                                                        e.getRejectedValue(), StringUtils.EMPTY)))
                 .toList();
     }
 

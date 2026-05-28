@@ -1,17 +1,25 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.query.handler.advertisement;
 
-import static lombok.AccessLevel.PACKAGE;
-
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toSet;
+import static lombok.AccessLevel.PACKAGE;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableMap;
 
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.stereotype.Component;
-
 import pl.dawid0604.realestate.application.dto.advertisement.UserAdvertisementCardDto;
 import pl.dawid0604.realestate.application.mapper.advertisement.AdvertisementMapper;
 import pl.dawid0604.realestate.application.port.in.QueryHandler;
@@ -29,16 +37,6 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserHouseA
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserPlotAdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 import pl.dawid0604.realestate.domain.shared.photo.projection.PhotoProjection;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Component
 @RequiredArgsConstructor(access = PACKAGE)

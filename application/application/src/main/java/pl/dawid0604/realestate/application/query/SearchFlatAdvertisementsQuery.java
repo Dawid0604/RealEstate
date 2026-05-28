@@ -1,15 +1,14 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.query;
 
-import lombok.RequiredArgsConstructor;
-
-import pl.dawid0604.realestate.domain.shared.advertisement.SearchAdvertisementsCriteria;
-import pl.dawid0604.realestate.domain.shared.advertisement.SearchFlatAdvertisementsCriteria;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
+
+import lombok.RequiredArgsConstructor;
+import pl.dawid0604.realestate.domain.shared.advertisement.SearchAdvertisementsCriteria;
+import pl.dawid0604.realestate.domain.shared.advertisement.SearchFlatAdvertisementsCriteria;
 
 @RequiredArgsConstructor
 @SuppressWarnings("CPD-START")

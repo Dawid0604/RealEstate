@@ -9,12 +9,15 @@ import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 import jakarta.validation.constraints.NotBlank;
 
+import org.hibernate.validator.constraints.URL;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 @Retention(RUNTIME)
 @Constraint(validatedBy = {})
 @Target({FIELD, RECORD_COMPONENT})
+@URL(message = "Url must be valid")
 @NotBlank(message = "Url cannot be blank")
 public @interface ValidUrl {
 

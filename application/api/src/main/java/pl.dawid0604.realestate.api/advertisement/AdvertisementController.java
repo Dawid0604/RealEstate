@@ -168,7 +168,7 @@ class AdvertisementController {
                         request.slug(), request.type(), loggedUser.getUsername()));
     }
 
-    @ResponseStatus(OK)
+    @ResponseStatus(NO_CONTENT)
     @PatchMapping("/photo")
     @Operation(summary = "Add advertisement photo action")
     @SecurityRequirement(name = OpenApiProperties.AUTHENTICATION_REQUIREMENT)

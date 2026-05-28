@@ -3,18 +3,17 @@ package pl.dawid0604.realestate.application.query.handler.locality;
 
 import static lombok.AccessLevel.PACKAGE;
 
-import lombok.RequiredArgsConstructor;
+import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 
+import lombok.RequiredArgsConstructor;
 import pl.dawid0604.realestate.application.dto.locality.LocalityDto;
 import pl.dawid0604.realestate.application.mapper.locality.LocalityMapper;
 import pl.dawid0604.realestate.application.port.in.QueryHandler;
 import pl.dawid0604.realestate.application.query.FindLocalityByIdQuery;
 import pl.dawid0604.realestate.domain.port.out.LocalityRepository;
 import pl.dawid0604.realestate.domain.shared.exception.LocalityNotFoundException;
-
-import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor(access = PACKAGE)
