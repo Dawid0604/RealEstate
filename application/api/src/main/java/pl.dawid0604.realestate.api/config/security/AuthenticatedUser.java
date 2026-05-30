@@ -42,8 +42,8 @@ public final class AuthenticatedUser implements UserDetails {
 
     @Override
     public boolean equals(final Object obj) {
-        return !(obj instanceof final AuthenticatedUser other
-                && Objects.equals(other.email, this.email));
+        return obj instanceof final AuthenticatedUser other
+                && Objects.equals(other.email, this.email);
     }
 
     @Override

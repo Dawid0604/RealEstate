@@ -7,6 +7,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
+import java.util.List;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,8 +20,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 import pl.dawid0604.realestate.application.port.in.QueryHandler;
 import pl.dawid0604.realestate.application.query.UserAdvertisementsQuery;
 import pl.dawid0604.realestate.application.query.UserProfileQuery;
-
-import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 class QueryBusImplTest {

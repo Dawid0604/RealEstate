@@ -1,25 +1,36 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.api.advertisement;
 
+import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import org.apache.commons.lang3.RandomStringUtils;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -30,32 +41,41 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import pl.dawid0604.realestate.api.advertisement.request.AdvertisementPhotoRequest;
 import pl.dawid0604.realestate.api.advertisement.request.CreatePlotAdvertisementRequest;
+import pl.dawid0604.realestate.api.advertisement.request.SearchPlotAdvertisementsRequest;
 import pl.dawid0604.realestate.api.advertisement.request.UpdatePlotAdvertisementRequest;
 import pl.dawid0604.realestate.api.config.security.AuthenticatedUser;
 import pl.dawid0604.realestate.application.bus.CommandBus;
 import pl.dawid0604.realestate.application.bus.QueryBus;
 import pl.dawid0604.realestate.application.command.CreatePlotAdvertisementCommand;
 import pl.dawid0604.realestate.application.command.UpdatePlotAdvertisementCommand;
+import pl.dawid0604.realestate.application.query.PlotAdvertisementDetailsQuery;
+import pl.dawid0604.realestate.application.query.Query;
+import pl.dawid0604.realestate.application.query.SearchPlotAdvertisementsQuery;
 import pl.dawid0604.realestate.domain.PlotBuildingType;
 import pl.dawid0604.realestate.domain.UserRole;
 import pl.dawid0604.realestate.domain.port.out.TokenRepository;
+import pl.dawid0604.realestate.domain.shared.advertisement.SearchPlotAdvertisementsCriteria;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
 @EnableMethodSecurity
+@ExtendWith(MockitoExtension.class)
 @WebMvcTest(PlotAdvertisementController.class)
 class PlotAdvertisementControllerTest {
     @Autowired private MockMvc mockMvc;
     @MockitoBean private TokenRepository tokenRepository;
     @MockitoBean private CommandBus commandBus;
     @MockitoBean private QueryBus queryBus;
+    @Captor private ArgumentCaptor<Query> argumentCaptor;
 
     private static final String USERNAME = "test_username@mail.com";
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER =
+            new ObjectMapper().registerModule(new JavaTimeModule());
 
     @Nested
     final class CreateTests {
@@ -623,6 +643,287 @@ class PlotAdvertisementControllerTest {
                     .andExpect(status().isBadRequest());
 
             verifyNoInteractions(commandBus);
+        }
+    }
+
+    @Nested
+    final class SearchByCriteriaTests {
+
+        @Test
+        @DisplayName("Should search successfully")
+        void shouldSearchSuccessfully() throws Exception {
+            // Given
+            final int page = 1;
+            final int pageSize = 25;
+
+            final SearchPlotAdvertisementsRequest request =
+                    new SearchPlotAdvertisementsRequest(
+                            getAreaFrom(),
+                            getAreaTo(),
+                            getPriceFrom(),
+                            getPriceTo(),
+                            getPricePerSquareMeterFrom(),
+                            getPricePerSquareMeterTo(),
+                            getUUID(),
+                            getDateFrom(),
+                            getDateTo(),
+                            getPlotTypes());
+
+            // When
+            // Then
+            mockMvc.perform(
+                            post("/api/advertisement/plot/find")
+                                    .with(csrf())
+                                    .with(authentication(getUserAuth()))
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .param("page", String.valueOf(page))
+                                    .param("size", String.valueOf(pageSize))
+                                    .content(OBJECT_MAPPER.writeValueAsString(request)))
+                    .andExpect(status().isOk());
+
+            verify(queryBus).send(argumentCaptor.capture());
+            verifyQuery(argumentCaptor.getValue(), request, page, pageSize);
+        }
+
+        @Test
+        @DisplayName("Should search successfully with nullable fields")
+        void shouldSearchSuccessfullyWithNullableFields() throws Exception {
+            // Given
+            final int page = 1;
+            final int pageSize = 25;
+
+            final SearchPlotAdvertisementsRequest request =
+                    new SearchPlotAdvertisementsRequest(
+                            null, null, null, null, null, null, getUUID(), null, null, null);
+
+            // When
+            // Then
+            mockMvc.perform(
+                            post("/api/advertisement/plot/find")
+                                    .with(csrf())
+                                    .with(authentication(getUserAuth()))
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .param("page", String.valueOf(page))
+                                    .param("size", String.valueOf(pageSize))
+                                    .content(OBJECT_MAPPER.writeValueAsString(request)))
+                    .andExpect(status().isOk());
+
+            verify(queryBus).send(argumentCaptor.capture());
+            verifyQuery(argumentCaptor.getValue(), request, page, pageSize);
+        }
+
+        @ParameterizedTest
+        @ValueSource(ints = {0, 1, 2, 44, 55, 125})
+        @DisplayName("Should find with boundary page successfully")
+        void shouldFindWithBoundaryPageSuccessfully(final int page) throws Exception {
+            // Given
+            final int pageSize = 25;
+
+            final SearchPlotAdvertisementsRequest request =
+                    new SearchPlotAdvertisementsRequest(
+                            null, null, null, null, null, null, getUUID(), null, null, null);
+
+            // When
+            // Then
+            mockMvc.perform(
+                            post("/api/advertisement/plot/find")
+                                    .with(csrf())
+                                    .with(authentication(getUserAuth()))
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .param("page", String.valueOf(page))
+                                    .param("size", String.valueOf(pageSize))
+                                    .content(OBJECT_MAPPER.writeValueAsString(request)))
+                    .andExpect(status().isOk());
+
+            verify(queryBus).send(argumentCaptor.capture());
+            verifyQuery(argumentCaptor.getValue(), request, page, pageSize);
+        }
+
+        @ParameterizedTest
+        @ValueSource(ints = {1, 2, 44, 55, 99, 100})
+        @DisplayName("Should find with boundary pageSize successfully")
+        void shouldFindWithBoundaryPageSizeSuccessfully(final int pageSize) throws Exception {
+            // Given
+            final int page = 1;
+
+            final SearchPlotAdvertisementsRequest request =
+                    new SearchPlotAdvertisementsRequest(
+                            null, null, null, null, null, null, getUUID(), null, null, null);
+
+            // When
+            // Then
+            mockMvc.perform(
+                            post("/api/advertisement/plot/find")
+                                    .with(csrf())
+                                    .with(authentication(getUserAuth()))
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .param("page", String.valueOf(page))
+                                    .param("size", String.valueOf(pageSize))
+                                    .content(OBJECT_MAPPER.writeValueAsString(request)))
+                    .andExpect(status().isOk());
+
+            verify(queryBus).send(argumentCaptor.capture());
+            verifyQuery(argumentCaptor.getValue(), request, page, pageSize);
+        }
+
+        @ParameterizedTest
+        @ValueSource(ints = {-1, -100, -2500})
+        @DisplayName("Should return bad request when page is invalid")
+        void shouldReturnBadRequestWhenPageIsInvalid(final int page) throws Exception {
+            // Given
+            final int pageSize = 25;
+            final SearchPlotAdvertisementsRequest request =
+                    new SearchPlotAdvertisementsRequest(
+                            null, null, null, null, null, null, getUUID(), null, null, null);
+
+            // When
+            // Then
+            mockMvc.perform(
+                            post("/api/advertisement/plot/find")
+                                    .with(csrf())
+                                    .with(authentication(getUserAuth()))
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .param("page", String.valueOf(page))
+                                    .param("size", String.valueOf(pageSize))
+                                    .content(OBJECT_MAPPER.writeValueAsString(request)))
+                    .andExpect(status().isBadRequest());
+
+            verifyNoInteractions(queryBus);
+        }
+
+        @ParameterizedTest
+        @ValueSource(ints = {-1, -100, -2500, 101, 250, 2500})
+        @DisplayName("Should return bad request when pageSize is invalid")
+        void shouldReturnBadRequestWhenPageSizeIsInvalid(final int pageSize) throws Exception {
+            // Given
+            final int page = 1;
+            final SearchPlotAdvertisementsRequest request =
+                    new SearchPlotAdvertisementsRequest(
+                            null, null, null, null, null, null, getUUID(), null, null, null);
+
+            // When
+            // Then
+            mockMvc.perform(
+                            post("/api/advertisement/plot/find")
+                                    .with(csrf())
+                                    .with(authentication(getUserAuth()))
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .param("page", String.valueOf(page))
+                                    .param("size", String.valueOf(pageSize))
+                                    .content(OBJECT_MAPPER.writeValueAsString(request)))
+                    .andExpect(status().isBadRequest());
+
+            verifyNoInteractions(queryBus);
+        }
+
+        private static void verifyQuery(
+                final Query query,
+                final SearchPlotAdvertisementsRequest request,
+                final int page,
+                final int pageSize) {
+
+            Assertions.assertThat(query)
+                    .isExactlyInstanceOf(SearchPlotAdvertisementsQuery.class)
+                    .asInstanceOf(type(SearchPlotAdvertisementsQuery.class))
+                    .returns(request.getAreaFrom(), q -> q.criteria().areaFrom())
+                    .returns(request.getAreaTo(), q -> q.criteria().areaTo())
+                    .returns(request.getPriceFrom(), q -> q.criteria().priceFrom())
+                    .returns(request.getPriceTo(), q -> q.criteria().priceTo())
+                    .returns(
+                            request.getPricePerSquareMeterFrom(),
+                            q -> q.criteria().pricePerSquareMeterFrom())
+                    .returns(
+                            request.getPricePerSquareMeterTo(),
+                            q -> q.criteria().pricePerSquareMeterTo())
+                    .returns(page, q -> q.criteria().page())
+                    .returns(pageSize, q -> q.criteria().pageSize())
+                    .extracting(SearchPlotAdvertisementsQuery::criteria)
+                    .asInstanceOf(type(SearchPlotAdvertisementsCriteria.class))
+                    .returns(request.getDateFrom(), SearchPlotAdvertisementsCriteria::dateFrom)
+                    .returns(request.getDateTo(), SearchPlotAdvertisementsCriteria::dateTo)
+                    .returns(request.getLocalityId(), SearchPlotAdvertisementsCriteria::localityId)
+                    .returns(
+                            Mapper.mapEnumCollectionToSet(request.getTypes()),
+                            SearchPlotAdvertisementsCriteria::types);
+        }
+
+        private static BigDecimal getAreaFrom() {
+            return BigDecimal.valueOf(25.35);
+        }
+
+        private static BigDecimal getAreaTo() {
+            return BigDecimal.valueOf(35.35);
+        }
+
+        private static BigDecimal getPriceFrom() {
+            return BigDecimal.valueOf(250_000);
+        }
+
+        private static BigDecimal getPriceTo() {
+            return BigDecimal.valueOf(350_000);
+        }
+
+        private static BigDecimal getPricePerSquareMeterFrom() {
+            return BigDecimal.valueOf(2500);
+        }
+
+        private static BigDecimal getPricePerSquareMeterTo() {
+            return BigDecimal.valueOf(3500);
+        }
+
+        private static LocalDate getDateFrom() {
+            return LocalDate.of(2012, 1, 2);
+        }
+
+        private static LocalDate getDateTo() {
+            return LocalDate.of(2013, 2, 13);
+        }
+
+        private static Set<PlotBuildingType> getPlotTypes() {
+            return Set.of(PlotBuildingType.AGRICULTURAL);
+        }
+    }
+
+    @Nested
+    final class SearchDetailsBySlugTests {
+
+        @Test
+        @DisplayName("Should find successfully")
+        void shouldFindSuccessfully() throws Exception {
+            // Given
+            final String slug = getSlug();
+
+            // When
+            // Then
+            mockMvc.perform(
+                            get("/api/advertisement/plot/{slug}", slug)
+                                    .with(csrf())
+                                    .with(authentication(getUserAuth())))
+                    .andExpect(status().isOk());
+
+            verify(queryBus).send(new PlotAdvertisementDetailsQuery(slug));
+        }
+
+        @ParameterizedTest
+        @MethodSource("invalidSlugDataProvider")
+        @DisplayName("Should return bad request when slug is invalid")
+        void shouldReturnBadRequestWhenSlugIsInvalid(final String slug) throws Exception {
+            // Given
+            // When
+            // Then
+            mockMvc.perform(
+                            get("/api/advertisement/plot/{slug}", slug)
+                                    .with(csrf())
+                                    .with(authentication(getUserAuth())))
+                    .andExpect(status().isBadRequest());
+
+            verifyNoInteractions(queryBus);
+        }
+
+        private static Stream<Arguments> invalidSlugDataProvider() {
+            return Stream.of(
+                    Arguments.of(RandomStringUtils.secure().nextAlphanumeric(9)),
+                    Arguments.of(RandomStringUtils.secure().nextAlphanumeric(109)));
         }
     }
 

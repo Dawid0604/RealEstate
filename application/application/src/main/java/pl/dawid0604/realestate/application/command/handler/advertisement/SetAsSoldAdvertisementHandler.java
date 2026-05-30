@@ -3,11 +3,10 @@ package pl.dawid0604.realestate.application.command.handler.advertisement;
 
 import static lombok.AccessLevel.PACKAGE;
 
-import lombok.RequiredArgsConstructor;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
+import lombok.RequiredArgsConstructor;
 import pl.dawid0604.realestate.application.command.SetAsSoldAdvertisementCommand;
 import pl.dawid0604.realestate.application.port.in.CommandHandler;
 import pl.dawid0604.realestate.domain.Advertisement;

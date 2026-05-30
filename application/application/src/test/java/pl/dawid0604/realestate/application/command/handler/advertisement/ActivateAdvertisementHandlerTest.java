@@ -2,10 +2,12 @@
 package pl.dawid0604.realestate.application.command.handler.advertisement;
 
 import static org.mockito.BDDMockito.*;
-
 import static pl.dawid0604.realestate.application.fixture.AdvertisementFixture.*;
 import static pl.dawid0604.realestate.application.fixture.UserFixture.getDummyEmail;
 import static pl.dawid0604.realestate.application.fixture.UserFixture.getDummyUserBuilder;
+
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,9 +36,6 @@ import pl.dawid0604.realestate.domain.shared.event.AdvertisementStatusChangedEve
 import pl.dawid0604.realestate.domain.shared.exception.AdvertisementNotFoundException;
 import pl.dawid0604.realestate.domain.shared.exception.ForbiddenException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
-
-import java.util.Optional;
-import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
 class ActivateAdvertisementHandlerTest {

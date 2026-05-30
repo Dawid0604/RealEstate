@@ -180,7 +180,7 @@ class FlatAdvertisementController {
             responseCode = "404",
             description = "Advertisement not found",
             content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
-    FlatAdvertisementDetailsDto searchDetailsById(
+    FlatAdvertisementDetailsDto searchDetailsBySlug(
             @Validated @ValidSlug @PathVariable("slug") final String slug) {
 
         return queryBus.send(new FlatAdvertisementDetailsQuery(slug));

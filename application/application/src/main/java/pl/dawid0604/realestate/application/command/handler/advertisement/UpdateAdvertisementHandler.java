@@ -1,14 +1,16 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.command.handler.advertisement;
 
+import static java.util.stream.Collectors.toSet;
 import static lombok.AccessLevel.PACKAGE;
 
-import static java.util.stream.Collectors.toSet;
-
-import lombok.RequiredArgsConstructor;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
+import lombok.RequiredArgsConstructor;
 import pl.dawid0604.realestate.application.command.UpdateAdvertisementCommand;
 import pl.dawid0604.realestate.application.command.UpdateCommercialAdvertisementCommand;
 import pl.dawid0604.realestate.application.command.UpdateFlatAdvertisementCommand;
@@ -41,10 +43,6 @@ import pl.dawid0604.realestate.domain.TypeOfMarket;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.exception.AdvertisementNotFoundException;
-
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 
 @Component
 @RequiredArgsConstructor(access = PACKAGE)
