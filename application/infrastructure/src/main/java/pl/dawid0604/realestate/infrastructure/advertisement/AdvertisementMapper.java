@@ -1,14 +1,15 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.infrastructure.advertisement;
 
+import static java.util.stream.Collectors.toSet;
 import static lombok.AccessLevel.PACKAGE;
 
-import static java.util.stream.Collectors.toSet;
-
-import lombok.NoArgsConstructor;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import org.springframework.stereotype.Component;
 
+import lombok.NoArgsConstructor;
 import pl.dawid0604.realestate.domain.Advertisement;
 import pl.dawid0604.realestate.domain.AdvertisementClaim;
 import pl.dawid0604.realestate.domain.AdvertisementDetails;
@@ -31,9 +32,6 @@ import pl.dawid0604.realestate.domain.Slug;
 import pl.dawid0604.realestate.domain.Title;
 import pl.dawid0604.realestate.domain.Url;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
-
-import java.util.Set;
-import java.util.stream.Stream;
 
 @Component
 @NoArgsConstructor(access = PACKAGE)

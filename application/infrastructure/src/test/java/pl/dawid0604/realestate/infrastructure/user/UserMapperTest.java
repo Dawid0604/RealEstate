@@ -3,6 +3,8 @@ package pl.dawid0604.realestate.infrastructure.user;
 
 import static org.mockito.Mockito.spy;
 
+import java.time.Instant;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,8 +25,6 @@ import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserRole;
 import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.UserType;
-
-import java.time.Instant;
 
 class UserMapperTest {
     private UserMapper mapper;

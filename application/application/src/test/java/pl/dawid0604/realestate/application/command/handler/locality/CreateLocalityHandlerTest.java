@@ -3,6 +3,8 @@ package pl.dawid0604.realestate.application.command.handler.locality;
 
 import static org.mockito.BDDMockito.*;
 
+import java.util.UUID;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,8 +19,6 @@ import pl.dawid0604.realestate.application.command.CreateLocalityCommand;
 import pl.dawid0604.realestate.domain.Locality;
 import pl.dawid0604.realestate.domain.port.out.LocalityRepository;
 import pl.dawid0604.realestate.domain.shared.exception.LocalityExistsException;
-
-import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
 class CreateLocalityHandlerTest {

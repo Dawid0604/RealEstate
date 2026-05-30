@@ -5,6 +5,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import java.util.Optional;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,8 +18,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import pl.dawid0604.realestate.domain.Identifier;
 import pl.dawid0604.realestate.domain.RefreshToken;
-
-import java.util.Optional;
 
 class RefreshTokenAdapterTest {
 

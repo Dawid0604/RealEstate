@@ -6,7 +6,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-
 import static pl.dawid0604.realestate.application.fixture.AdvertisementFixture.getDummyAdvertisementBuilder;
 import static pl.dawid0604.realestate.application.fixture.AdvertisementFixture.getDummyCommercialDetails;
 import static pl.dawid0604.realestate.application.fixture.AdvertisementFixture.getDummyFlatDetails;
@@ -14,6 +13,9 @@ import static pl.dawid0604.realestate.application.fixture.AdvertisementFixture.g
 import static pl.dawid0604.realestate.application.fixture.AdvertisementFixture.getDummyPlotDetails;
 import static pl.dawid0604.realestate.application.fixture.UserFixture.getDummyEmail;
 import static pl.dawid0604.realestate.application.fixture.UserFixture.getDummyUserBuilder;
+
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,9 +43,6 @@ import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.exception.AdvertisementNotFoundException;
 import pl.dawid0604.realestate.domain.shared.exception.ForbiddenException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
-
-import java.util.Optional;
-import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
 class AddAdvertisementPhotoHandlerTest {

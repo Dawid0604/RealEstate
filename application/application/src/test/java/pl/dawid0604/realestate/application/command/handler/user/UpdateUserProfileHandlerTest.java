@@ -4,6 +4,8 @@ package pl.dawid0604.realestate.application.command.handler.user;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
+import java.util.Optional;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,8 +25,6 @@ import pl.dawid0604.realestate.domain.UserType;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.exception.ForbiddenException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
-
-import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 class UpdateUserProfileHandlerTest {

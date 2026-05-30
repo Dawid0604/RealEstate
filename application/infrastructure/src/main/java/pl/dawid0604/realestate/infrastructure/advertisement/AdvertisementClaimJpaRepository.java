@@ -1,15 +1,16 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.infrastructure.advertisement;
 
+import java.util.Set;
+import java.util.UUID;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.query.Param;
 
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementClaimProjection;
-
-import java.util.Set;
-import java.util.UUID;
 
 @NoRepositoryBean
 sealed interface AdvertisementClaimJpaRepository<T extends AdvertisementClaimEntity<?>>
@@ -31,5 +32,7 @@ sealed interface AdvertisementClaimJpaRepository<T extends AdvertisementClaimEnt
                 """)
     Set<AdvertisementClaimProjection> findClaimsById(@Param("id") UUID advertisementId);
 
-    void deleteByAdvertisementId(UUID id);
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("DELETE FROM #{#entityName} c WHERE c.advertisement.id = :advertisementId")
+    void deleteByAdvertisementId(@Param("advertisementId") UUID id);
 }

@@ -1,6 +1,11 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.query;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Set;
+import java.util.UUID;
+
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.DisplayName;
@@ -8,11 +13,6 @@ import org.junit.jupiter.api.Test;
 
 import pl.dawid0604.realestate.application.fixture.AnnotationAssertions;
 import pl.dawid0604.realestate.domain.shared.advertisement.SearchPlotAdvertisementsCriteria;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Set;
-import java.util.UUID;
 
 class SearchPlotAdvertisementsQueryTest {
 

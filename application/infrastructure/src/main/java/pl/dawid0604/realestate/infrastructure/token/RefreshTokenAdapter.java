@@ -3,16 +3,15 @@ package pl.dawid0604.realestate.infrastructure.token;
 
 import static lombok.AccessLevel.PACKAGE;
 
-import lombok.RequiredArgsConstructor;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.RequiredArgsConstructor;
 import pl.dawid0604.realestate.domain.Identifier;
 import pl.dawid0604.realestate.domain.RefreshToken;
 import pl.dawid0604.realestate.domain.port.out.RefreshTokenRepository;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor(access = PACKAGE)

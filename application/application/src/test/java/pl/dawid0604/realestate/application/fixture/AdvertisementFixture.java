@@ -1,12 +1,11 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.fixture;
 
-import lombok.experimental.UtilityClass;
-
-import pl.dawid0604.realestate.domain.*;
-
 import java.math.BigDecimal;
 import java.time.Instant;
+
+import lombok.experimental.UtilityClass;
+import pl.dawid0604.realestate.domain.*;
 
 @UtilityClass
 public class AdvertisementFixture {

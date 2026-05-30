@@ -1,6 +1,10 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain.port.out;
 
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
 import pl.dawid0604.realestate.domain.Advertisement;
 import pl.dawid0604.realestate.domain.AdvertisementStatus;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
@@ -10,10 +14,6 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.Advertisem
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementClaimProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.AdvertisementDetailsProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserAdvertisementCardProjection;
-
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 
 public interface AdvertisementRepository {
     void save(Advertisement advertisement);

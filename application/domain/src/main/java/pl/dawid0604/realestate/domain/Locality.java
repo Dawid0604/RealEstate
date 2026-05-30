@@ -3,9 +3,9 @@ package pl.dawid0604.realestate.domain;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
-
 import java.util.Objects;
+
+import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 
 public final class Locality {
     private final Identifier id;

@@ -2,8 +2,15 @@
 package pl.dawid0604.realestate.infrastructure.token;
 
 import static lombok.AccessLevel.PACKAGE;
-
 import static org.apache.commons.lang3.StringUtils.isBlank;
+
+import java.time.Instant;
+import java.util.Date;
+import java.util.Objects;
+
+import javax.crypto.SecretKey;
+
+import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -11,23 +18,13 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.stereotype.Service;
-
 import pl.dawid0604.realestate.domain.UserRole;
 import pl.dawid0604.realestate.domain.port.out.TokenRepository;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.exception.ExpiredTokenException;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidTokenException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
-
-import java.time.Instant;
-import java.util.Date;
-import java.util.Objects;
-
-import javax.crypto.SecretKey;
 
 @Service
 @RequiredArgsConstructor(access = PACKAGE)

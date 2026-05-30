@@ -1,9 +1,14 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.infrastructure.advertisement;
 
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 
-import static java.util.Collections.emptySet;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import org.assertj.core.api.Assertions;
 import org.assertj.core.groups.Tuple;
@@ -26,12 +31,6 @@ import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.photo.projection.PhotoProjection;
 import pl.dawid0604.realestate.infrastructure.ClearDatabase;
 import pl.dawid0604.realestate.infrastructure.IntegrationTest;
-
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
 class AdvertisementPhotoAdapterTest {
 

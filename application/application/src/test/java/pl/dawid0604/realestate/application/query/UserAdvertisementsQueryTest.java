@@ -4,6 +4,10 @@ package pl.dawid0604.realestate.application.query;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
 
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Stream;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,10 +18,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import pl.dawid0604.realestate.application.fixture.AnnotationAssertions;
 import pl.dawid0604.realestate.application.fixture.UserFixture;
 import pl.dawid0604.realestate.domain.AdvertisementStatus;
-
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Stream;
 
 class UserAdvertisementsQueryTest {
 

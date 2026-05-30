@@ -1,16 +1,16 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain.port.out;
 
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
 import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserRole;
 import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.UserType;
 import pl.dawid0604.realestate.domain.shared.user.projection.AdvertisementUserProjection;
 import pl.dawid0604.realestate.domain.shared.user.projection.UserProfileProjection;
-
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 
 public interface UserRepository {
     Optional<UserProfileProjection> findUserProfile(String email);

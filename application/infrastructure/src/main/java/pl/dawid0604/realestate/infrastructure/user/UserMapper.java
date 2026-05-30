@@ -2,13 +2,11 @@
 package pl.dawid0604.realestate.infrastructure.user;
 
 import static lombok.AccessLevel.PACKAGE;
-
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
-import lombok.NoArgsConstructor;
 
 import org.springframework.stereotype.Component;
 
+import lombok.NoArgsConstructor;
 import pl.dawid0604.realestate.domain.ContactDetails;
 import pl.dawid0604.realestate.domain.Email;
 import pl.dawid0604.realestate.domain.FullName;

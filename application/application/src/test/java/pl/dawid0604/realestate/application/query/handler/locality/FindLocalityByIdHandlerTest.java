@@ -5,6 +5,9 @@ import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,9 +22,6 @@ import pl.dawid0604.realestate.application.query.FindLocalityByIdQuery;
 import pl.dawid0604.realestate.domain.port.out.LocalityRepository;
 import pl.dawid0604.realestate.domain.shared.exception.LocalityNotFoundException;
 import pl.dawid0604.realestate.domain.shared.locality.projection.LocalityProjection;
-
-import java.util.Optional;
-import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
 class FindLocalityByIdHandlerTest {

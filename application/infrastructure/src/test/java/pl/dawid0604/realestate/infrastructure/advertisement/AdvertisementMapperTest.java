@@ -5,6 +5,11 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Set;
+import java.util.UUID;
+
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.assertj.core.groups.Tuple;
@@ -45,11 +50,6 @@ import pl.dawid0604.realestate.domain.Title;
 import pl.dawid0604.realestate.domain.TypeOfMarket;
 import pl.dawid0604.realestate.domain.Url;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.Set;
-import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
 class AdvertisementMapperTest {

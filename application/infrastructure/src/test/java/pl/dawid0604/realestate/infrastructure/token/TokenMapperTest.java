@@ -4,6 +4,8 @@ package pl.dawid0604.realestate.infrastructure.token;
 import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.mock;
 
+import java.time.Instant;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,8 +16,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import pl.dawid0604.realestate.domain.Identifier;
 import pl.dawid0604.realestate.domain.RefreshToken;
-
-import java.time.Instant;
 
 @ExtendWith(MockitoExtension.class)
 class TokenMapperTest {

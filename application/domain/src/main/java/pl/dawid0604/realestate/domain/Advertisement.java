@@ -4,6 +4,14 @@ package pl.dawid0604.realestate.domain;
 import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.toCollection;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.IntStream;
+
 import org.apache.commons.lang3.BooleanUtils;
 
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
@@ -12,14 +20,6 @@ import pl.dawid0604.realestate.domain.shared.event.AdvertisementStatusChangedEve
 import pl.dawid0604.realestate.domain.shared.exception.ForbiddenException;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 import pl.dawid0604.realestate.domain.shared.exception.MaxPhotosExceededException;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.IntStream;
 
 public final class Advertisement extends AggregateRoot {
     private final Identifier id;
@@ -79,19 +79,16 @@ public final class Advertisement extends AggregateRoot {
     }
 
     public Advertisement updateTitle(final Title newTitle) {
-        if (Objects.equals(this.title, newTitle)) {
-            throw new InvalidArgumentValueException(
-                    "Incoming title cannot be the same as old title");
+        Slug slug = this.slug;
+
+        if (!Objects.equals(newTitle, this.title)) {
+            slug = Slug.create(newTitle);
         }
 
-        return copy().title(newTitle).slug(Slug.create(newTitle)).build();
+        return copy().title(newTitle).slug(slug).build();
     }
 
     public Advertisement updateArea(final Area newArea) {
-        if (Objects.equals(this.area, newArea)) {
-            throw new InvalidArgumentValueException("Incoming area cannot be the same as old area");
-        }
-
         return copy().area(newArea)
                 .pricePerSquareMeter(PricePerSquareMeter.create(newArea, this.price))
                 .build();
@@ -102,18 +99,16 @@ public final class Advertisement extends AggregateRoot {
     }
 
     public Advertisement updatePrice(final Price newPrice) {
-        if (Objects.equals(this.price, newPrice)) {
-            throw new InvalidArgumentValueException("Price cannot be the same as old price");
-        }
-
         final Advertisement currentObj =
                 this.copy()
                         .price(newPrice)
                         .pricePerSquareMeter(PricePerSquareMeter.create(this.area, newPrice))
                         .build();
 
-        currentObj.addEvent(
-                new AdvertisementPriceChangedEvent(currentObj.id, this.price, newPrice));
+        if (!Objects.equals(this.price, newPrice)) {
+            currentObj.addEvent(
+                    new AdvertisementPriceChangedEvent(currentObj.id, this.price, newPrice));
+        }
 
         return currentObj;
     }

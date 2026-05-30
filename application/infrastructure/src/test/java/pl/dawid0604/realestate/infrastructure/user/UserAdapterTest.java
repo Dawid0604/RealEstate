@@ -4,6 +4,12 @@ package pl.dawid0604.realestate.infrastructure.user;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.mock;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,12 +33,6 @@ import pl.dawid0604.realestate.domain.shared.user.projection.AdvertisementUserPr
 import pl.dawid0604.realestate.domain.shared.user.projection.UserProfileProjection;
 import pl.dawid0604.realestate.infrastructure.ClearDatabase;
 import pl.dawid0604.realestate.infrastructure.IntegrationTest;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 class UserAdapterTest {
 

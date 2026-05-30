@@ -3,6 +3,11 @@ package pl.dawid0604.realestate.infrastructure.locality;
 
 import static org.awaitility.Awaitility.await;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,11 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import pl.dawid0604.realestate.domain.Identifier;
 import pl.dawid0604.realestate.infrastructure.ClearDatabase;
 import pl.dawid0604.realestate.infrastructure.IntegrationTest;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
 
 class LocalityAdapterTest {
 

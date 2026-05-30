@@ -1,10 +1,10 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain.port.out;
 
+import java.util.Optional;
+
 import pl.dawid0604.realestate.domain.Identifier;
 import pl.dawid0604.realestate.domain.RefreshToken;
-
-import java.util.Optional;
 
 public interface RefreshTokenRepository {
     void save(RefreshToken refreshToken);

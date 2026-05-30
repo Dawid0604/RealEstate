@@ -4,6 +4,9 @@ package pl.dawid0604.realestate.application.query.handler.locality;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
+import java.util.List;
+import java.util.Set;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,9 +20,6 @@ import pl.dawid0604.realestate.application.mapper.locality.LocalityMapper;
 import pl.dawid0604.realestate.application.query.FindLocalitiesQuery;
 import pl.dawid0604.realestate.domain.port.out.LocalityRepository;
 import pl.dawid0604.realestate.domain.shared.locality.projection.LocalityProjection;
-
-import java.util.List;
-import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
 class FindLocalitiesHandlerTest {

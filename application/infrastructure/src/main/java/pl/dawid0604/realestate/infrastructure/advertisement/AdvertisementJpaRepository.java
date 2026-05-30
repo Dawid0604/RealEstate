@@ -2,9 +2,24 @@
 package pl.dawid0604.realestate.infrastructure.advertisement;
 
 import static lombok.AccessLevel.PACKAGE;
-
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.data.util.Predicates.negate;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
@@ -15,8 +30,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Selection;
 
-import lombok.RequiredArgsConstructor;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -25,6 +38,7 @@ import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
+import lombok.RequiredArgsConstructor;
 import pl.dawid0604.realestate.domain.AdvertisementStatus;
 import pl.dawid0604.realestate.domain.Identifier;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
@@ -46,22 +60,6 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserFlatAd
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserHouseAdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserPlotAdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.exception.InternalException;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 @Repository
 @RequiredArgsConstructor(access = PACKAGE)

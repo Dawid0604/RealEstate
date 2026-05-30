@@ -1,13 +1,20 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
+import static java.time.temporal.ChronoUnit.SECONDS;
+import static java.util.stream.Collectors.toMap;
 import static pl.dawid0604.realestate.domain.AdvertisementStatus.ACTIVE;
 import static pl.dawid0604.realestate.domain.AdvertisementStatus.DELETED;
 import static pl.dawid0604.realestate.domain.AdvertisementStatus.INACTIVE;
 import static pl.dawid0604.realestate.domain.AdvertisementStatus.SOLD;
 
-import static java.time.temporal.ChronoUnit.SECONDS;
-import static java.util.stream.Collectors.toMap;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -24,14 +31,6 @@ import pl.dawid0604.realestate.domain.shared.event.AdvertisementStatusChangedEve
 import pl.dawid0604.realestate.domain.shared.exception.ForbiddenException;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 import pl.dawid0604.realestate.domain.shared.exception.MaxPhotosExceededException;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Stream;
 
 class AdvertisementTest {
 
@@ -1008,37 +1007,6 @@ class AdvertisementTest {
         }
 
         @Test
-        @DisplayName("Should throw exception when incoming title is the same as old title")
-        void shouldThrowExceptionWhenIncomingTitleIsTheSameAsOldTitle() {
-            // Given
-            final Title title = new Title("abc abc abc");
-            final Title incomingTitle = new Title("abc abc abc");
-
-            final Advertisement instance =
-                    Advertisement.reconstitute()
-                            .id(getValidIdentifier())
-                            .slug(getValidSlug())
-                            .area(getValidArea())
-                            .pricePerSquareMeter(getValidPricePerSquareMeter())
-                            .title(title)
-                            .description(getValidDescription())
-                            .price(getValidPrice())
-                            .locality(getValidLocality())
-                            .details(getValidDetails())
-                            .status(getValidStatus())
-                            .userId(getValidIdentifier())
-                            .createdAt(Instant.now())
-                            .photos(null)
-                            .build();
-
-            // When
-            // Then
-            Assertions.assertThatThrownBy(() -> instance.updateTitle(incomingTitle))
-                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
-                    .hasMessage("Incoming title cannot be the same as old title");
-        }
-
-        @Test
         @DisplayName("Should update slug")
         void shouldUpdateSlug() {
             // Given
@@ -1134,39 +1102,6 @@ class AdvertisementTest {
             // Then
             Assertions.assertThat(instance).isEqualTo(updatedInstance);
             Assertions.assertThat(updatedInstance.getArea()).isEqualTo(incomingArea);
-        }
-
-        @Test
-        @DisplayName("Should throw exception when incoming area is the same as old area")
-        void shouldThrowExceptionWhenIncomingAreaIsTheSameAsOldArea() {
-            // Given
-            final BigDecimal value = BigDecimal.valueOf(25.5);
-            final Area area = new Area(value);
-            final Area incomingArea = new Area(value);
-
-            final Advertisement instance =
-                    Advertisement.reconstitute()
-                            .id(getValidIdentifier())
-                            .slug(getValidSlug())
-                            .area(getValidArea())
-                            .pricePerSquareMeter(getValidPricePerSquareMeter())
-                            .title(getValidTitle())
-                            .area(area)
-                            .description(getValidDescription())
-                            .price(getValidPrice())
-                            .locality(getValidLocality())
-                            .details(getValidDetails())
-                            .status(getValidStatus())
-                            .userId(getValidIdentifier())
-                            .createdAt(Instant.now())
-                            .photos(null)
-                            .build();
-
-            // When
-            // Then
-            Assertions.assertThatThrownBy(() -> instance.updateArea(incomingArea))
-                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
-                    .hasMessage("Incoming area cannot be the same as old area");
         }
 
         @Test
@@ -1296,37 +1231,6 @@ class AdvertisementTest {
             Assertions.assertThatThrownBy(() -> instance.updatePrice(null))
                     .isExactlyInstanceOf(InvalidArgumentValueException.class)
                     .hasMessage("Price cannot be null");
-        }
-
-        @Test
-        @DisplayName("Should throw exception when incoming price is the same as old price")
-        void shouldThrowExceptionWhenIncomingPriceIsTheSameAsOldPrice() {
-            // Given
-            final Price price = new Price(BigDecimal.valueOf(2_500_00), MoneyCurrency.PLN);
-            final Price incomingPrice = new Price(BigDecimal.valueOf(2_500_00), MoneyCurrency.PLN);
-
-            final Advertisement instance =
-                    Advertisement.reconstitute()
-                            .id(getValidIdentifier())
-                            .slug(getValidSlug())
-                            .title(getValidTitle())
-                            .description(getValidDescription())
-                            .price(price)
-                            .locality(getValidLocality())
-                            .details(getValidDetails())
-                            .status(getValidStatus())
-                            .userId(getValidIdentifier())
-                            .createdAt(Instant.now())
-                            .pricePerSquareMeter(getValidPricePerSquareMeter())
-                            .area(getValidArea())
-                            .photos(null)
-                            .build();
-
-            // When
-            // Then
-            Assertions.assertThatThrownBy(() -> instance.updatePrice(incomingPrice))
-                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
-                    .hasMessage("Price cannot be the same as old price");
         }
 
         @Test

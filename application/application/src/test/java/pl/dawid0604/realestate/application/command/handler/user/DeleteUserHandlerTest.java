@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-
 import static pl.dawid0604.realestate.application.fixture.UserFixture.getDummyEmail;
 
 import org.assertj.core.api.Assertions;

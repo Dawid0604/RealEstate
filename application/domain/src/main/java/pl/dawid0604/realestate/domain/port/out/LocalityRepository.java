@@ -1,13 +1,13 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain.port.out;
 
-import pl.dawid0604.realestate.domain.Locality;
-import pl.dawid0604.realestate.domain.shared.locality.projection.LocalityProjection;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+
+import pl.dawid0604.realestate.domain.Locality;
+import pl.dawid0604.realestate.domain.shared.locality.projection.LocalityProjection;
 
 public interface LocalityRepository {
     boolean existsById(UUID localityId);

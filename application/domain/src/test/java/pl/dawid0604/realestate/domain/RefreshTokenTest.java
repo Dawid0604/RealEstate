@@ -1,6 +1,9 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
+import java.time.Instant;
+import java.util.stream.Stream;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -12,9 +15,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
-
-import java.time.Instant;
-import java.util.stream.Stream;
 
 class RefreshTokenTest {
 

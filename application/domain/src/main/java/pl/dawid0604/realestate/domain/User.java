@@ -1,6 +1,10 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
+import java.time.Instant;
+import java.util.Objects;
+import java.util.Optional;
+
 import pl.dawid0604.realestate.domain.shared.event.UserRegisteredEvent;
 import pl.dawid0604.realestate.domain.shared.exception.ForbiddenException;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
@@ -8,10 +12,6 @@ import pl.dawid0604.realestate.domain.shared.exception.UserAlreadyActiveExceptio
 import pl.dawid0604.realestate.domain.shared.exception.UserBannedException;
 import pl.dawid0604.realestate.domain.shared.exception.UserCannotBeActivatedException;
 import pl.dawid0604.realestate.domain.shared.exception.UserCannotBeUnbannedException;
-
-import java.time.Instant;
-import java.util.Objects;
-import java.util.Optional;
 
 public final class User extends AggregateRoot {
     private final Identifier id;

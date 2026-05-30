@@ -4,6 +4,8 @@ package pl.dawid0604.realestate.domain;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
+import java.time.Instant;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -18,8 +20,6 @@ import pl.dawid0604.realestate.domain.shared.exception.UserAlreadyActiveExceptio
 import pl.dawid0604.realestate.domain.shared.exception.UserBannedException;
 import pl.dawid0604.realestate.domain.shared.exception.UserCannotBeActivatedException;
 import pl.dawid0604.realestate.domain.shared.exception.UserCannotBeUnbannedException;
-
-import java.time.Instant;
 
 class UserTest {
 

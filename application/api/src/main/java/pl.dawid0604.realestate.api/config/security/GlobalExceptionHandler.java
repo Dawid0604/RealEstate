@@ -21,6 +21,7 @@ import pl.dawid0604.realestate.domain.shared.exception.ForbiddenException;
 import pl.dawid0604.realestate.domain.shared.exception.InternalException;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidCredentialsException;
+import pl.dawid0604.realestate.domain.shared.exception.InvalidTokenException;
 import pl.dawid0604.realestate.domain.shared.exception.LocalityExistsException;
 import pl.dawid0604.realestate.domain.shared.exception.LocalityNotFoundException;
 import pl.dawid0604.realestate.domain.shared.exception.MaxPhotosExceededException;
@@ -66,6 +67,11 @@ class GlobalExceptionHandler {
     @ExceptionHandler(DifferentPasswordException.class)
     ProblemDetail handleDifferentPasswordException(final DifferentPasswordException ex) {
         return toProblemDetail(HttpStatus.CONFLICT, ex.getMessage(), "invalid-password");
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    ProblemDetail handleInvalidTokenException(final InvalidTokenException ex) {
+        return toProblemDetail(HttpStatus.BAD_REQUEST, ex.getMessage(), "invalid-token");
     }
 
     @ExceptionHandler(InvalidCredentialsException.class)

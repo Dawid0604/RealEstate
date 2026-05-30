@@ -4,12 +4,12 @@ package pl.dawid0604.realestate.domain;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
+import java.time.Instant;
+import java.util.Objects;
+
 import org.apache.commons.codec.digest.DigestUtils;
 
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
-
-import java.time.Instant;
-import java.util.Objects;
 
 public final class RefreshToken extends AggregateRoot {
     private final Identifier id;

@@ -3,11 +3,15 @@ package pl.dawid0604.realestate.application.command.handler.advertisement;
 
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.BDDMockito.*;
-
 import static pl.dawid0604.realestate.application.fixture.AdvertisementFixture.getDummyCommercialDetails;
 import static pl.dawid0604.realestate.application.fixture.AdvertisementFixture.getDummyFlatDetails;
 import static pl.dawid0604.realestate.application.fixture.AdvertisementFixture.getDummyHouseDetails;
 import static pl.dawid0604.realestate.application.fixture.AdvertisementFixture.getDummyPlotDetails;
+
+import java.math.BigDecimal;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.InstanceOfAssertFactories;
@@ -42,11 +46,6 @@ import pl.dawid0604.realestate.domain.TypeOfMarket;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.exception.AdvertisementNotFoundException;
-
-import java.math.BigDecimal;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
 class UpdateAdvertisementHandlerTest {

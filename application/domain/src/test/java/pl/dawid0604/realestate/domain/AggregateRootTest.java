@@ -1,6 +1,8 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
+import java.util.Set;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -8,8 +10,6 @@ import org.junit.jupiter.api.Test;
 
 import pl.dawid0604.realestate.domain.shared.event.DomainEvent;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
-
-import java.util.Set;
 
 class AggregateRootTest {
     private AggregateRoot instance;

@@ -4,10 +4,10 @@ package pl.dawid0604.realestate.infrastructure.token;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+import java.time.Instant;
+import java.util.Optional;
+
+import javax.crypto.SecretKey;
 
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.InstanceOfAssertFactories;
@@ -21,16 +21,15 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import pl.dawid0604.realestate.domain.UserRole;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.exception.ExpiredTokenException;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidTokenException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
-
-import java.time.Instant;
-import java.util.Optional;
-
-import javax.crypto.SecretKey;
 
 @ExtendWith(MockitoExtension.class)
 class TokenAdapterTest {

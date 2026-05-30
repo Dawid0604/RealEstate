@@ -3,6 +3,10 @@ package pl.dawid0604.realestate.application.command.handler.token;
 
 import static org.mockito.BDDMockito.*;
 
+import java.time.Instant;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,10 +29,6 @@ import pl.dawid0604.realestate.domain.shared.exception.ExpiredTokenException;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidTokenException;
 import pl.dawid0604.realestate.domain.shared.exception.RefreshTokenNotFoundException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
-
-import java.time.Instant;
-import java.util.Optional;
-import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
 class RefreshTokenHandlerTest {
