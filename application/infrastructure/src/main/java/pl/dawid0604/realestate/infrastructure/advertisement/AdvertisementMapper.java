@@ -303,8 +303,12 @@ class AdvertisementMapper {
 
         return Stream.ofNullable(claims)
                 .flatMap(Set::stream)
-                .map(c -> new AdvertisementClaim(c.getClaimKey(), c.getClaimValue()))
+                .map(c -> new AdvertisementClaim(getClaimId(c), c.getClaimKey(), c.getClaimValue()))
                 .collect(toSet());
+    }
+
+    private static Identifier getClaimId(final AdvertisementClaimEntity<?> claim) {
+        return claim.getId() != null ? Identifier.of(claim.getId()) : Identifier.generate();
     }
 
     private static AdvertisementDetails<?> mapDetails(final AdvertisementEntity<?, ?> entity) {
