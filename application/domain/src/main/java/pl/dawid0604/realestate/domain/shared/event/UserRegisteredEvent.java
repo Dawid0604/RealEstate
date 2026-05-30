@@ -9,7 +9,7 @@ public final class UserRegisteredEvent extends DomainEvent {
 
     public UserRegisteredEvent(final Identifier userId) {
         if (userId == null) {
-            throw new InvalidArgumentValueException("AdvertisementId cannot be null");
+            throw new InvalidArgumentValueException("UserId cannot be null");
         }
 
         this.userId = userId;

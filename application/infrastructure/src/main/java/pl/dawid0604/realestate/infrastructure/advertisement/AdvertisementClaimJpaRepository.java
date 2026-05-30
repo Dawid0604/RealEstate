@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.query.Param;
@@ -21,10 +22,17 @@ sealed interface AdvertisementClaimJpaRepository<T extends AdvertisementClaimEnt
 
     @Query(
             """
-                    SELECT e
+                    SELECT
+                        e.id as id,
+                        e.claimKey as claimKey,
+                        e.claimValue as claimValue
                     FROM #{#entityName} e
-                    JOIN FETCH e.advertisement a
+                    JOIN e.advertisement a
                     WHERE a.id = :id
                 """)
     Set<AdvertisementClaimProjection> findClaimsById(@Param("id") UUID advertisementId);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("DELETE FROM #{#entityName} c WHERE c.advertisement.id = :advertisementId")
+    void deleteByAdvertisementId(@Param("advertisementId") UUID id);
 }

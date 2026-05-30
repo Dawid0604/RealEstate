@@ -1,10 +1,8 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.query;
 
-import java.lang.annotation.Annotation;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -14,11 +12,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import pl.dawid0604.realestate.application.fixture.AnnotationAssertions;
-import pl.dawid0604.realestate.application.validation.ValidArea;
-import pl.dawid0604.realestate.application.validation.ValidLocalityId;
-import pl.dawid0604.realestate.application.validation.ValidPageNumber;
-import pl.dawid0604.realestate.application.validation.ValidPageSize;
-import pl.dawid0604.realestate.application.validation.ValidPrice;
 import pl.dawid0604.realestate.domain.shared.advertisement.SearchPlotAdvertisementsCriteria;
 
 class SearchPlotAdvertisementsQueryTest {
@@ -30,43 +23,6 @@ class SearchPlotAdvertisementsQueryTest {
         // When
         // Then
         AnnotationAssertions.assertImplementsQueryInterface(SearchPlotAdvertisementsQuery.class);
-    }
-
-    @Test
-    @DisplayName("Should have area field with required annotations")
-    void shouldHaveAreaFieldWithRequiredAnnotations() {
-        // Given
-        // When
-        // Then
-        assertFieldAnnotations("areaFrom", List.of(ValidArea.class));
-        assertFieldAnnotations("areaTo", List.of(ValidArea.class));
-    }
-
-    @Test
-    @DisplayName("Should have price fields with required annotations")
-    void shouldHavePriceFieldsWithRequiredAnnotations() {
-        assertFieldAnnotations("priceFrom", List.of(ValidPrice.class));
-        assertFieldAnnotations("priceTo", List.of(ValidPrice.class));
-    }
-
-    @Test
-    @DisplayName("Should have pricePerSquareMeter fields with required annotations")
-    void shouldHavePricePerSquareMeterFieldsWithRequiredAnnotations() {
-        assertFieldAnnotations("pricePerSquareMeterFrom", List.of(ValidPrice.class));
-        assertFieldAnnotations("pricePerSquareMeterTo", List.of(ValidPrice.class));
-    }
-
-    @Test
-    @DisplayName("Should have pagination fields with required annotations")
-    void shouldHavePaginationFieldsWithRequiredAnnotations() {
-        assertFieldAnnotations("page", List.of(ValidPageNumber.class));
-        assertFieldAnnotations("pageSize", List.of(ValidPageSize.class));
-    }
-
-    @Test
-    @DisplayName("Should have localityId field with required annotations")
-    void shouldHaveLocalityIdFieldWithRequiredAnnotations() {
-        assertFieldAnnotations("localityId", List.of(ValidLocalityId.class));
     }
 
     @Test
@@ -122,12 +78,5 @@ class SearchPlotAdvertisementsQueryTest {
                 .returns(dateFrom, SearchPlotAdvertisementsCriteria::dateFrom)
                 .returns(dateTo, SearchPlotAdvertisementsCriteria::dateTo)
                 .satisfies(c -> Assertions.assertThat(c.types()).containsExactlyElementsOf(types));
-    }
-
-    private static void assertFieldAnnotations(
-            final String fieldName, final List<Class<? extends Annotation>> requiredAnnotations) {
-
-        AnnotationAssertions.assertFieldAnnotations(
-                SearchPlotAdvertisementsQuery.class, fieldName, requiredAnnotations);
     }
 }

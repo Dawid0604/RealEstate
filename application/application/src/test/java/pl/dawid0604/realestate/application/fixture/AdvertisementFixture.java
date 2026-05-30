@@ -25,7 +25,7 @@ public class AdvertisementFixture {
                 .title(title)
                 .description(new Description("any description content"))
                 .price(new Price(BigDecimal.valueOf(2_500_00), MoneyCurrency.PLN))
-                .locality(new Locality(Identifier.generate()))
+                .locality(new AdvertisementLocality(Identifier.generate()))
                 .details(details)
                 .status(AdvertisementStatus.ACTIVE)
                 .userId(Identifier.generate())

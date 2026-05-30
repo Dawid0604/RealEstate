@@ -14,8 +14,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
 import pl.dawid0604.realestate.domain.shared.event.UserRegisteredEvent;
+import pl.dawid0604.realestate.domain.shared.exception.ForbiddenException;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
-import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
+import pl.dawid0604.realestate.domain.shared.exception.UserAlreadyActiveException;
+import pl.dawid0604.realestate.domain.shared.exception.UserBannedException;
+import pl.dawid0604.realestate.domain.shared.exception.UserCannotBeActivatedException;
+import pl.dawid0604.realestate.domain.shared.exception.UserCannotBeUnbannedException;
 
 class UserTest {
 
@@ -92,7 +96,7 @@ class UserTest {
                                                 .email(getValidEmail())
                                                 .password(getValidPassword())
                                                 .fullName(getValidFullName())
-                                                .role(UserRole.USER_ROLE)
+                                                .role(UserRole.ROLE_USER)
                                                 .build())
                         .isExactlyInstanceOf(InvalidArgumentValueException.class)
                         .hasMessage("ContactDetails cannot be null");
@@ -110,7 +114,7 @@ class UserTest {
                                                 .email(getValidEmail())
                                                 .password(getValidPassword())
                                                 .fullName(getValidFullName())
-                                                .role(UserRole.USER_ROLE)
+                                                .role(UserRole.ROLE_USER)
                                                 .contactDetails(getValidContactDetails())
                                                 .build())
                         .isExactlyInstanceOf(InvalidArgumentValueException.class)
@@ -128,7 +132,7 @@ class UserTest {
                                                 .email(getValidEmail())
                                                 .password(getValidPassword())
                                                 .fullName(getValidFullName())
-                                                .role(UserRole.USER_ROLE)
+                                                .role(UserRole.ROLE_USER)
                                                 .contactDetails(getValidContactDetails())
                                                 .type(UserType.AGENCY)
                                                 .build())
@@ -146,7 +150,7 @@ class UserTest {
                                                 .email(getValidEmail())
                                                 .password(getValidPassword())
                                                 .fullName(getValidFullName())
-                                                .role(UserRole.USER_ROLE)
+                                                .role(UserRole.ROLE_USER)
                                                 .contactDetails(getValidContactDetails())
                                                 .avatar(getValidAvatar())
                                                 .type(UserType.AGENCY)
@@ -164,7 +168,7 @@ class UserTest {
                                 .email(getValidEmail())
                                 .password(getValidPassword())
                                 .fullName(getValidFullName())
-                                .role(UserRole.USER_ROLE)
+                                .role(UserRole.ROLE_USER)
                                 .contactDetails(getValidContactDetails())
                                 .type(UserType.AGENCY)
                                 .build();
@@ -186,7 +190,7 @@ class UserTest {
                                 .email(getValidEmail())
                                 .password(getValidPassword())
                                 .fullName(getValidFullName())
-                                .role(UserRole.USER_ROLE)
+                                .role(UserRole.ROLE_USER)
                                 .contactDetails(getValidContactDetails())
                                 .type(UserType.AGENCY)
                                 .build();
@@ -205,7 +209,7 @@ class UserTest {
                                 .email(getValidEmail())
                                 .password(getValidPassword())
                                 .fullName(getValidFullName())
-                                .role(UserRole.USER_ROLE)
+                                .role(UserRole.ROLE_USER)
                                 .contactDetails(getValidContactDetails())
                                 .type(UserType.AGENCY)
                                 .build();
@@ -229,7 +233,7 @@ class UserTest {
                                 .email(getValidEmail())
                                 .password(getValidPassword())
                                 .fullName(getValidFullName())
-                                .role(UserRole.USER_ROLE)
+                                .role(UserRole.ROLE_USER)
                                 .contactDetails(getValidContactDetails())
                                 .type(UserType.AGENCY)
                                 .build();
@@ -250,7 +254,7 @@ class UserTest {
                                 .email(getValidEmail())
                                 .password(getValidPassword())
                                 .fullName(getValidFullName())
-                                .role(UserRole.USER_ROLE)
+                                .role(UserRole.ROLE_USER)
                                 .contactDetails(getValidContactDetails())
                                 .type(type)
                                 .build();
@@ -271,7 +275,7 @@ class UserTest {
                                 .email(getValidEmail())
                                 .password(getValidPassword())
                                 .fullName(getValidFullName())
-                                .role(UserRole.USER_ROLE)
+                                .role(UserRole.ROLE_USER)
                                 .contactDetails(getValidContactDetails())
                                 .createdAt(createdAt)
                                 .type(UserType.AGENCY)
@@ -298,7 +302,7 @@ class UserTest {
                                                 .email(getValidEmail())
                                                 .password(getValidPassword())
                                                 .fullName(getValidFullName())
-                                                .role(UserRole.USER_ROLE)
+                                                .role(UserRole.ROLE_USER)
                                                 .contactDetails(getValidContactDetails())
                                                 .createdAt(createdAt)
                                                 .type(UserType.AGENCY)
@@ -316,7 +320,7 @@ class UserTest {
                                 .email(getValidEmail())
                                 .password(getValidPassword())
                                 .fullName(getValidFullName())
-                                .role(UserRole.USER_ROLE)
+                                .role(UserRole.ROLE_USER)
                                 .contactDetails(getValidContactDetails())
                                 .type(UserType.AGENCY)
                                 .build();
@@ -337,7 +341,7 @@ class UserTest {
                                 .email(getValidEmail())
                                 .password(getValidPassword())
                                 .fullName(getValidFullName())
-                                .role(UserRole.USER_ROLE)
+                                .role(UserRole.ROLE_USER)
                                 .contactDetails(getValidContactDetails())
                                 .lastLoginAt(lastLoginAt)
                                 .type(UserType.AGENCY)
@@ -359,7 +363,7 @@ class UserTest {
                                 .email(getValidEmail())
                                 .password(getValidPassword())
                                 .fullName(getValidFullName())
-                                .role(UserRole.USER_ROLE)
+                                .role(UserRole.ROLE_USER)
                                 .contactDetails(getValidContactDetails())
                                 .status(status)
                                 .type(UserType.AGENCY)
@@ -384,7 +388,7 @@ class UserTest {
                                                 .email(getValidEmail())
                                                 .password(getValidPassword())
                                                 .fullName(getValidFullName())
-                                                .role(UserRole.USER_ROLE)
+                                                .role(UserRole.ROLE_USER)
                                                 .contactDetails(getValidContactDetails())
                                                 .type(UserType.AGENCY)
                                                 .lastLoginAt(lastLoginAt)
@@ -468,7 +472,7 @@ class UserTest {
                                                 .email(getValidEmail())
                                                 .password(getValidPassword())
                                                 .fullName(getValidFullName())
-                                                .role(UserRole.USER_ROLE)
+                                                .role(UserRole.ROLE_USER)
                                                 .build())
                         .isExactlyInstanceOf(InvalidArgumentValueException.class)
                         .hasMessage("ContactDetails cannot be null");
@@ -489,7 +493,7 @@ class UserTest {
                                                 .password(getValidPassword())
                                                 .type(UserType.AGENCY)
                                                 .fullName(getValidFullName())
-                                                .role(UserRole.USER_ROLE)
+                                                .role(UserRole.ROLE_USER)
                                                 .contactDetails(getValidContactDetails())
                                                 .build())
                         .isExactlyInstanceOf(InvalidArgumentValueException.class)
@@ -510,7 +514,7 @@ class UserTest {
                                                 .email(getValidEmail())
                                                 .password(getValidPassword())
                                                 .fullName(getValidFullName())
-                                                .role(UserRole.USER_ROLE)
+                                                .role(UserRole.ROLE_USER)
                                                 .contactDetails(getValidContactDetails())
                                                 .status(UserStatus.ACTIVE)
                                                 .build())
@@ -530,7 +534,7 @@ class UserTest {
                                                 .email(getValidEmail())
                                                 .password(getValidPassword())
                                                 .fullName(getValidFullName())
-                                                .role(UserRole.USER_ROLE)
+                                                .role(UserRole.ROLE_USER)
                                                 .contactDetails(getValidContactDetails())
                                                 .type(UserType.AGENCY)
                                                 .status(UserStatus.ACTIVE)
@@ -552,7 +556,7 @@ class UserTest {
                                                 .password(getValidPassword())
                                                 .type(UserType.AGENCY)
                                                 .fullName(getValidFullName())
-                                                .role(UserRole.USER_ROLE)
+                                                .role(UserRole.ROLE_USER)
                                                 .contactDetails(getValidContactDetails())
                                                 .status(UserStatus.ACTIVE)
                                                 .id(getValidIdentifier())
@@ -573,7 +577,7 @@ class UserTest {
                                                 .email(getValidEmail())
                                                 .password(getValidPassword())
                                                 .fullName(getValidFullName())
-                                                .role(UserRole.USER_ROLE)
+                                                .role(UserRole.ROLE_USER)
                                                 .contactDetails(getValidContactDetails())
                                                 .status(UserStatus.ACTIVE)
                                                 .id(getValidIdentifier())
@@ -596,7 +600,7 @@ class UserTest {
                                                 .email(getValidEmail())
                                                 .password(getValidPassword())
                                                 .fullName(getValidFullName())
-                                                .role(UserRole.USER_ROLE)
+                                                .role(UserRole.ROLE_USER)
                                                 .contactDetails(getValidContactDetails())
                                                 .status(UserStatus.ACTIVE)
                                                 .type(UserType.AGENCY)
@@ -618,7 +622,7 @@ class UserTest {
                                 .email(getValidEmail())
                                 .password(getValidPassword())
                                 .fullName(getValidFullName())
-                                .role(UserRole.USER_ROLE)
+                                .role(UserRole.ROLE_USER)
                                 .contactDetails(getValidContactDetails())
                                 .status(UserStatus.ACTIVE)
                                 .id(getValidIdentifier())
@@ -645,7 +649,7 @@ class UserTest {
                                                 .email(getValidEmail())
                                                 .password(getValidPassword())
                                                 .fullName(getValidFullName())
-                                                .role(UserRole.USER_ROLE)
+                                                .role(UserRole.ROLE_USER)
                                                 .contactDetails(getValidContactDetails())
                                                 .status(UserStatus.ACTIVE)
                                                 .type(UserType.AGENCY)
@@ -669,7 +673,7 @@ class UserTest {
                                                 .email(getValidEmail())
                                                 .password(getValidPassword())
                                                 .fullName(getValidFullName())
-                                                .role(UserRole.USER_ROLE)
+                                                .role(UserRole.ROLE_USER)
                                                 .contactDetails(getValidContactDetails())
                                                 .status(UserStatus.ACTIVE)
                                                 .id(getValidIdentifier())
@@ -695,7 +699,7 @@ class UserTest {
                         .email(getValidEmail())
                         .password(getValidPassword())
                         .fullName(getValidFullName())
-                        .role(UserRole.USER_ROLE)
+                        .role(UserRole.ROLE_USER)
                         .contactDetails(getValidContactDetails())
                         .status(status)
                         .id(getValidIdentifier())
@@ -720,7 +724,7 @@ class UserTest {
                         .email(getValidEmail())
                         .password(getValidPassword())
                         .fullName(getValidFullName())
-                        .role(UserRole.USER_ROLE)
+                        .role(UserRole.ROLE_USER)
                         .contactDetails(getValidContactDetails())
                         .status(status)
                         .id(getValidIdentifier())
@@ -745,7 +749,7 @@ class UserTest {
                         .email(getValidEmail())
                         .password(getValidPassword())
                         .fullName(getValidFullName())
-                        .role(UserRole.USER_ROLE)
+                        .role(UserRole.ROLE_USER)
                         .contactDetails(getValidContactDetails())
                         .status(status)
                         .id(getValidIdentifier())
@@ -771,7 +775,7 @@ class UserTest {
                             .email(getValidEmail())
                             .password(getValidPassword())
                             .fullName(getValidFullName())
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .contactDetails(getValidContactDetails())
                             .status(UserStatus.BANNED)
                             .id(getValidIdentifier())
@@ -781,7 +785,7 @@ class UserTest {
 
             // Then
             Assertions.assertThatThrownBy(instance::ban)
-                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
+                    .isExactlyInstanceOf(UserBannedException.class)
                     .hasMessage("User is already banned");
         }
 
@@ -799,7 +803,7 @@ class UserTest {
                             .email(getValidEmail())
                             .password(getValidPassword())
                             .fullName(getValidFullName())
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .contactDetails(getValidContactDetails())
                             .status(status)
                             .id(getValidIdentifier())
@@ -834,7 +838,7 @@ class UserTest {
                             .email(getValidEmail())
                             .password(getValidPassword())
                             .fullName(getValidFullName())
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .contactDetails(getValidContactDetails())
                             .status(status)
                             .id(getValidIdentifier())
@@ -844,8 +848,8 @@ class UserTest {
 
             // Then
             Assertions.assertThatThrownBy(instance::unban)
-                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
-                    .hasMessage("User is not banned");
+                    .isExactlyInstanceOf(UserCannotBeUnbannedException.class)
+                    .hasMessage("User cannot be unbanned");
         }
 
         @ParameterizedTest
@@ -862,7 +866,7 @@ class UserTest {
                             .email(getValidEmail())
                             .password(getValidPassword())
                             .fullName(getValidFullName())
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .contactDetails(getValidContactDetails())
                             .status(status)
                             .id(getValidIdentifier())
@@ -892,7 +896,7 @@ class UserTest {
                             .email(getValidEmail())
                             .password(getValidPassword())
                             .fullName(getValidFullName())
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .contactDetails(getValidContactDetails())
                             .status(UserStatus.ACTIVE)
                             .id(getValidIdentifier())
@@ -902,7 +906,7 @@ class UserTest {
 
             // Then
             Assertions.assertThatThrownBy(instance::activate)
-                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
+                    .isExactlyInstanceOf(UserAlreadyActiveException.class)
                     .hasMessage("User is already active");
         }
 
@@ -916,7 +920,7 @@ class UserTest {
                             .email(getValidEmail())
                             .password(getValidPassword())
                             .fullName(getValidFullName())
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .contactDetails(getValidContactDetails())
                             .status(UserStatus.BANNED)
                             .id(getValidIdentifier())
@@ -926,8 +930,8 @@ class UserTest {
 
             // Then
             Assertions.assertThatThrownBy(instance::activate)
-                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
-                    .hasMessage("User must be deactivated");
+                    .isExactlyInstanceOf(UserCannotBeActivatedException.class)
+                    .hasMessage("User is already active");
         }
 
         @Test
@@ -939,7 +943,7 @@ class UserTest {
                             .email(getValidEmail())
                             .password(getValidPassword())
                             .fullName(getValidFullName())
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .contactDetails(getValidContactDetails())
                             .status(UserStatus.INACTIVE)
                             .id(getValidIdentifier())
@@ -969,7 +973,7 @@ class UserTest {
                             .email(getValidEmail())
                             .password(getValidPassword())
                             .fullName(getValidFullName())
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .contactDetails(getValidContactDetails())
                             .status(UserStatus.ACTIVE)
                             .id(getValidIdentifier())
@@ -993,7 +997,7 @@ class UserTest {
                             .email(getValidEmail())
                             .password(getValidPassword())
                             .fullName(getValidFullName())
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .contactDetails(getValidContactDetails())
                             .status(UserStatus.ACTIVE)
                             .id(getValidIdentifier())
@@ -1011,61 +1015,6 @@ class UserTest {
     }
 
     @Nested
-    final class UpdateEmailTests {
-
-        @Test
-        @DisplayName("Should throw exception when email is null")
-        void shouldThrowExceptionWhenEmailIsNull() {
-            // Given
-            // When
-            final User instance =
-                    User.reconstitute()
-                            .email(getValidEmail())
-                            .password(getValidPassword())
-                            .fullName(getValidFullName())
-                            .role(UserRole.USER_ROLE)
-                            .contactDetails(getValidContactDetails())
-                            .status(UserStatus.ACTIVE)
-                            .id(getValidIdentifier())
-                            .createdAt(Instant.now())
-                            .type(UserType.AGENCY)
-                            .build();
-
-            // Then
-            Assertions.assertThatThrownBy(() -> instance.updateEmail(null))
-                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
-                    .hasMessage("Email cannot be null");
-        }
-
-        @Test
-        @DisplayName("Should update email successfully")
-        void shouldUpdateEmailSuccessfully() {
-            // Given
-            final Email newEmail = new Email("abc@mail.com");
-
-            final User instance =
-                    User.reconstitute()
-                            .email(getValidEmail())
-                            .password(getValidPassword())
-                            .fullName(getValidFullName())
-                            .role(UserRole.USER_ROLE)
-                            .contactDetails(getValidContactDetails())
-                            .status(UserStatus.ACTIVE)
-                            .id(getValidIdentifier())
-                            .createdAt(Instant.now())
-                            .type(UserType.AGENCY)
-                            .build();
-
-            // When
-            final User updatedInstance = instance.updateEmail(newEmail);
-
-            // Then
-            Assertions.assertThat(updatedInstance).isEqualTo(instance);
-            Assertions.assertThat(updatedInstance.getEmail()).isEqualTo(newEmail);
-        }
-    }
-
-    @Nested
     final class UpdateContactDetailsTests {
 
         @Test
@@ -1078,7 +1027,7 @@ class UserTest {
                             .email(getValidEmail())
                             .password(getValidPassword())
                             .fullName(getValidFullName())
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .contactDetails(getValidContactDetails())
                             .status(UserStatus.ACTIVE)
                             .id(getValidIdentifier())
@@ -1104,7 +1053,7 @@ class UserTest {
                             .email(getValidEmail())
                             .password(getValidPassword())
                             .fullName(getValidFullName())
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .contactDetails(getValidContactDetails())
                             .status(UserStatus.ACTIVE)
                             .id(getValidIdentifier())
@@ -1134,7 +1083,7 @@ class UserTest {
                             .email(getValidEmail())
                             .password(getValidPassword())
                             .fullName(getValidFullName())
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .contactDetails(getValidContactDetails())
                             .status(UserStatus.ACTIVE)
                             .id(getValidIdentifier())
@@ -1159,7 +1108,7 @@ class UserTest {
                             .email(getValidEmail())
                             .password(getValidPassword())
                             .fullName(getValidFullName())
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .contactDetails(getValidContactDetails())
                             .status(UserStatus.ACTIVE)
                             .id(getValidIdentifier())
@@ -1190,7 +1139,7 @@ class UserTest {
                             .email(getValidEmail())
                             .password(getValidPassword())
                             .fullName(getValidFullName())
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .contactDetails(getValidContactDetails())
                             .status(UserStatus.ACTIVE)
                             .id(getValidIdentifier())
@@ -1203,7 +1152,7 @@ class UserTest {
 
             // Then
             Assertions.assertThat(updatedInstance).isEqualTo(instance);
-            Assertions.assertThat(updatedInstance.getAvatar()).isPresent().hasValue(newAvatar);
+            Assertions.assertThat(updatedInstance.getAvatar()).isEqualTo(newAvatar);
         }
 
         @Test
@@ -1215,7 +1164,7 @@ class UserTest {
                             .email(getValidEmail())
                             .password(getValidPassword())
                             .fullName(getValidFullName())
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .contactDetails(getValidContactDetails())
                             .status(UserStatus.ACTIVE)
                             .id(getValidIdentifier())
@@ -1228,7 +1177,7 @@ class UserTest {
 
             // Then
             Assertions.assertThat(updatedInstance).isEqualTo(instance);
-            Assertions.assertThat(updatedInstance.getAvatar()).isEmpty();
+            Assertions.assertThat(updatedInstance.getAvatar()).isNull();
         }
     }
 
@@ -1244,7 +1193,7 @@ class UserTest {
                             .email(getValidEmail())
                             .password(getValidPassword())
                             .fullName(getValidFullName())
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .contactDetails(getValidContactDetails())
                             .status(UserStatus.ACTIVE)
                             .id(getValidIdentifier())
@@ -1274,7 +1223,7 @@ class UserTest {
                             .email(getValidEmail())
                             .password(getValidPassword())
                             .fullName(getValidFullName())
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .contactDetails(getValidContactDetails())
                             .status(UserStatus.ACTIVE)
                             .id(getValidIdentifier())
@@ -1307,7 +1256,7 @@ class UserTest {
                             .email(getValidEmail())
                             .password(getValidPassword())
                             .fullName(getValidFullName())
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .contactDetails(getValidContactDetails())
                             .type(UserType.AGENCY)
                             .build();
@@ -1334,7 +1283,7 @@ class UserTest {
                             .email(getValidEmail())
                             .password(getValidPassword())
                             .fullName(getValidFullName())
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .contactDetails(getValidContactDetails())
                             .type(UserType.AGENCY)
                             .build();
@@ -1342,7 +1291,7 @@ class UserTest {
             // When
             // Then
             Assertions.assertThatThrownBy(instance::register)
-                    .isExactlyInstanceOf(UnauthorizedAccessException.class)
+                    .isExactlyInstanceOf(ForbiddenException.class)
                     .hasMessage("User is already registered");
         }
     }
@@ -1361,7 +1310,7 @@ class UserTest {
                             .email(getValidEmail())
                             .password(getValidPassword())
                             .fullName(getValidFullName())
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .contactDetails(getValidContactDetails())
                             .status(UserStatus.ACTIVE)
                             .id(getValidIdentifier())
@@ -1386,7 +1335,7 @@ class UserTest {
                             .email(getValidEmail())
                             .password(getValidPassword())
                             .fullName(getValidFullName())
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .contactDetails(getValidContactDetails())
                             .status(UserStatus.ACTIVE)
                             .id(getValidIdentifier())
@@ -1421,7 +1370,7 @@ class UserTest {
                             .createdAt(Instant.now())
                             .password(getValidPassword())
                             .fullName(getValidFullName())
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .contactDetails(getValidContactDetails())
                             .type(UserType.AGENCY)
                             .status(status)
@@ -1429,7 +1378,7 @@ class UserTest {
 
             // When
             Assertions.assertThatThrownBy(instance::verifyUser)
-                    .isExactlyInstanceOf(UnauthorizedAccessException.class)
+                    .isExactlyInstanceOf(ForbiddenException.class)
                     .hasMessage("User account has no permissions to perform this action");
         }
 
@@ -1444,7 +1393,7 @@ class UserTest {
                             .createdAt(Instant.now())
                             .password(getValidPassword())
                             .fullName(getValidFullName())
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .contactDetails(getValidContactDetails())
                             .type(UserType.AGENCY)
                             .status(UserStatus.ACTIVE)

@@ -3,11 +3,12 @@ package pl.dawid0604.realestate.application.command.handler.user;
 
 import static lombok.AccessLevel.PACKAGE;
 
-import lombok.RequiredArgsConstructor;
+import java.util.UUID;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
+import lombok.RequiredArgsConstructor;
 import pl.dawid0604.realestate.application.command.RegisterUserCommand;
 import pl.dawid0604.realestate.application.port.in.CommandHandler;
 import pl.dawid0604.realestate.domain.ContactDetails;
@@ -17,12 +18,9 @@ import pl.dawid0604.realestate.domain.Password;
 import pl.dawid0604.realestate.domain.PhoneNumber;
 import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserRole;
-import pl.dawid0604.realestate.domain.UserType;
 import pl.dawid0604.realestate.domain.port.out.PasswordRepository;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.exception.UserExistsException;
-
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor(access = PACKAGE)
@@ -33,21 +31,21 @@ class RegisterUserHandler implements CommandHandler<RegisterUserCommand, UUID> {
 
     @Override
     public UUID handle(final RegisterUserCommand command) {
-        if (userRepository.existsByEmail(command.email())) {
-            throw new UserExistsException(command.email());
+        if (userRepository.existsByEmail(command.username())) {
+            throw new UserExistsException(command.username());
         }
 
         User user =
                 User.create()
-                        .email(new Email(command.email()))
+                        .email(new Email(command.username()))
                         .password(Password.ofHashed(passwordRepository.encode(command.password())))
                         .fullName(new FullName(command.firstName(), command.lastName()))
-                        .role(UserRole.USER_ROLE)
-                        .type(UserType.of(command.type()))
+                        .role(UserRole.ROLE_USER)
+                        .type(command.type())
                         .contactDetails(
                                 new ContactDetails(
                                         new Email(command.notificationEmail()),
-                                        new PhoneNumber(command.phoneNumber())))
+                                        new PhoneNumber(command.notificationPhoneNumber())))
                         .build();
 
         user = user.register();

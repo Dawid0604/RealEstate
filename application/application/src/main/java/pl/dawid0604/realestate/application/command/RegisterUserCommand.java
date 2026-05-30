@@ -1,18 +1,14 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.command;
 
-import pl.dawid0604.realestate.application.validation.ValidEmail;
-import pl.dawid0604.realestate.application.validation.ValidFirstName;
-import pl.dawid0604.realestate.application.validation.ValidLastName;
-import pl.dawid0604.realestate.application.validation.ValidPassword;
-import pl.dawid0604.realestate.application.validation.ValidUserType;
+import pl.dawid0604.realestate.domain.UserType;
 
 public record RegisterUserCommand(
-        @ValidEmail String email,
-        @ValidPassword String password,
-        @ValidFirstName String firstName,
-        @ValidLastName String lastName,
-        @ValidUserType String type,
+        String username,
+        String password,
+        String firstName,
+        String lastName,
+        UserType type,
         String notificationEmail,
-        String phoneNumber)
+        String notificationPhoneNumber)
         implements Command {}

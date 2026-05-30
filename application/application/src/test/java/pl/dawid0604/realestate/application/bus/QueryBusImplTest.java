@@ -7,20 +7,23 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
+import java.util.List;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import pl.dawid0604.realestate.application.port.in.QueryHandler;
-import pl.dawid0604.realestate.application.query.IsUserBannedQuery;
+import pl.dawid0604.realestate.application.query.UserAdvertisementsQuery;
 import pl.dawid0604.realestate.application.query.UserProfileQuery;
-
-import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 class QueryBusImplTest {
+    @Mock private PlatformTransactionManager transactionManager;
 
     private static final class TestHandler implements QueryHandler<UserProfileQuery, String> {
 
@@ -35,16 +38,17 @@ class QueryBusImplTest {
         }
     }
 
-    private static final class SecondTestHandler implements QueryHandler<IsUserBannedQuery, Void> {
+    private static final class SecondTestHandler
+            implements QueryHandler<UserAdvertisementsQuery, Void> {
 
         @Override
-        public Void handle(final IsUserBannedQuery query) {
+        public Void handle(final UserAdvertisementsQuery query) {
             return null;
         }
 
         @Override
-        public Class<IsUserBannedQuery> getQueryType() {
-            return IsUserBannedQuery.class;
+        public Class<UserAdvertisementsQuery> getQueryType() {
+            return UserAdvertisementsQuery.class;
         }
     }
 
@@ -56,7 +60,7 @@ class QueryBusImplTest {
 
         // When
         // Then
-        Assertions.assertThatCode(() -> new QueryBusImpl(List.of(handler)))
+        Assertions.assertThatCode(() -> new QueryBusImpl(List.of(handler), transactionManager))
                 .doesNotThrowAnyException();
     }
 
@@ -66,7 +70,8 @@ class QueryBusImplTest {
         // Given
         // When
         // Then
-        Assertions.assertThatCode(() -> new QueryBusImpl(List.of())).doesNotThrowAnyException();
+        Assertions.assertThatCode(() -> new QueryBusImpl(List.of(), transactionManager))
+                .doesNotThrowAnyException();
     }
 
     @Test
@@ -75,7 +80,8 @@ class QueryBusImplTest {
         // Given
         // When
         // Then
-        Assertions.assertThatCode(() -> new QueryBusImpl(null)).doesNotThrowAnyException();
+        Assertions.assertThatCode(() -> new QueryBusImpl(null, transactionManager))
+                .doesNotThrowAnyException();
     }
 
     @Test
@@ -85,7 +91,7 @@ class QueryBusImplTest {
         final TestHandler handler = spy(new TestHandler());
 
         // When
-        final QueryBusImpl instance = new QueryBusImpl(List.of(handler));
+        final QueryBusImpl instance = new QueryBusImpl(List.of(handler), transactionManager);
 
         // Then
         Assertions.assertThatCode(() -> instance.send(mock(UserProfileQuery.class)))
@@ -101,7 +107,8 @@ class QueryBusImplTest {
 
         // When
         // Then
-        Assertions.assertThatThrownBy(() -> new QueryBusImpl(List.of(handler1, handler2)))
+        Assertions.assertThatThrownBy(
+                        () -> new QueryBusImpl(List.of(handler1, handler2), transactionManager))
                 .isExactlyInstanceOf(IllegalStateException.class);
     }
 
@@ -112,7 +119,7 @@ class QueryBusImplTest {
         final TestHandler handler1 = spy(new TestHandler());
 
         // When
-        final QueryBusImpl instance = new QueryBusImpl(List.of(handler1));
+        final QueryBusImpl instance = new QueryBusImpl(List.of(handler1), transactionManager);
 
         // Then
         Assertions.assertThatThrownBy(() -> instance.send(null))
@@ -125,11 +132,13 @@ class QueryBusImplTest {
     void shouldHandleQueryDifferentGenericTypes() {
         // Given
         final QueryHandler<UserProfileQuery, String> handler1 = spy(new TestHandler());
-        final QueryHandler<IsUserBannedQuery, Void> handler2 = spy(new SecondTestHandler());
+        final QueryHandler<UserAdvertisementsQuery, Void> handler2 = spy(new SecondTestHandler());
 
         // When
-        final QueryBusImpl instance = new QueryBusImpl(List.of(handler1, handler2));
-        instance.send(mock(IsUserBannedQuery.class));
+        final QueryBusImpl instance =
+                new QueryBusImpl(List.of(handler1, handler2), transactionManager);
+
+        instance.send(mock(UserAdvertisementsQuery.class));
 
         // Then
         verify(handler1, never()).handle(any());
@@ -143,7 +152,7 @@ class QueryBusImplTest {
         final TestHandler handler = spy(new TestHandler());
 
         // When
-        final QueryBusImpl instance = new QueryBusImpl(List.of(handler));
+        final QueryBusImpl instance = new QueryBusImpl(List.of(handler), transactionManager);
         instance.send(mock(UserProfileQuery.class));
 
         // Then
@@ -155,7 +164,7 @@ class QueryBusImplTest {
     void shouldThrowExceptionWhenHandlerNotFound() {
         // Given
         // When
-        final QueryBusImpl instance = new QueryBusImpl(List.of());
+        final QueryBusImpl instance = new QueryBusImpl(List.of(), transactionManager);
 
         // Then
         Assertions.assertThatThrownBy(() -> instance.send(mock(UserProfileQuery.class)))

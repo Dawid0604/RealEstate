@@ -3,7 +3,8 @@ package pl.dawid0604.realestate.application.query;
 
 public sealed interface Query
         permits AdvertisementDetailsQuery,
-                IsUserBannedQuery,
+                FindLocalitiesQuery,
+                FindLocalityByIdQuery,
                 SearchAdvertisementsQuery,
                 UserAdvertisementsQuery,
                 UserProfileQuery {}

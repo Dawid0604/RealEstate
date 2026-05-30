@@ -1,29 +1,13 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
-import java.util.Optional;
-
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 
-public final class ContactDetails {
-    private final Email email;
-    private final PhoneNumber phoneNumber;
-
-    public ContactDetails(final Email email, final PhoneNumber phoneNumber) {
+public record ContactDetails(Email email, PhoneNumber phoneNumber) {
+    public ContactDetails {
         if (email == null && phoneNumber == null) {
             throw new InvalidArgumentValueException(
                     "At least one contact details must be provided");
         }
-
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-    }
-
-    public Optional<Email> getEmail() {
-        return Optional.ofNullable(email);
-    }
-
-    public Optional<PhoneNumber> getPhoneNumber() {
-        return Optional.ofNullable(phoneNumber);
     }
 }

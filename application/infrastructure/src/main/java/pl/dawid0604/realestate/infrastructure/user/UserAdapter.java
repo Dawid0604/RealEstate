@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import pl.dawid0604.realestate.domain.User;
+import pl.dawid0604.realestate.domain.UserRole;
 import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.UserType;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
@@ -84,5 +85,11 @@ class UserAdapter implements UserRepository {
     @Transactional(readOnly = true)
     public boolean hasStatus(final String email, final UserStatus userStatus) {
         return repository.hasStatus(email, userStatus);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<UserRole> findUserRoleByEmail(final String email) {
+        return repository.findRoleByEmail(email);
     }
 }

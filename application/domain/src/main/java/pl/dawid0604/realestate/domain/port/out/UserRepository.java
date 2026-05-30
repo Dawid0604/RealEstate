@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import pl.dawid0604.realestate.domain.User;
+import pl.dawid0604.realestate.domain.UserRole;
 import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.UserType;
 import pl.dawid0604.realestate.domain.shared.user.projection.AdvertisementUserProjection;
@@ -29,4 +30,6 @@ public interface UserRepository {
     boolean hasStatus(String email, UserStatus userStatus);
 
     Optional<UUID> findIdByEmail(String email);
+
+    Optional<UserRole> findUserRoleByEmail(String email);
 }

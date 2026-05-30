@@ -6,7 +6,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-
 import static pl.dawid0604.realestate.application.fixture.AdvertisementFixture.getDummyAdvertisementBuilder;
 import static pl.dawid0604.realestate.application.fixture.AdvertisementFixture.getDummyCommercialDetails;
 import static pl.dawid0604.realestate.application.fixture.AdvertisementFixture.getDummyFlatDetails;
@@ -14,6 +13,9 @@ import static pl.dawid0604.realestate.application.fixture.AdvertisementFixture.g
 import static pl.dawid0604.realestate.application.fixture.AdvertisementFixture.getDummyPlotDetails;
 import static pl.dawid0604.realestate.application.fixture.UserFixture.getDummyEmail;
 import static pl.dawid0604.realestate.application.fixture.UserFixture.getDummyUserBuilder;
+
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,11 +41,8 @@ import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.exception.AdvertisementNotFoundException;
-import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
+import pl.dawid0604.realestate.domain.shared.exception.ForbiddenException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
-
-import java.util.Optional;
-import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
 class AddAdvertisementPhotoHandlerTest {
@@ -84,7 +83,7 @@ class AddAdvertisementPhotoHandlerTest {
         // When
         // Then
         Assertions.assertThatThrownBy(() -> handler.handle(command))
-                .isExactlyInstanceOf(UnauthorizedAccessException.class);
+                .isExactlyInstanceOf(ForbiddenException.class);
 
         verify(userRepository, never()).save(any());
         verify(advertisementRepository, never()).save(any());
@@ -123,9 +122,7 @@ class AddAdvertisementPhotoHandlerTest {
                                 .build());
 
         given(userRepository.findByEmail(command.userEmail())).willReturn(Optional.of(foundUser));
-        given(
-                        advertisementRepository.findBySlug(
-                                command.slug(), AdvertisementType.of(command.advertisementType())))
+        given(advertisementRepository.findBySlug(command.slug(), command.advertisementType()))
                 .willReturn(Optional.of(foundAdvertisement));
 
         // When
@@ -161,6 +158,6 @@ class AddAdvertisementPhotoHandlerTest {
 
     private static AddAdvertisementPhotoCommand getCommand() {
         return new AddAdvertisementPhotoCommand(
-                "abcde", AdvertisementType.FLAT.name(), "https://photo", 0, getDummyEmail());
+                "abcde", AdvertisementType.FLAT, "https://photo", 0, getDummyEmail());
     }
 }

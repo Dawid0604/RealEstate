@@ -18,6 +18,7 @@ import pl.dawid0604.realestate.application.port.in.CommandHandler;
 import pl.dawid0604.realestate.domain.Advertisement;
 import pl.dawid0604.realestate.domain.AdvertisementClaim;
 import pl.dawid0604.realestate.domain.AdvertisementDetails;
+import pl.dawid0604.realestate.domain.AdvertisementLocality;
 import pl.dawid0604.realestate.domain.AdvertisementPhoto;
 import pl.dawid0604.realestate.domain.Area;
 import pl.dawid0604.realestate.domain.BuildingType;
@@ -31,7 +32,6 @@ import pl.dawid0604.realestate.domain.Floor;
 import pl.dawid0604.realestate.domain.HouseBuildingType;
 import pl.dawid0604.realestate.domain.HouseDetails;
 import pl.dawid0604.realestate.domain.Identifier;
-import pl.dawid0604.realestate.domain.Locality;
 import pl.dawid0604.realestate.domain.MoneyCurrency;
 import pl.dawid0604.realestate.domain.NumberOfRooms;
 import pl.dawid0604.realestate.domain.PlotBuildingType;
@@ -48,16 +48,15 @@ import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor(access = PACKAGE)
-class CreateAdvertisementHandler implements CommandHandler<CreateAdvertisementCommand, UUID> {
+class CreateAdvertisementHandler implements CommandHandler<CreateAdvertisementCommand, String> {
     private final AdvertisementRepository advertisementRepository;
     private final UserRepository userRepository;
 
     @Override
-    public UUID handle(final CreateAdvertisementCommand command) {
+    public String handle(final CreateAdvertisementCommand command) {
         final User user =
                 userRepository
                         .findByEmail(command.userEmail())
@@ -69,7 +68,7 @@ class CreateAdvertisementHandler implements CommandHandler<CreateAdvertisementCo
         builder.title(new Title(command.title()));
         builder.description(new Description(command.description()));
         builder.price(new Price(command.price(), MoneyCurrency.PLN));
-        builder.locality(new Locality(Identifier.of(command.localityId())));
+        builder.locality(new AdvertisementLocality(Identifier.of(command.localityId())));
         builder.userId(user.getId());
         builder.photos(getPhotos(command.photos()));
         builder.featured(command.featured());
@@ -79,7 +78,7 @@ class CreateAdvertisementHandler implements CommandHandler<CreateAdvertisementCo
         final Advertisement builtAdvertisement = builder.build();
         advertisementRepository.save(builtAdvertisement);
 
-        return builtAdvertisement.getId().getValue();
+        return builtAdvertisement.getSlug().getValue();
     }
 
     @Override
@@ -135,7 +134,7 @@ class CreateAdvertisementHandler implements CommandHandler<CreateAdvertisementCo
 
     private static Set<AdvertisementClaim> mapClaims(final Map<String, String> claims) {
         return claims.entrySet().stream()
-                .map(e -> new AdvertisementClaim(e.getKey(), e.getValue()))
+                .map(e -> new AdvertisementClaim(Identifier.generate(), e.getKey(), e.getValue()))
                 .collect(toSet());
     }
 }

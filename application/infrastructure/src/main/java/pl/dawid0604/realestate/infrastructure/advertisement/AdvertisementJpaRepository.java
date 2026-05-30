@@ -40,6 +40,7 @@ import org.springframework.util.CollectionUtils;
 
 import lombok.RequiredArgsConstructor;
 import pl.dawid0604.realestate.domain.AdvertisementStatus;
+import pl.dawid0604.realestate.domain.Identifier;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.advertisement.SearchAdvertisementsCriteria;
 import pl.dawid0604.realestate.domain.shared.advertisement.SearchCommercialAdvertisementsCriteria;
@@ -86,6 +87,22 @@ class AdvertisementJpaRepository {
             case HouseAdvertisementEntity houseEntity -> houseJpaRepository.save(houseEntity);
             case PlotAdvertisementEntity plotEntity -> plotJpaRepository.save(plotEntity);
         }
+    }
+
+    void clearFlatClaims(final Identifier id) {
+        flatClaimJpaRepository.deleteByAdvertisementId(id.getValue());
+    }
+
+    void clearHouseClaims(final Identifier id) {
+        houseClaimJpaRepository.deleteByAdvertisementId(id.getValue());
+    }
+
+    void clearCommercialClaims(final Identifier id) {
+        commercialClaimJpaRepository.deleteByAdvertisementId(id.getValue());
+    }
+
+    void clearPlotClaims(final Identifier id) {
+        plotClaimJpaRepository.deleteByAdvertisementId(id.getValue());
     }
 
     Optional<AdvertisementEntity<?, ?>> findBySlug(

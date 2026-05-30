@@ -1,15 +1,21 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.command.handler.advertisement;
 
+import static java.util.Collections.emptySet;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-
 import static pl.dawid0604.realestate.application.fixture.UserFixture.getDummyEmail;
 import static pl.dawid0604.realestate.application.fixture.UserFixture.getDummyUserBuilder;
 
-import static java.util.Collections.emptySet;
+import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,16 +53,8 @@ import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
-import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
+import pl.dawid0604.realestate.domain.shared.exception.ForbiddenException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
-
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
 class CreateAdvertisementHandlerTest {
@@ -96,7 +94,7 @@ class CreateAdvertisementHandlerTest {
         // When
         // Then
         Assertions.assertThatThrownBy(() -> handler.handle(command))
-                .isExactlyInstanceOf(UnauthorizedAccessException.class);
+                .isExactlyInstanceOf(ForbiddenException.class);
 
         verify(userRepository, never()).save(any());
         verify(advertisementRepository, never()).save(any());
@@ -112,14 +110,14 @@ class CreateAdvertisementHandlerTest {
         given(userRepository.findByEmail(command.userEmail())).willReturn(Optional.of(foundUser));
 
         // When
-        final UUID result = handler.handle(command);
+        final String result = handler.handle(command);
 
         // Then
         verify(advertisementRepository).save(advertisementArgumentCaptor.capture());
         Assertions.assertThat(advertisementArgumentCaptor.getValue())
                 .satisfies(
                         advertisement -> {
-                            Assertions.assertThat(advertisement.getId().getValue())
+                            Assertions.assertThat(advertisement.getSlug().getValue())
                                     .isEqualTo(result);
 
                             Assertions.assertThat(advertisement.getTitle().value())
@@ -212,6 +210,8 @@ class CreateAdvertisementHandlerTest {
                 .satisfies(
                         details ->
                                 Assertions.assertThat(details.getClaims())
+                                        .usingRecursiveFieldByFieldElementComparatorIgnoringFields(
+                                                "id")
                                         .isEqualTo(expectedClaims));
     }
 
@@ -354,7 +354,8 @@ class CreateAdvertisementHandlerTest {
 
     private static Stream<Arguments> commandsWithCustomClaimsDataProvider() {
         final Map<String, String> claims = Map.of("abc", "cde");
-        final Set<AdvertisementClaim> expectedClaims = Set.of(new AdvertisementClaim("abc", "cde"));
+        final Set<AdvertisementClaim> expectedClaims =
+                Set.of(new AdvertisementClaim(Identifier.generate(), "abc", "cde"));
 
         return Stream.of(
                 Arguments.of(getFlatCommand(null, null), emptySet()),
@@ -382,22 +383,22 @@ class CreateAdvertisementHandlerTest {
 
         return Stream.of(
                 Arguments.of(getFlatCommand(null, null), emptySet()),
-                Arguments.of(getFlatCommand(null, List.of()), emptySet()),
-                Arguments.of(getFlatCommand(null, photos), expectedPhotos),
+                Arguments.of(getFlatCommand(null, Set.of()), emptySet()),
+                Arguments.of(getFlatCommand(null, new HashSet<>(photos)), expectedPhotos),
                 Arguments.of(getHouseCommand(null, null), emptySet()),
-                Arguments.of(getHouseCommand(null, List.of()), emptySet()),
-                Arguments.of(getHouseCommand(null, photos), expectedPhotos),
+                Arguments.of(getHouseCommand(null, Set.of()), emptySet()),
+                Arguments.of(getHouseCommand(null, new HashSet<>(photos)), expectedPhotos),
                 Arguments.of(getCommercialCommand(null, null), emptySet()),
-                Arguments.of(getCommercialCommand(null, List.of()), emptySet()),
-                Arguments.of(getCommercialCommand(null, photos), expectedPhotos),
+                Arguments.of(getCommercialCommand(null, Set.of()), emptySet()),
+                Arguments.of(getCommercialCommand(null, new HashSet<>(photos)), expectedPhotos),
                 Arguments.of(getPlotCommand(null, null), emptySet()),
-                Arguments.of(getPlotCommand(null, List.of()), emptySet()),
-                Arguments.of(getPlotCommand(null, photos), expectedPhotos));
+                Arguments.of(getPlotCommand(null, Set.of()), emptySet()),
+                Arguments.of(getPlotCommand(null, new HashSet<>(photos)), expectedPhotos));
     }
 
     private static CreateFlatAdvertisementCommand getFlatCommand(
             final Map<String, String> claims,
-            final List<CreateAdvertisementCommand.AdvertisementPhoto> photos) {
+            final Set<CreateAdvertisementCommand.AdvertisementPhoto> photos) {
 
         return new CreateFlatAdvertisementCommand(
                 "any title content",
@@ -419,7 +420,7 @@ class CreateAdvertisementHandlerTest {
 
     private static CreateHouseAdvertisementCommand getHouseCommand(
             final Map<String, String> claims,
-            final List<CreateAdvertisementCommand.AdvertisementPhoto> photos) {
+            final Set<CreateAdvertisementCommand.AdvertisementPhoto> photos) {
 
         return new CreateHouseAdvertisementCommand(
                 "any title content",
@@ -440,7 +441,7 @@ class CreateAdvertisementHandlerTest {
 
     private static CreateCommercialAdvertisementCommand getCommercialCommand(
             final Map<String, String> claims,
-            final List<CreateAdvertisementCommand.AdvertisementPhoto> photos) {
+            final Set<CreateAdvertisementCommand.AdvertisementPhoto> photos) {
 
         return new CreateCommercialAdvertisementCommand(
                 "any title content",
@@ -462,7 +463,7 @@ class CreateAdvertisementHandlerTest {
 
     private static CreatePlotAdvertisementCommand getPlotCommand(
             final Map<String, String> claims,
-            final List<CreateAdvertisementCommand.AdvertisementPhoto> photos) {
+            final Set<CreateAdvertisementCommand.AdvertisementPhoto> photos) {
 
         return new CreatePlotAdvertisementCommand(
                 "any title content",

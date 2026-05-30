@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import pl.dawid0604.realestate.domain.Advertisement;
 import pl.dawid0604.realestate.domain.AdvertisementClaim;
 import pl.dawid0604.realestate.domain.AdvertisementDetails;
+import pl.dawid0604.realestate.domain.AdvertisementLocality;
 import pl.dawid0604.realestate.domain.AdvertisementPhoto;
 import pl.dawid0604.realestate.domain.Area;
 import pl.dawid0604.realestate.domain.BuiltYear;
@@ -22,7 +23,6 @@ import pl.dawid0604.realestate.domain.FlatDetails;
 import pl.dawid0604.realestate.domain.Floor;
 import pl.dawid0604.realestate.domain.HouseDetails;
 import pl.dawid0604.realestate.domain.Identifier;
-import pl.dawid0604.realestate.domain.Locality;
 import pl.dawid0604.realestate.domain.MoneyCurrency;
 import pl.dawid0604.realestate.domain.NumberOfRooms;
 import pl.dawid0604.realestate.domain.PlotDetails;
@@ -52,7 +52,7 @@ class AdvertisementMapper {
                 .pricePerSquareMeter(
                         PricePerSquareMeter.reconstitute(
                                 entity.getPricePerSquareMeter(), MoneyCurrency.PLN))
-                .locality(new Locality(Identifier.of(entity.getLocalityId())))
+                .locality(new AdvertisementLocality(Identifier.of(entity.getLocalityId())))
                 .details(mapDetails(entity))
                 .status(entity.getStatus())
                 .userId(Identifier.of(entity.getUserId()))
@@ -301,8 +301,12 @@ class AdvertisementMapper {
 
         return Stream.ofNullable(claims)
                 .flatMap(Set::stream)
-                .map(c -> new AdvertisementClaim(c.getClaimKey(), c.getClaimValue()))
+                .map(c -> new AdvertisementClaim(getClaimId(c), c.getClaimKey(), c.getClaimValue()))
                 .collect(toSet());
+    }
+
+    private static Identifier getClaimId(final AdvertisementClaimEntity<?> claim) {
+        return claim.getId() != null ? Identifier.of(claim.getId()) : Identifier.generate();
     }
 
     private static AdvertisementDetails<?> mapDetails(final AdvertisementEntity<?, ?> entity) {

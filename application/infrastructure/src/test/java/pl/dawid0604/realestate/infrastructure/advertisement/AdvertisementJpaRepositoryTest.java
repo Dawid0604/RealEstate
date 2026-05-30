@@ -1,11 +1,22 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.infrastructure.advertisement;
 
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Fail.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
-import static java.util.Collections.emptySet;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import jakarta.persistence.EntityManager;
 
@@ -30,6 +41,7 @@ import pl.dawid0604.realestate.domain.AdvertisementStatus;
 import pl.dawid0604.realestate.domain.CommercialBuildingType;
 import pl.dawid0604.realestate.domain.FlatBuildingType;
 import pl.dawid0604.realestate.domain.HouseBuildingType;
+import pl.dawid0604.realestate.domain.Identifier;
 import pl.dawid0604.realestate.domain.PlotBuildingType;
 import pl.dawid0604.realestate.domain.TypeOfMarket;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
@@ -50,17 +62,6 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserHouseA
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserPlotAdvertisementCardProjection;
 import pl.dawid0604.realestate.infrastructure.ClearDatabase;
 import pl.dawid0604.realestate.infrastructure.IntegrationTest;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @ClearDatabase
 @SqlMergeMode(SqlMergeMode.MergeMode.MERGE)
@@ -6278,6 +6279,97 @@ class AdvertisementJpaRepositoryTest {
                             null,
                             types);
                 }
+            }
+        }
+    }
+
+    @Nested
+    final class ClearClaimsTests {
+
+        @Nested
+        @ExtendWith(MockitoExtension.class)
+        final class UnitTests {
+            @Mock private FlatAdvertisementJpaRepository flatJpaRepository;
+            @Mock private HouseAdvertisementJpaRepository houseJpaRepository;
+            @Mock private CommercialAdvertisementJpaRepository commercialJpaRepository;
+            @Mock private PlotAdvertisementJpaRepository plotJpaRepository;
+            @Mock private FlatAdvertisementClaimJpaRepository flatAdvertisementClaimJpaRepository;
+            @Mock private HouseAdvertisementClaimJpaRepository houseAdvertisementClaimJpaRepository;
+            @Mock private PlotAdvertisementClaimJpaRepository plotAdvertisementClaimJpaRepository;
+            @Mock private EntityManager entityManager;
+
+            @Mock
+            private CommercialAdvertisementClaimJpaRepository
+                    commercialAdvertisementClaimJpaRepository;
+
+            private AdvertisementJpaRepository advertisementJpaRepository;
+
+            @BeforeEach
+            void setUp() {
+                advertisementJpaRepository =
+                        new AdvertisementJpaRepository(
+                                flatJpaRepository,
+                                houseJpaRepository,
+                                commercialJpaRepository,
+                                plotJpaRepository,
+                                flatAdvertisementClaimJpaRepository,
+                                houseAdvertisementClaimJpaRepository,
+                                commercialAdvertisementClaimJpaRepository,
+                                plotAdvertisementClaimJpaRepository,
+                                entityManager);
+            }
+
+            @Test
+            @DisplayName("Should clear flat claims")
+            void shouldClearFlatClaims() {
+                // Given
+                final Identifier id = Identifier.generate();
+
+                // When
+                advertisementJpaRepository.clearFlatClaims(id);
+
+                // Then
+                verify(flatAdvertisementClaimJpaRepository).deleteByAdvertisementId(id.getValue());
+            }
+
+            @Test
+            @DisplayName("Should clear house claims")
+            void shouldClearHouseClaims() {
+                // Given
+                final Identifier id = Identifier.generate();
+
+                // When
+                advertisementJpaRepository.clearHouseClaims(id);
+
+                // Then
+                verify(houseAdvertisementClaimJpaRepository).deleteByAdvertisementId(id.getValue());
+            }
+
+            @Test
+            @DisplayName("Should clear commercial claims")
+            void shouldClearCommercialClaims() {
+                // Given
+                final Identifier id = Identifier.generate();
+
+                // When
+                advertisementJpaRepository.clearCommercialClaims(id);
+
+                // Then
+                verify(commercialAdvertisementClaimJpaRepository)
+                        .deleteByAdvertisementId(id.getValue());
+            }
+
+            @Test
+            @DisplayName("Should clear plot claims")
+            void shouldClearPlotClaims() {
+                // Given
+                final Identifier id = Identifier.generate();
+
+                // When
+                advertisementJpaRepository.clearPlotClaims(id);
+
+                // Then
+                verify(plotAdvertisementClaimJpaRepository).deleteByAdvertisementId(id.getValue());
             }
         }
     }

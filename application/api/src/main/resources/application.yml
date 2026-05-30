@@ -1,0 +1,53 @@
+spring:
+  mandatory-file-encoding: UTF-8
+  flyway:
+    enabled: true
+    locations: classpath:migrations
+
+  threads:
+    virtual.enabled: true
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:5432/${POSTGRES_DB}
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+      keepalive-time: 60000
+
+  output.ansi.enabled: ALWAYS
+
+server:
+  compression:
+    enabled: true
+    mime-types: application/json,application/problem+json
+    min-response-size: 1024
+
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+
+app:
+  custom:
+    jwt:
+      secret: ${JWT_SECRET}
+      accessTokenExpiration: 900 # 15 minutes
+      refreshTokenExpiration: 604800 # 7 days
+
+    openapi:
+      title: 'RealEstate API'
+      description: "Real estates portal"
+      version: "1.0.0"
+
+management:
+  server.port: ${ACTUATOR_PORT}

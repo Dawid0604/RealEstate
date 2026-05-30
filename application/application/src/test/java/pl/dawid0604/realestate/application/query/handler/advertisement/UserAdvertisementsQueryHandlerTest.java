@@ -167,8 +167,7 @@ class UserAdvertisementsQueryHandlerTest {
     @ParameterizedTest
     @DisplayName("Should map statuses properly")
     @MethodSource("shouldMapStatusesProperlyDataProvider")
-    void shouldMapStatusesProperly(
-            final Set<String> statuses, final Set<AdvertisementStatus> expectedStatuses) {
+    void shouldMapStatusesProperly(final Set<AdvertisementStatus> statuses) {
 
         // Given
         final int pageNumber = 1;
@@ -194,22 +193,13 @@ class UserAdvertisementsQueryHandlerTest {
                 .findAdvertisementsByUser(
                         advertisementStatusArgumentCaptor.capture(), any(), anyInt(), anyInt());
 
-        Assertions.assertThat(advertisementStatusArgumentCaptor.getValue())
-                .isEqualTo(expectedStatuses);
+        Assertions.assertThat(advertisementStatusArgumentCaptor.getValue()).isEqualTo(statuses);
     }
 
     private static Stream<Arguments> shouldMapStatusesProperlyDataProvider() {
         return Stream.of(
-                Arguments.of(
-                        Set.of(
-                                AdvertisementStatus.ACTIVE.name(),
-                                AdvertisementStatus.DELETED.name()),
-                        Set.of(AdvertisementStatus.ACTIVE, AdvertisementStatus.DELETED)),
-                Arguments.of(
-                        Arrays.stream(AdvertisementStatus.values())
-                                .map(AdvertisementStatus::name)
-                                .collect(toSet()),
-                        Arrays.stream(AdvertisementStatus.values()).collect(toSet())));
+                Arguments.of(Set.of(AdvertisementStatus.ACTIVE, AdvertisementStatus.DELETED)),
+                Arguments.of(Arrays.stream(AdvertisementStatus.values()).collect(toSet())));
     }
 
     @Test

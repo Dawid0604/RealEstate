@@ -1,7 +1,7 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.domain;
 
-import java.util.List;
+import java.util.Set;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,12 +51,12 @@ class AggregateRootTest {
         final DomainEvent event2 = new DomainEvent() {};
 
         // When
-        final List<DomainEvent> beforeAddEvents = instance.getEvents();
+        final Set<DomainEvent> beforeAddEvents = instance.getEvents();
         instance.addEvent(event);
         instance.addEvent(event2);
 
         // Then
-        final List<DomainEvent> events = instance.getEvents();
+        final Set<DomainEvent> events = instance.getEvents();
         Assertions.assertThat(events).isNotEqualTo(beforeAddEvents);
     }
 

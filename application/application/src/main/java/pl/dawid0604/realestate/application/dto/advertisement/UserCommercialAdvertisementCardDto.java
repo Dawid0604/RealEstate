@@ -3,11 +3,10 @@ package pl.dawid0604.realestate.application.dto.advertisement;
 
 import static java.util.Collections.emptySet;
 
-import pl.dawid0604.realestate.domain.AdvertisementStatus;
-
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.Set;
+
+import pl.dawid0604.realestate.domain.AdvertisementStatus;
 
 public record UserCommercialAdvertisementCardDto(
         String slug,
@@ -17,7 +16,7 @@ public record UserCommercialAdvertisementCardDto(
         BigDecimal pricePerSquareMeter,
         String localityFullName,
         AdvertisementStatus status,
-        Instant createdAt,
+        String createdAt,
         boolean isFeatured,
         Set<AdvertisementPhotoDto> photos,
         String buildingType,

@@ -15,14 +15,20 @@
     <properties>
         <org.glassfish.expressly.version>5.0.0</org.glassfish.expressly.version>
         <awaitility.version>4.3.0</awaitility.version>
+        <swagger-annotations.version>2.2.49</swagger-annotations.version>
     </properties>
 
     <dependencies>
-
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>${swagger-annotations.version}</version>
         </dependency>
 
         <dependency>
@@ -39,6 +45,11 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
         </dependency>
 
         <dependency>

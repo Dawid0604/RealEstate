@@ -9,3 +9,10 @@ spring:
       ddl-auto: validate
 
   output.ansi.enabled: ALWAYS
+
+app:
+  custom.jwt:
+    # Note: Only for tests purposes
+    secret: etoe8nYmDjpaWcI0g4lu5bYt6zWEhMpxWyW2AsC6UkU=
+    accessTokenExpiration: 900
+    refreshTokenExpiration: 604800

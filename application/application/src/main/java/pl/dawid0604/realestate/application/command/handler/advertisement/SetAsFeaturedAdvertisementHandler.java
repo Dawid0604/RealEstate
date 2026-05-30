@@ -3,17 +3,15 @@ package pl.dawid0604.realestate.application.command.handler.advertisement;
 
 import static lombok.AccessLevel.PACKAGE;
 
-import lombok.RequiredArgsConstructor;
-
 import org.springframework.stereotype.Component;
 
+import lombok.RequiredArgsConstructor;
 import pl.dawid0604.realestate.application.command.SetAsFeaturedAdvertisementCommand;
 import pl.dawid0604.realestate.application.port.in.CommandHandler;
 import pl.dawid0604.realestate.domain.Advertisement;
 import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
-import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.exception.AdvertisementNotFoundException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 
@@ -35,8 +33,7 @@ class SetAsFeaturedAdvertisementHandler
         user.verifyUser();
         Advertisement advertisement =
                 advertisementRepository
-                        .findBySlug(
-                                command.slug(), AdvertisementType.of(command.advertisementType()))
+                        .findBySlug(command.slug(), command.advertisementType())
                         .orElseThrow(() -> new AdvertisementNotFoundException(command.slug()));
 
         advertisement.verifyOwner(user);

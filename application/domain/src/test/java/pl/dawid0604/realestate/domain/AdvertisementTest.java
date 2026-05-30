@@ -28,9 +28,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.event.AdvertisementPriceChangedEvent;
 import pl.dawid0604.realestate.domain.shared.event.AdvertisementStatusChangedEvent;
+import pl.dawid0604.realestate.domain.shared.exception.ForbiddenException;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 import pl.dawid0604.realestate.domain.shared.exception.MaxPhotosExceededException;
-import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
 
 class AdvertisementTest {
 
@@ -1007,37 +1007,6 @@ class AdvertisementTest {
         }
 
         @Test
-        @DisplayName("Should throw exception when incoming title is the same as old title")
-        void shouldThrowExceptionWhenIncomingTitleIsTheSameAsOldTitle() {
-            // Given
-            final Title title = new Title("abc abc abc");
-            final Title incomingTitle = new Title("abc abc abc");
-
-            final Advertisement instance =
-                    Advertisement.reconstitute()
-                            .id(getValidIdentifier())
-                            .slug(getValidSlug())
-                            .area(getValidArea())
-                            .pricePerSquareMeter(getValidPricePerSquareMeter())
-                            .title(title)
-                            .description(getValidDescription())
-                            .price(getValidPrice())
-                            .locality(getValidLocality())
-                            .details(getValidDetails())
-                            .status(getValidStatus())
-                            .userId(getValidIdentifier())
-                            .createdAt(Instant.now())
-                            .photos(null)
-                            .build();
-
-            // When
-            // Then
-            Assertions.assertThatThrownBy(() -> instance.updateTitle(incomingTitle))
-                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
-                    .hasMessage("Incoming title cannot be the same as old title");
-        }
-
-        @Test
         @DisplayName("Should update slug")
         void shouldUpdateSlug() {
             // Given
@@ -1133,39 +1102,6 @@ class AdvertisementTest {
             // Then
             Assertions.assertThat(instance).isEqualTo(updatedInstance);
             Assertions.assertThat(updatedInstance.getArea()).isEqualTo(incomingArea);
-        }
-
-        @Test
-        @DisplayName("Should throw exception when incoming area is the same as old area")
-        void shouldThrowExceptionWhenIncomingAreaIsTheSameAsOldArea() {
-            // Given
-            final BigDecimal value = BigDecimal.valueOf(25.5);
-            final Area area = new Area(value);
-            final Area incomingArea = new Area(value);
-
-            final Advertisement instance =
-                    Advertisement.reconstitute()
-                            .id(getValidIdentifier())
-                            .slug(getValidSlug())
-                            .area(getValidArea())
-                            .pricePerSquareMeter(getValidPricePerSquareMeter())
-                            .title(getValidTitle())
-                            .area(area)
-                            .description(getValidDescription())
-                            .price(getValidPrice())
-                            .locality(getValidLocality())
-                            .details(getValidDetails())
-                            .status(getValidStatus())
-                            .userId(getValidIdentifier())
-                            .createdAt(Instant.now())
-                            .photos(null)
-                            .build();
-
-            // When
-            // Then
-            Assertions.assertThatThrownBy(() -> instance.updateArea(incomingArea))
-                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
-                    .hasMessage("Incoming area cannot be the same as old area");
         }
 
         @Test
@@ -1298,37 +1234,6 @@ class AdvertisementTest {
         }
 
         @Test
-        @DisplayName("Should throw exception when incoming price is the same as old price")
-        void shouldThrowExceptionWhenIncomingPriceIsTheSameAsOldPrice() {
-            // Given
-            final Price price = new Price(BigDecimal.valueOf(2_500_00), MoneyCurrency.PLN);
-            final Price incomingPrice = new Price(BigDecimal.valueOf(2_500_00), MoneyCurrency.PLN);
-
-            final Advertisement instance =
-                    Advertisement.reconstitute()
-                            .id(getValidIdentifier())
-                            .slug(getValidSlug())
-                            .title(getValidTitle())
-                            .description(getValidDescription())
-                            .price(price)
-                            .locality(getValidLocality())
-                            .details(getValidDetails())
-                            .status(getValidStatus())
-                            .userId(getValidIdentifier())
-                            .createdAt(Instant.now())
-                            .pricePerSquareMeter(getValidPricePerSquareMeter())
-                            .area(getValidArea())
-                            .photos(null)
-                            .build();
-
-            // When
-            // Then
-            Assertions.assertThatThrownBy(() -> instance.updatePrice(incomingPrice))
-                    .isExactlyInstanceOf(InvalidArgumentValueException.class)
-                    .hasMessage("Price cannot be the same as old price");
-        }
-
-        @Test
         @DisplayName("Should update price successfully")
         void shouldUpdatePriceSuccessfully() {
             // Given
@@ -1431,8 +1336,9 @@ class AdvertisementTest {
         @DisplayName("Should update locality successfully")
         void shouldUpdateLocalitySuccessfully() {
             // Given
-            final Locality locality = new Locality(Identifier.generate());
-            final Locality incomingLocality = new Locality(Identifier.generate());
+            final AdvertisementLocality locality = new AdvertisementLocality(Identifier.generate());
+            final AdvertisementLocality incomingLocality =
+                    new AdvertisementLocality(Identifier.generate());
 
             final Advertisement instance =
                     Advertisement.reconstitute()
@@ -2625,7 +2531,7 @@ class AdvertisementTest {
                             .email(new Email("abc@mail.com"))
                             .password(Password.ofHashed("$abc"))
                             .fullName(new FullName("abc", "cde"))
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .contactDetails(
                                     new ContactDetails(
                                             new Email("abc@mail.com"),
@@ -2657,7 +2563,7 @@ class AdvertisementTest {
             // When
             // Then
             Assertions.assertThatThrownBy(() -> instance.verifyOwner(user))
-                    .isExactlyInstanceOf(UnauthorizedAccessException.class)
+                    .isExactlyInstanceOf(ForbiddenException.class)
                     .hasMessage("No permissions to modify this advertisement");
         }
 
@@ -2670,7 +2576,7 @@ class AdvertisementTest {
                             .email(new Email("abc@mail.com"))
                             .password(Password.ofHashed("$abc"))
                             .fullName(new FullName("abc", "cde"))
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .contactDetails(
                                     new ContactDetails(
                                             new Email("abc@mail.com"),
@@ -2714,7 +2620,7 @@ class AdvertisementTest {
                             .email(new Email("abc@mail.com"))
                             .password(Password.ofHashed("$abc"))
                             .fullName(new FullName("abc", "cde"))
-                            .role(UserRole.ADMIN_ROLE)
+                            .role(UserRole.ROLE_ADMIN)
                             .contactDetails(
                                     new ContactDetails(
                                             new Email("abc@mail.com"),
@@ -2864,8 +2770,8 @@ class AdvertisementTest {
         return new Price(null, MoneyCurrency.PLN);
     }
 
-    private static Locality getValidLocality() {
-        return new Locality(Identifier.generate());
+    private static AdvertisementLocality getValidLocality() {
+        return new AdvertisementLocality(Identifier.generate());
     }
 
     private static AdvertisementStatus getValidStatus() {

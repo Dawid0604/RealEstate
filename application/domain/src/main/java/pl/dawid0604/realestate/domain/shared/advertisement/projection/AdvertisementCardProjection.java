@@ -33,5 +33,7 @@ public sealed interface AdvertisementCardProjection
 
     UUID getUserId();
 
-    boolean isFeatured();
+    // JPA require getX instead of isX
+    @SuppressWarnings("PMD.BooleanGetMethodName")
+    Boolean getFeatured();
 }

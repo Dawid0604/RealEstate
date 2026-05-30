@@ -47,7 +47,7 @@ class UserMapperTest {
         given(projection.getNotificationPhoneNumber()).willReturn("123456789");
         given(projection.getNotificationEmail()).willReturn("anyemail@mail.com");
         given(projection.getAvatarUrl()).willReturn("https://xyz");
-        given(projection.getRole()).willReturn(UserRole.ADMIN_ROLE);
+        given(projection.getRole()).willReturn(UserRole.ROLE_ADMIN);
         given(projection.getType()).willReturn(UserType.AGENCY);
         given(projection.getStatus()).willReturn(UserStatus.ACTIVE);
 
@@ -60,9 +60,9 @@ class UserMapperTest {
                 .returns(
                         projection.getNotificationPhoneNumber(), UserProfileDto::contactPhoneNumber)
                 .returns(projection.getNotificationEmail(), UserProfileDto::contactEmail)
-                .returns(projection.getRole().name(), UserProfileDto::role)
-                .returns(projection.getType().name(), UserProfileDto::type)
-                .returns(projection.getStatus().name(), UserProfileDto::status)
+                .returns(projection.getRole(), UserProfileDto::role)
+                .returns(projection.getType(), UserProfileDto::type)
+                .returns(projection.getStatus(), UserProfileDto::status)
                 .returns(
                         projection.getFirstName() + " " + projection.getLastName(),
                         UserProfileDto::fullName)

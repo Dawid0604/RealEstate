@@ -28,7 +28,7 @@ import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.port.out.PasswordRepository;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.exception.DifferentPasswordException;
-import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
+import pl.dawid0604.realestate.domain.shared.exception.ForbiddenException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
@@ -70,7 +70,7 @@ class UpdateUserPasswordHandlerTest {
         // When
         // Then
         Assertions.assertThatThrownBy(() -> handler.handle(command))
-                .isExactlyInstanceOf(UnauthorizedAccessException.class);
+                .isExactlyInstanceOf(ForbiddenException.class);
 
         verify(userRepository, never()).save(any());
     }

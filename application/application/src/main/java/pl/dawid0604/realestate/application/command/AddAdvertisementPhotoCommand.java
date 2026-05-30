@@ -1,16 +1,12 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.command;
 
-import pl.dawid0604.realestate.application.validation.ValidAdvertisementType;
-import pl.dawid0604.realestate.application.validation.ValidEmail;
-import pl.dawid0604.realestate.application.validation.ValidPhotoPosition;
-import pl.dawid0604.realestate.application.validation.ValidSlug;
-import pl.dawid0604.realestate.application.validation.ValidUrl;
+import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 
 public record AddAdvertisementPhotoCommand(
-        @ValidSlug String slug,
-        @ValidAdvertisementType String advertisementType,
-        @ValidUrl String photoUrl,
-        @ValidPhotoPosition int position,
-        @ValidEmail String userEmail)
+        String slug,
+        AdvertisementType advertisementType,
+        String photoUrl,
+        int position,
+        String userEmail)
         implements Command {}

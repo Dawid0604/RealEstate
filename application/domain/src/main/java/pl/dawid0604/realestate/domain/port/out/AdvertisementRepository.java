@@ -18,6 +18,8 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.UserAdvert
 public interface AdvertisementRepository {
     void save(Advertisement advertisement);
 
+    void clearClaims(Advertisement advertisement);
+
     Optional<Advertisement> findBySlug(String slug, AdvertisementType advertisementType);
 
     Optional<AdvertisementDetailsProjection> findDetails(

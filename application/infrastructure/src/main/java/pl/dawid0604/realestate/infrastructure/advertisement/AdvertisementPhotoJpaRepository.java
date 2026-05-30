@@ -17,9 +17,13 @@ interface AdvertisementPhotoJpaRepository<T extends AdvertisementPhotoEntity<?>>
 
     @Query(
             """
-                            SELECT p
+                            SELECT
+                                  p.id as id,
+                                  p.url as url,
+                                  p.position as position,
+                                  a.id as advertisementId
                             FROM #{#entityName} p
-                            JOIN FETCH p.advertisement a
+                            JOIN p.advertisement a
                             WHERE a.id IN :advertisementIds
                     """)
     List<PhotoProjection> findPhotosByAdvertisementIdIn(

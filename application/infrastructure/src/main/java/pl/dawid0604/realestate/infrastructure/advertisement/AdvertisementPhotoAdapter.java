@@ -43,6 +43,6 @@ class AdvertisementPhotoAdapter implements AdvertisementPhotoRepository {
                 };
 
         return photos.stream()
-                .collect(groupingBy(p -> p.getAdvertisement().getId(), Collectors.toSet()));
+                .collect(groupingBy(PhotoProjection::getAdvertisementId, Collectors.toSet()));
     }
 }

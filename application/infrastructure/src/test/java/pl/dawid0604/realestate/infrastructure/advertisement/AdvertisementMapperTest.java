@@ -5,6 +5,11 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Set;
+import java.util.UUID;
+
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.assertj.core.groups.Tuple;
@@ -19,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import pl.dawid0604.realestate.domain.Advertisement;
 import pl.dawid0604.realestate.domain.AdvertisementClaim;
+import pl.dawid0604.realestate.domain.AdvertisementLocality;
 import pl.dawid0604.realestate.domain.AdvertisementPhoto;
 import pl.dawid0604.realestate.domain.AdvertisementStatus;
 import pl.dawid0604.realestate.domain.Area;
@@ -33,7 +39,6 @@ import pl.dawid0604.realestate.domain.FlooredDetails;
 import pl.dawid0604.realestate.domain.HouseBuildingType;
 import pl.dawid0604.realestate.domain.HouseDetails;
 import pl.dawid0604.realestate.domain.Identifier;
-import pl.dawid0604.realestate.domain.Locality;
 import pl.dawid0604.realestate.domain.MoneyCurrency;
 import pl.dawid0604.realestate.domain.NumberOfRooms;
 import pl.dawid0604.realestate.domain.PlotBuildingType;
@@ -45,11 +50,6 @@ import pl.dawid0604.realestate.domain.Title;
 import pl.dawid0604.realestate.domain.TypeOfMarket;
 import pl.dawid0604.realestate.domain.Url;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.Set;
-import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
 class AdvertisementMapperTest {
@@ -574,7 +574,7 @@ class AdvertisementMapperTest {
                     .slug(Slug.create(new Title(getTitle())))
                     .description(new Description(getDescription()))
                     .price(new Price(getPrice(), MoneyCurrency.PLN))
-                    .locality(new Locality(Identifier.generate()))
+                    .locality(new AdvertisementLocality(Identifier.generate()))
                     .details(details)
                     .status(getStatus())
                     .userId(Identifier.generate())
@@ -698,7 +698,7 @@ class AdvertisementMapperTest {
                     .slug(Slug.create(new Title(getTitle())))
                     .description(new Description(getDescription()))
                     .price(new Price(getPrice(), MoneyCurrency.PLN))
-                    .locality(new Locality(Identifier.generate()))
+                    .locality(new AdvertisementLocality(Identifier.generate()))
                     .details(details)
                     .status(getStatus())
                     .userId(Identifier.generate())
@@ -831,7 +831,7 @@ class AdvertisementMapperTest {
                     .slug(Slug.create(new Title(getTitle())))
                     .description(new Description(getDescription()))
                     .price(new Price(getPrice(), MoneyCurrency.PLN))
-                    .locality(new Locality(Identifier.generate()))
+                    .locality(new AdvertisementLocality(Identifier.generate()))
                     .details(details)
                     .status(getStatus())
                     .userId(Identifier.generate())
@@ -943,7 +943,7 @@ class AdvertisementMapperTest {
                     .slug(Slug.create(new Title(getTitle())))
                     .description(new Description(getDescription()))
                     .price(new Price(getPrice(), MoneyCurrency.PLN))
-                    .locality(new Locality(Identifier.generate()))
+                    .locality(new AdvertisementLocality(Identifier.generate()))
                     .details(details)
                     .status(getStatus())
                     .userId(Identifier.generate())

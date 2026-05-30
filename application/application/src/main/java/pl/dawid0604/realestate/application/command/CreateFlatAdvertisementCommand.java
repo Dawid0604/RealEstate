@@ -1,52 +1,40 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.command;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
-
-import pl.dawid0604.realestate.application.validation.ValidArea;
-import pl.dawid0604.realestate.application.validation.ValidBuildingType;
-import pl.dawid0604.realestate.application.validation.ValidBuiltYear;
-import pl.dawid0604.realestate.application.validation.ValidEmail;
-import pl.dawid0604.realestate.application.validation.ValidFloor;
-import pl.dawid0604.realestate.application.validation.ValidFloors;
-import pl.dawid0604.realestate.application.validation.ValidLocalityId;
-import pl.dawid0604.realestate.application.validation.ValidNumberOfRooms;
-import pl.dawid0604.realestate.application.validation.ValidPrice;
-import pl.dawid0604.realestate.application.validation.ValidTitle;
-import pl.dawid0604.realestate.application.validation.ValidTypeOfMarket;
+import static java.util.Collections.emptySet;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public record CreateFlatAdvertisementCommand(
-        @ValidTitle String title,
+        String title,
         String description,
-        @ValidPrice BigDecimal price,
-        @ValidLocalityId UUID localityId,
-        @ValidEmail String userEmail,
-        @ValidNumberOfRooms Integer numberOfRooms,
-        @ValidFloor Integer floor,
-        @ValidFloors Integer floors,
-        @ValidBuiltYear Integer builtYear,
-        @ValidTypeOfMarket String typeOfMarket,
-        List<AdvertisementPhoto> photos,
-        @ValidBuildingType String buildingType,
-        @ValidArea BigDecimal area,
+        BigDecimal price,
+        UUID localityId,
+        String userEmail,
+        Integer numberOfRooms,
+        Integer floor,
+        Integer floors,
+        Integer builtYear,
+        String typeOfMarket,
+        Set<AdvertisementPhoto> photos,
+        String buildingType,
+        BigDecimal area,
         Map<String, String> claims,
         Boolean featured)
         implements CreateAdvertisementCommand {
 
     public CreateFlatAdvertisementCommand {
-        photos = photos != null ? List.copyOf(photos) : emptyList();
+        photos = photos != null ? Set.copyOf(photos) : emptySet();
         claims = claims != null ? Map.copyOf(claims) : emptyMap();
     }
 
     @Override
-    public List<AdvertisementPhoto> photos() {
-        return List.copyOf(photos);
+    public Set<AdvertisementPhoto> photos() {
+        return Set.copyOf(photos);
     }
 
     @Override

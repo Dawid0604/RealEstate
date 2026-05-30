@@ -3,6 +3,8 @@ package pl.dawid0604.realestate.infrastructure.user;
 
 import static org.mockito.Mockito.spy;
 
+import java.time.Instant;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,8 +25,6 @@ import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserRole;
 import pl.dawid0604.realestate.domain.UserStatus;
 import pl.dawid0604.realestate.domain.UserType;
-
-import java.time.Instant;
 
 class UserMapperTest {
     private UserMapper mapper;
@@ -65,7 +65,7 @@ class UserMapperTest {
                                     "notificationEmail@mail.com",
                                     "123456789",
                                     "https://anyUrl",
-                                    UserRole.USER_ROLE,
+                                    UserRole.ROLE_USER,
                                     UserStatus.ACTIVE,
                                     UserType.AGENCY,
                                     Instant.now().minusMillis(35_000)));
@@ -80,7 +80,9 @@ class UserMapperTest {
                     .returns(entity.getId(), u -> u.getId().getValue())
                     .returns(entity.getEmail().toLowerCase(), u -> u.getEmail().value())
                     .returns(entity.getPassword(), u -> u.getPassword().getValue())
-                    .returns(entity.getAvatarUrl(), u -> u.getAvatar().map(Url::value).orElse(null))
+                    .returns(
+                            entity.getAvatarUrl(),
+                            u -> u.getAvatar() != null ? u.getAvatar().value() : null)
                     .returns(entity.getRole(), User::getRole)
                     .returns(entity.getStatus(), User::getStatus)
                     .returns(entity.getType(), User::getType)
@@ -88,14 +90,16 @@ class UserMapperTest {
                     .returns(entity.getLastLoginAt(), u -> u.getLastLoginAt().orElse(null))
                     .returns(
                             entity.getNotificationEmail().toLowerCase(),
-                            u -> u.getContactDetails().getEmail().map(Email::value).orElse(null))
+                            u ->
+                                    u.getContactDetails().email() != null
+                                            ? u.getContactDetails().email().value()
+                                            : null)
                     .returns(
                             entity.getNotificationPhoneNumber(),
                             u ->
-                                    u.getContactDetails()
-                                            .getPhoneNumber()
-                                            .map(PhoneNumber::value)
-                                            .orElse(null))
+                                    u.getContactDetails().phoneNumber() != null
+                                            ? u.getContactDetails().phoneNumber().value()
+                                            : null)
                     .returns(entity.getFirstName(), u -> u.getFullName().firstName())
                     .returns(entity.getLastName(), u -> u.getFullName().lastName());
         }
@@ -128,7 +132,7 @@ class UserMapperTest {
                             .fullName(new FullName("abc", "cde"))
                             .contactDetails(new ContactDetails(null, new PhoneNumber("123456789")))
                             .avatar(new Url("https://abc"))
-                            .role(UserRole.USER_ROLE)
+                            .role(UserRole.ROLE_USER)
                             .status(UserStatus.ACTIVE)
                             .createdAt(Instant.now().minusNanos(135_000))
                             .lastLoginAt(Instant.now().minusNanos(15_000))
@@ -146,17 +150,18 @@ class UserMapperTest {
                     .returns(domain.getFullName().firstName(), UserEntity::getFirstName)
                     .returns(domain.getFullName().lastName(), UserEntity::getLastName)
                     .returns(
-                            domain.getContactDetails().getEmail().map(Email::value).orElse(null),
+                            domain.getContactDetails().email() != null
+                                    ? domain.getContactDetails().email().value()
+                                    : null,
                             UserEntity::getNotificationEmail)
                     .returns(
-                            domain.getContactDetails()
-                                    .getPhoneNumber()
-                                    .map(PhoneNumber::value)
-                                    .orElse(null),
+                            domain.getContactDetails().phoneNumber() != null
+                                    ? domain.getContactDetails().phoneNumber().value()
+                                    : null,
                             UserEntity::getNotificationPhoneNumber)
                     .returns(domain.getLastLoginAt().orElse(null), UserEntity::getLastLoginAt)
                     .returns(
-                            domain.getAvatar().map(Url::value).orElse(null),
+                            domain.getAvatar() != null ? domain.getAvatar().value() : null,
                             UserEntity::getAvatarUrl)
                     .returns(domain.getRole(), UserEntity::getRole)
                     .returns(domain.getStatus(), UserEntity::getStatus)

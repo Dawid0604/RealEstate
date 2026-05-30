@@ -7,20 +7,23 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
+import java.util.List;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import pl.dawid0604.realestate.application.command.RegisterUserCommand;
 import pl.dawid0604.realestate.application.command.UnbanUserCommand;
 import pl.dawid0604.realestate.application.port.in.CommandHandler;
 
-import java.util.List;
-
 @ExtendWith(MockitoExtension.class)
 class CommandBusImplTest {
+    @Mock private PlatformTransactionManager transactionManager;
 
     private static final class TestHandler implements CommandHandler<UnbanUserCommand, String> {
 
@@ -57,7 +60,7 @@ class CommandBusImplTest {
 
         // When
         // Then
-        Assertions.assertThatCode(() -> new CommandBusImpl(List.of(handler)))
+        Assertions.assertThatCode(() -> new CommandBusImpl(List.of(handler), transactionManager))
                 .doesNotThrowAnyException();
     }
 
@@ -67,7 +70,8 @@ class CommandBusImplTest {
         // Given
         // When
         // Then
-        Assertions.assertThatCode(() -> new CommandBusImpl(List.of())).doesNotThrowAnyException();
+        Assertions.assertThatCode(() -> new CommandBusImpl(List.of(), transactionManager))
+                .doesNotThrowAnyException();
     }
 
     @Test
@@ -76,7 +80,8 @@ class CommandBusImplTest {
         // Given
         // When
         // Then
-        Assertions.assertThatCode(() -> new CommandBusImpl(null)).doesNotThrowAnyException();
+        Assertions.assertThatCode(() -> new CommandBusImpl(null, transactionManager))
+                .doesNotThrowAnyException();
     }
 
     @Test
@@ -86,7 +91,7 @@ class CommandBusImplTest {
         final TestHandler handler = spy(new TestHandler());
 
         // When
-        final CommandBusImpl instance = new CommandBusImpl(List.of(handler));
+        final CommandBusImpl instance = new CommandBusImpl(List.of(handler), transactionManager);
 
         // Then
         Assertions.assertThatCode(() -> instance.send(mock(UnbanUserCommand.class)))
@@ -102,7 +107,8 @@ class CommandBusImplTest {
 
         // When
         // Then
-        Assertions.assertThatThrownBy(() -> new CommandBusImpl(List.of(handler1, handler2)))
+        Assertions.assertThatThrownBy(
+                        () -> new CommandBusImpl(List.of(handler1, handler2), transactionManager))
                 .isExactlyInstanceOf(IllegalStateException.class);
     }
 
@@ -113,7 +119,7 @@ class CommandBusImplTest {
         final TestHandler handler1 = spy(new TestHandler());
 
         // When
-        final CommandBusImpl instance = new CommandBusImpl(List.of(handler1));
+        final CommandBusImpl instance = new CommandBusImpl(List.of(handler1), transactionManager);
 
         // Then
         Assertions.assertThatThrownBy(() -> instance.send(null))
@@ -129,7 +135,8 @@ class CommandBusImplTest {
         final CommandHandler<RegisterUserCommand, Void> handler2 = spy(new SecondTestHandler());
 
         // When
-        final CommandBusImpl instance = new CommandBusImpl(List.of(handler1, handler2));
+        final CommandBusImpl instance =
+                new CommandBusImpl(List.of(handler1, handler2), transactionManager);
         instance.send(mock(RegisterUserCommand.class));
 
         // Then
@@ -144,7 +151,7 @@ class CommandBusImplTest {
         final TestHandler handler = spy(new TestHandler());
 
         // When
-        final CommandBusImpl instance = new CommandBusImpl(List.of(handler));
+        final CommandBusImpl instance = new CommandBusImpl(List.of(handler), transactionManager);
         instance.send(mock(UnbanUserCommand.class));
 
         // Then
@@ -156,7 +163,7 @@ class CommandBusImplTest {
     void shouldThrowExceptionWhenHandlerNotFound() {
         // Given
         // When
-        final CommandBusImpl instance = new CommandBusImpl(List.of());
+        final CommandBusImpl instance = new CommandBusImpl(List.of(), transactionManager);
 
         // Then
         Assertions.assertThatThrownBy(() -> instance.send(mock(UnbanUserCommand.class)))

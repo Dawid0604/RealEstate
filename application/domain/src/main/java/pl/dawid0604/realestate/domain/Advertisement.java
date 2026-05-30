@@ -17,9 +17,9 @@ import org.apache.commons.lang3.BooleanUtils;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.event.AdvertisementPriceChangedEvent;
 import pl.dawid0604.realestate.domain.shared.event.AdvertisementStatusChangedEvent;
+import pl.dawid0604.realestate.domain.shared.exception.ForbiddenException;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
 import pl.dawid0604.realestate.domain.shared.exception.MaxPhotosExceededException;
-import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
 
 public final class Advertisement extends AggregateRoot {
     private final Identifier id;
@@ -29,7 +29,7 @@ public final class Advertisement extends AggregateRoot {
     private final Price price;
     private final Area area;
     private final PricePerSquareMeter pricePerSquareMeter;
-    private final Locality locality;
+    private final AdvertisementLocality locality;
     private final AdvertisementDetails<?> details;
     private final AdvertisementStatus status;
     private final Identifier userId;
@@ -53,7 +53,7 @@ public final class Advertisement extends AggregateRoot {
         return this.copy().photos(mergePhotos(advertisementPhoto)).build();
     }
 
-    public Advertisement updateLocality(final Locality locality) {
+    public Advertisement updateLocality(final AdvertisementLocality locality) {
         return this.copy().locality(locality).build();
     }
 
@@ -79,19 +79,16 @@ public final class Advertisement extends AggregateRoot {
     }
 
     public Advertisement updateTitle(final Title newTitle) {
-        if (Objects.equals(this.title, newTitle)) {
-            throw new InvalidArgumentValueException(
-                    "Incoming title cannot be the same as old title");
+        Slug slug = this.slug;
+
+        if (!Objects.equals(newTitle, this.title)) {
+            slug = Slug.create(newTitle);
         }
 
-        return copy().title(newTitle).slug(Slug.create(newTitle)).build();
+        return copy().title(newTitle).slug(slug).build();
     }
 
     public Advertisement updateArea(final Area newArea) {
-        if (Objects.equals(this.area, newArea)) {
-            throw new InvalidArgumentValueException("Incoming area cannot be the same as old area");
-        }
-
         return copy().area(newArea)
                 .pricePerSquareMeter(PricePerSquareMeter.create(newArea, this.price))
                 .build();
@@ -102,18 +99,16 @@ public final class Advertisement extends AggregateRoot {
     }
 
     public Advertisement updatePrice(final Price newPrice) {
-        if (Objects.equals(this.price, newPrice)) {
-            throw new InvalidArgumentValueException("Price cannot be the same as old price");
-        }
-
         final Advertisement currentObj =
                 this.copy()
                         .price(newPrice)
                         .pricePerSquareMeter(PricePerSquareMeter.create(this.area, newPrice))
                         .build();
 
-        currentObj.addEvent(
-                new AdvertisementPriceChangedEvent(currentObj.id, this.price, newPrice));
+        if (!Objects.equals(this.price, newPrice)) {
+            currentObj.addEvent(
+                    new AdvertisementPriceChangedEvent(currentObj.id, this.price, newPrice));
+        }
 
         return currentObj;
     }
@@ -209,7 +204,7 @@ public final class Advertisement extends AggregateRoot {
         requireNonNull(user, "User");
 
         if (!Objects.equals(userId, user.getId()) && !user.isAdmin()) {
-            throw new UnauthorizedAccessException("No permissions to modify this advertisement");
+            throw new ForbiddenException("No permissions to modify this advertisement");
         }
     }
 
@@ -257,7 +252,7 @@ public final class Advertisement extends AggregateRoot {
         return status;
     }
 
-    public Locality getLocality() {
+    public AdvertisementLocality getLocality() {
         return locality;
     }
 
@@ -297,7 +292,7 @@ public final class Advertisement extends AggregateRoot {
             final Price price,
             final Area area,
             final PricePerSquareMeter pricePerSquareMeter,
-            final Locality locality,
+            final AdvertisementLocality locality,
             final AdvertisementDetails<?> details,
             final AdvertisementStatus status,
             final Identifier userId,
@@ -356,7 +351,7 @@ public final class Advertisement extends AggregateRoot {
         private Price price;
         private Area area;
         private PricePerSquareMeter pricePerSquareMeter;
-        private Locality locality;
+        private AdvertisementLocality locality;
         private AdvertisementDetails<?> details;
         private AdvertisementStatus status;
         private Identifier userId;
@@ -464,7 +459,7 @@ public final class Advertisement extends AggregateRoot {
             return this;
         }
 
-        public Builder locality(final Locality locality) {
+        public Builder locality(final AdvertisementLocality locality) {
             this.locality = locality;
             return this;
         }

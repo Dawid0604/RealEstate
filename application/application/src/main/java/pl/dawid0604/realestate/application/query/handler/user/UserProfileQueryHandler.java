@@ -3,18 +3,17 @@ package pl.dawid0604.realestate.application.query.handler.user;
 
 import static lombok.AccessLevel.PACKAGE;
 
-import lombok.RequiredArgsConstructor;
+import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 
+import lombok.RequiredArgsConstructor;
 import pl.dawid0604.realestate.application.dto.user.UserProfileDto;
 import pl.dawid0604.realestate.application.mapper.user.UserMapper;
 import pl.dawid0604.realestate.application.port.in.QueryHandler;
 import pl.dawid0604.realestate.application.query.UserProfileQuery;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
-
-import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor(access = PACKAGE)

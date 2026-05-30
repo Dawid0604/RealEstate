@@ -2,8 +2,10 @@
 package pl.dawid0604.realestate.application.command.handler.user;
 
 import static org.mockito.BDDMockito.*;
-
 import static pl.dawid0604.realestate.application.fixture.UserFixture.getDummyEmail;
+
+import java.util.Objects;
+import java.util.UUID;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,18 +19,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
 import pl.dawid0604.realestate.application.command.RegisterUserCommand;
-import pl.dawid0604.realestate.domain.Email;
 import pl.dawid0604.realestate.domain.Password;
-import pl.dawid0604.realestate.domain.PhoneNumber;
 import pl.dawid0604.realestate.domain.User;
 import pl.dawid0604.realestate.domain.UserType;
 import pl.dawid0604.realestate.domain.port.out.PasswordRepository;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.event.UserRegisteredEvent;
 import pl.dawid0604.realestate.domain.shared.exception.UserExistsException;
-
-import java.util.Objects;
-import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
 class RegisterUserHandlerTest {
@@ -49,7 +46,7 @@ class RegisterUserHandlerTest {
         // Given
         final RegisterUserCommand command = getCommand();
 
-        given(userRepository.existsByEmail(command.email())).willReturn(true);
+        given(userRepository.existsByEmail(command.username())).willReturn(true);
 
         // When
         // Then
@@ -75,14 +72,14 @@ class RegisterUserHandlerTest {
         // Then
         verify(userRepository).save(userArgumentCaptor.capture());
         verify(eventPublisher).publishEvent(any(UserRegisteredEvent.class));
-        verify(userRepository).existsByEmail(command.email());
+        verify(userRepository).existsByEmail(command.username());
 
         Assertions.assertThat(result).isEqualTo(userArgumentCaptor.getValue().getId().getValue());
         Assertions.assertThat(userArgumentCaptor.getValue())
                 .satisfies(
                         user -> {
                             Assertions.assertThat(user.getEmail().value())
-                                    .isEqualTo(command.email());
+                                    .isEqualTo(command.username());
 
                             Assertions.assertThat(user.getType()).isEqualTo(UserType.DEVELOPER);
 
@@ -100,13 +97,25 @@ class RegisterUserHandlerTest {
                             Assertions.assertThat(user.getContactDetails())
                                     .satisfies(
                                             c -> {
-                                                Assertions.assertThat(c.getEmail())
-                                                        .map(Email::value)
-                                                        .hasValue(command.notificationEmail());
+                                                Assertions.assertThat(c.email())
+                                                        .isNotNull()
+                                                        .satisfies(
+                                                                e ->
+                                                                        Assertions.assertThat(
+                                                                                        e.value())
+                                                                                .isEqualTo(
+                                                                                        command
+                                                                                                .notificationEmail()));
 
-                                                Assertions.assertThat(c.getPhoneNumber())
-                                                        .map(PhoneNumber::value)
-                                                        .hasValue(command.phoneNumber());
+                                                Assertions.assertThat(c.phoneNumber())
+                                                        .isNotNull()
+                                                        .satisfies(
+                                                                e ->
+                                                                        Assertions.assertThat(
+                                                                                        e.value())
+                                                                                .isEqualTo(
+                                                                                        command
+                                                                                                .notificationPhoneNumber()));
                                             });
                         });
     }
@@ -117,7 +126,7 @@ class RegisterUserHandlerTest {
                 "Password123.@d",
                 "firstName",
                 "lastName",
-                "DEVELOPER",
+                UserType.DEVELOPER,
                 "cde@mail.com",
                 "123456789");
     }

@@ -6,8 +6,12 @@ import java.util.Objects;
 import java.util.Optional;
 
 import pl.dawid0604.realestate.domain.shared.event.UserRegisteredEvent;
+import pl.dawid0604.realestate.domain.shared.exception.ForbiddenException;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidArgumentValueException;
-import pl.dawid0604.realestate.domain.shared.exception.UnauthorizedAccessException;
+import pl.dawid0604.realestate.domain.shared.exception.UserAlreadyActiveException;
+import pl.dawid0604.realestate.domain.shared.exception.UserBannedException;
+import pl.dawid0604.realestate.domain.shared.exception.UserCannotBeActivatedException;
+import pl.dawid0604.realestate.domain.shared.exception.UserCannotBeUnbannedException;
 
 public final class User extends AggregateRoot {
     private final Identifier id;
@@ -53,8 +57,7 @@ public final class User extends AggregateRoot {
 
     public void verifyUser() {
         if (this.status != UserStatus.ACTIVE) {
-            throw new UnauthorizedAccessException(
-                    "User account has no permissions to perform this action");
+            throw new ForbiddenException("User account has no permissions to perform this action");
         }
     }
 
@@ -80,7 +83,7 @@ public final class User extends AggregateRoot {
 
     public User ban() {
         if (this.status == UserStatus.BANNED) {
-            throw new InvalidArgumentValueException("User is already banned");
+            throw new UserBannedException();
         }
 
         return copy().status(UserStatus.BANNED).build();
@@ -88,7 +91,7 @@ public final class User extends AggregateRoot {
 
     public User unban() {
         if (this.status != UserStatus.BANNED) {
-            throw new InvalidArgumentValueException("User is not banned");
+            throw new UserCannotBeUnbannedException();
         }
 
         return copy().status(UserStatus.ACTIVE).build();
@@ -96,22 +99,18 @@ public final class User extends AggregateRoot {
 
     public User activate() {
         if (this.status == UserStatus.ACTIVE) {
-            throw new InvalidArgumentValueException("User is already active");
+            throw new UserAlreadyActiveException();
         }
 
         if (this.status == UserStatus.INACTIVE) {
             return copy().status(UserStatus.ACTIVE).build();
         }
 
-        throw new InvalidArgumentValueException("User must be deactivated");
+        throw new UserCannotBeActivatedException();
     }
 
     public User updatePassword(final Password password) {
         return copy().password(password).build();
-    }
-
-    public User updateEmail(final Email email) {
-        return copy().email(email).build();
     }
 
     public User updateContactDetails(final ContactDetails contactDetails) {
@@ -124,7 +123,7 @@ public final class User extends AggregateRoot {
 
     public User register() {
         if (!createMode) {
-            throw new UnauthorizedAccessException("User is already registered");
+            throw new ForbiddenException("User is already registered");
         }
 
         final User currentObj = copy().build();
@@ -138,7 +137,7 @@ public final class User extends AggregateRoot {
     }
 
     public boolean isAdmin() {
-        return this.role == UserRole.ADMIN_ROLE;
+        return this.role == UserRole.ROLE_ADMIN;
     }
 
     public User updateAvatar(final Url avatar) {
@@ -153,8 +152,8 @@ public final class User extends AggregateRoot {
         return Optional.ofNullable(lastLoginAt);
     }
 
-    public Optional<Url> getAvatar() {
-        return Optional.ofNullable(avatar);
+    public Url getAvatar() {
+        return avatar;
     }
 
     public Password getPassword() {
