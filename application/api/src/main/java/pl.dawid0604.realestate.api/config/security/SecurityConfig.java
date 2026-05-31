@@ -35,6 +35,7 @@ class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final AccessDeniedHandlerCustom accessDeniedHandler;
     private final AuthenticationEntryPointCustom authenticationEntryPoint;
+    private final MdcUserFilter mdcUserFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(final HttpSecurity httpSecurity) {
@@ -45,6 +46,7 @@ class SecurityConfig {
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(getAuthorizedHttpRequests())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(mdcUserFilter, jwtAuthFilter.getClass())
                 .exceptionHandling(
                         ex ->
                                 ex.accessDeniedHandler(accessDeniedHandler)
