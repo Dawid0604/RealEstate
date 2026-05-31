@@ -6,6 +6,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
+import java.io.IOException;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 
@@ -27,8 +29,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import pl.dawid0604.realestate.domain.UserRole;
 import pl.dawid0604.realestate.domain.port.out.TokenRepository;
-
-import java.io.IOException;
 
 @ExtendWith(MockitoExtension.class)
 class JwtAuthFilterTest {

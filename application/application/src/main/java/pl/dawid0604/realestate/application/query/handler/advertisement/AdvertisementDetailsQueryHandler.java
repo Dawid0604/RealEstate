@@ -69,11 +69,13 @@ class AdvertisementDetailsQueryHandler
     }
 
     private static Supplier<AdvertisementNotFoundException> throwException(
-            final AdvertisementDetailsQuery query,
-            final AdvertisementType advertisementType) {
+            final AdvertisementDetailsQuery query, final AdvertisementType advertisementType) {
 
         return () -> {
-            log.warn("Advertisement details not found: slug={}, type={}", query.slug(), advertisementType);
+            log.warn(
+                    "Advertisement details not found: slug={}, type={}",
+                    query.slug(),
+                    advertisementType);
             return new AdvertisementNotFoundException(query.slug());
         };
     }

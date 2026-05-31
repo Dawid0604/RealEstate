@@ -13,8 +13,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.assertj.core.api.Assertions;
@@ -39,6 +43,9 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 import pl.dawid0604.realestate.api.advertisement.request.AdvertisementPhotoRequest;
 import pl.dawid0604.realestate.api.advertisement.request.CreatePlotAdvertisementRequest;
 import pl.dawid0604.realestate.api.advertisement.request.SearchPlotAdvertisementsRequest;
@@ -55,13 +62,6 @@ import pl.dawid0604.realestate.domain.PlotBuildingType;
 import pl.dawid0604.realestate.domain.UserRole;
 import pl.dawid0604.realestate.domain.port.out.TokenRepository;
 import pl.dawid0604.realestate.domain.shared.advertisement.SearchPlotAdvertisementsCriteria;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Stream;
 
 @EnableMethodSecurity
 @ExtendWith(MockitoExtension.class)

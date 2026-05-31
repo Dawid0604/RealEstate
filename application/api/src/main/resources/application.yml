@@ -68,4 +68,3 @@ management:
     metrics:
       export:
         enabled: false
-

@@ -49,8 +49,7 @@ class UserLogoutHandler implements CommandHandler<UserLogoutCommand, Void> {
                 .orElseThrow(throwException(userEmail));
     }
 
-    private static Supplier<UserNotFoundException> throwException(
-            final String userEmail) {
+    private static Supplier<UserNotFoundException> throwException(final String userEmail) {
 
         return () -> {
             log.warn("User account not found: email={}", userEmail);

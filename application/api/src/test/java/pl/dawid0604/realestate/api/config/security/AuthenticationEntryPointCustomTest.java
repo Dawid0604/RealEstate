@@ -1,8 +1,7 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.api.config.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.io.IOException;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,7 +17,8 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.core.AuthenticationException;
 
-import java.io.IOException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 class AuthenticationEntryPointCustomTest {
     private AuthenticationEntryPointCustom handler;

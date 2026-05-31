@@ -1,6 +1,8 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.api.advertisement;
 
+import java.util.Set;
+
 import org.assertj.core.api.Assertions;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.DisplayName;
@@ -10,8 +12,6 @@ import org.junit.jupiter.api.Test;
 import pl.dawid0604.realestate.api.advertisement.request.AdvertisementPhotoRequest;
 import pl.dawid0604.realestate.application.command.CreateAdvertisementCommand.AdvertisementPhoto;
 import pl.dawid0604.realestate.domain.AdvertisementStatus;
-
-import java.util.Set;
 
 class MapperTest {
 
