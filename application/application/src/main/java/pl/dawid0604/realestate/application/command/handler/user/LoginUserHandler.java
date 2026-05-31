@@ -3,12 +3,11 @@ package pl.dawid0604.realestate.application.command.handler.user;
 
 import static lombok.AccessLevel.PACKAGE;
 
-import java.time.Instant;
-import java.util.Objects;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
 
-import lombok.RequiredArgsConstructor;
 import pl.dawid0604.realestate.application.command.LoginUserCommand;
 import pl.dawid0604.realestate.application.dto.auth.TokenResponseDto;
 import pl.dawid0604.realestate.application.port.in.CommandHandler;
@@ -22,6 +21,11 @@ import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.exception.InvalidCredentialsException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 
+import java.time.Instant;
+import java.util.Objects;
+import java.util.function.Supplier;
+
+@Slf4j
 @Component
 @RequiredArgsConstructor(access = PACKAGE)
 class LoginUserHandler implements CommandHandler<LoginUserCommand, TokenResponseDto> {
@@ -33,15 +37,17 @@ class LoginUserHandler implements CommandHandler<LoginUserCommand, TokenResponse
     @Override
     public TokenResponseDto handle(final LoginUserCommand command) {
         Objects.requireNonNull(command, "Command cannot be null");
+        log.info("Login attempt: email:{}", command.email());
 
         User user =
                 userRepository
                         .findByEmail(command.email())
-                        .orElseThrow(() -> new UserNotFoundException(command.email()));
+                        .orElseThrow(throwUserNotFoundException(command));
 
         user.verifyUser();
 
         if (!passwordRepository.matches(command.password(), user.getPassword().getValue())) {
+            log.warn("Login failed - invalid credentials: email={}", command.email());
             throw new InvalidCredentialsException();
         }
 
@@ -55,7 +61,18 @@ class LoginUserHandler implements CommandHandler<LoginUserCommand, TokenResponse
 
         user = user.handleLogin();
         userRepository.save(user);
+
+        log.info("Login successful: email={}", command.email());
         return response;
+    }
+
+    private static Supplier<UserNotFoundException> throwUserNotFoundException(
+            final LoginUserCommand command) {
+
+        return () -> {
+            log.warn("User account not found: email={}", command.email());
+            return new UserNotFoundException(command.email());
+        };
     }
 
     @Override

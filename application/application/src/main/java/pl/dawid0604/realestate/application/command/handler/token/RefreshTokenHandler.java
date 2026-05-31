@@ -3,11 +3,11 @@ package pl.dawid0604.realestate.application.command.handler.token;
 
 import static lombok.AccessLevel.PACKAGE;
 
-import java.util.Objects;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
 
-import lombok.RequiredArgsConstructor;
 import pl.dawid0604.realestate.application.command.RefreshTokenCommand;
 import pl.dawid0604.realestate.application.dto.auth.TokenResponseDto;
 import pl.dawid0604.realestate.application.port.in.CommandHandler;
@@ -21,9 +21,14 @@ import pl.dawid0604.realestate.domain.shared.exception.InvalidTokenException;
 import pl.dawid0604.realestate.domain.shared.exception.RefreshTokenNotFoundException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 
+import java.util.Objects;
+import java.util.function.Supplier;
+
+@Slf4j
 @Component
 @RequiredArgsConstructor(access = PACKAGE)
 class RefreshTokenHandler implements CommandHandler<RefreshTokenCommand, TokenResponseDto> {
+    private static final int TOKEN_PREVIEW_MAX_LENGTH = 20;
     private final RefreshTokenRepository refreshTokenRepository;
     private final TokenRepository tokenRepository;
     private final UserRepository userRepository;
@@ -31,6 +36,8 @@ class RefreshTokenHandler implements CommandHandler<RefreshTokenCommand, TokenRe
     @Override
     public TokenResponseDto handle(final RefreshTokenCommand command) {
         Objects.requireNonNull(command, "Command cannot be null");
+        log.info("Refresh token attempt: token={}", getTokenPreview(command.refreshToken()));
+
         final String userEmail = tokenRepository.getUserEmail(command.refreshToken());
         final Identifier userId = getUserId(userEmail);
 
@@ -51,6 +58,7 @@ class RefreshTokenHandler implements CommandHandler<RefreshTokenCommand, TokenRe
                         tokens.refreshToken(),
                         tokenRepository.getTokenExpirationDate(tokens.refreshToken())));
 
+        log.info("Token refreshed, new tokens generated");
         return tokens;
     }
 
@@ -58,26 +66,54 @@ class RefreshTokenHandler implements CommandHandler<RefreshTokenCommand, TokenRe
         return userRepository
                 .findIdByEmail(userEmail)
                 .map(Identifier::of)
-                .orElseThrow(() -> new UserNotFoundException(userEmail));
+                .orElseThrow(throwUserNotFoundException(userEmail));
     }
 
     private void validateRefreshToken(final RefreshTokenCommand command, final Identifier userId) {
         if (!tokenRepository.isRefreshToken(command.refreshToken())) {
+            log.warn(
+                    "Invalid token type, expected refresh token: token={}",
+                    getTokenPreview(command.refreshToken()));
+
             throw new InvalidTokenException("Token is not a refresh token");
         }
 
         final RefreshToken refreshToken =
                 refreshTokenRepository
                         .findByUserId(userId)
-                        .orElseThrow(RefreshTokenNotFoundException::new);
+                        .orElseThrow(throwRefreshTokenNotFoundException());
 
         if (!refreshToken.tokenMatches(command.refreshToken())) {
+            log.warn("Tokens does not matches: token={}", getTokenPreview(command.refreshToken()));
             throw new InvalidTokenException("Given token does not matches");
         }
 
         if (refreshToken.isExpired()) {
+            log.warn("Token expired: token={}", getTokenPreview(command.refreshToken()));
             throw new ExpiredTokenException();
         }
+    }
+
+    private static Supplier<UserNotFoundException> throwUserNotFoundException(
+            final String userEmail) {
+
+        return () -> {
+            log.warn("User account not found: email={}", userEmail);
+            return new UserNotFoundException(userEmail);
+        };
+    }
+
+    private static Supplier<RefreshTokenNotFoundException> throwRefreshTokenNotFoundException() {
+        return () -> {
+            log.warn("Refresh token not found");
+            return new RefreshTokenNotFoundException();
+        };
+    }
+
+    private static String getTokenPreview(final String token) {
+        return token.length() >= TOKEN_PREVIEW_MAX_LENGTH
+                ? token.substring(TOKEN_PREVIEW_MAX_LENGTH)
+                : token;
     }
 
     @Override

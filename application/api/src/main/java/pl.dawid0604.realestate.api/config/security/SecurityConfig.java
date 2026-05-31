@@ -35,6 +35,7 @@ class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final AccessDeniedHandlerCustom accessDeniedHandler;
     private final AuthenticationEntryPointCustom authenticationEntryPoint;
+    private final MdcUserFilter mdcUserFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(final HttpSecurity httpSecurity) {
@@ -45,6 +46,7 @@ class SecurityConfig {
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(getAuthorizedHttpRequests())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(mdcUserFilter, jwtAuthFilter.getClass())
                 .exceptionHandling(
                         ex ->
                                 ex.accessDeniedHandler(accessDeniedHandler)
@@ -77,6 +79,8 @@ class SecurityConfig {
                                 "/api/advertisement/plot/{slug}")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/locality", "/api/locality/{id}")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/api/user/activate")
                         .permitAll()
                         .requestMatchers("/actuator/**")
                         .permitAll()

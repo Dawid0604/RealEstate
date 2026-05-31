@@ -3,12 +3,12 @@ package pl.dawid0604.realestate.application.command.handler.user;
 
 import static lombok.AccessLevel.PACKAGE;
 
-import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
-import lombok.RequiredArgsConstructor;
 import pl.dawid0604.realestate.application.command.RegisterUserCommand;
 import pl.dawid0604.realestate.application.port.in.CommandHandler;
 import pl.dawid0604.realestate.domain.ContactDetails;
@@ -22,6 +22,10 @@ import pl.dawid0604.realestate.domain.port.out.PasswordRepository;
 import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.exception.UserExistsException;
 
+import java.util.Objects;
+import java.util.UUID;
+
+@Slf4j
 @Component
 @RequiredArgsConstructor(access = PACKAGE)
 class RegisterUserHandler implements CommandHandler<RegisterUserCommand, UUID> {
@@ -31,7 +35,11 @@ class RegisterUserHandler implements CommandHandler<RegisterUserCommand, UUID> {
 
     @Override
     public UUID handle(final RegisterUserCommand command) {
+        Objects.requireNonNull(command, "Command cannot be null");
+        log.info("Registration attempt: email={}", command.username());
+
         if (userRepository.existsByEmail(command.username())) {
+            log.warn("Registration failed: email already exists: email={}", command.username());
             throw new UserExistsException(command.username());
         }
 
@@ -50,8 +58,9 @@ class RegisterUserHandler implements CommandHandler<RegisterUserCommand, UUID> {
 
         user = user.register();
         userRepository.save(user);
-
         user.getEvents().forEach(eventPublisher::publishEvent);
+
+        log.info("User registered: email={}", command.username());
         return user.getId().getValue();
     }
 
