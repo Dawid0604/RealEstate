@@ -52,7 +52,8 @@ class SecurityConfig {
                 .build();
     }
 
-    private static @NonNull Customizer<
+    private static @NonNull
+            Customizer<
                     AuthorizeHttpRequestsConfigurer<HttpSecurity>
                             .AuthorizationManagerRequestMatcherRegistry>
             getAuthorizedHttpRequests() {
@@ -77,6 +78,8 @@ class SecurityConfig {
                                 "/api/advertisement/plot/{slug}")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/locality", "/api/locality/{id}")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/api/user/activate")
                         .permitAll()
                         .requestMatchers("/actuator/**")
                         .permitAll()
