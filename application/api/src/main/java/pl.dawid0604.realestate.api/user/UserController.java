@@ -32,7 +32,6 @@ import pl.dawid0604.realestate.api.config.openapi.OpenApiProperties;
 import pl.dawid0604.realestate.api.config.security.AuthenticatedUser;
 import pl.dawid0604.realestate.api.user.request.ActivateUserRequest;
 import pl.dawid0604.realestate.api.user.request.BanUserRequest;
-import pl.dawid0604.realestate.api.user.request.DeleteUserRequest;
 import pl.dawid0604.realestate.api.user.request.UnbanUserRequest;
 import pl.dawid0604.realestate.api.user.request.UpdateUserPasswordRequest;
 import pl.dawid0604.realestate.api.user.request.UpdateUserProfileRequest;
@@ -111,8 +110,8 @@ class UserController {
             responseCode = "404",
             description = "User account not found",
             content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
-    void delete(@Validated @RequestBody final DeleteUserRequest request) {
-        commandBus.send(new DeleteUserCommand(request.email()));
+    void delete(@AuthenticationPrincipal final AuthenticatedUser loggedUser) {
+        commandBus.send(new DeleteUserCommand(loggedUser.getUsername()));
     }
 
     @PutMapping
@@ -123,10 +122,13 @@ class UserController {
             responseCode = "404",
             description = "User account not found",
             content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
-    void updateUserProfile(@Validated @RequestBody final UpdateUserProfileRequest request) {
+    void updateUserProfile(
+            @Validated @RequestBody final UpdateUserProfileRequest request,
+            @AuthenticationPrincipal final AuthenticatedUser loggedUser) {
+
         commandBus.send(
                 new UpdateUserProfileCommand(
-                        request.email(),
+                        loggedUser.getUsername(),
                         request.avatarUrl(),
                         request.notificationEmail(),
                         request.notificationPhoneNumber(),
@@ -143,10 +145,15 @@ class UserController {
             responseCode = "404",
             description = "User account not found",
             content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
-    void updatePassword(@Validated @RequestBody final UpdateUserPasswordRequest request) {
+    void updatePassword(
+            @Validated @RequestBody final UpdateUserPasswordRequest request,
+            @AuthenticationPrincipal final AuthenticatedUser loggedUser) {
+
         commandBus.send(
                 new UpdateUserPasswordCommand(
-                        request.email(), request.currentPassword(), request.newPassword()));
+                        loggedUser.getUsername(),
+                        request.currentPassword(),
+                        request.newPassword()));
     }
 
     @ResponseStatus(OK)

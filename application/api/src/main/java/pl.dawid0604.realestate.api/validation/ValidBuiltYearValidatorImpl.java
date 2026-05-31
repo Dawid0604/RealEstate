@@ -1,10 +1,10 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.api.validation;
 
+import java.time.LocalDate;
+
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-
-import java.time.LocalDate;
 
 public final class ValidBuiltYearValidatorImpl
         implements ConstraintValidator<ValidBuiltYear, Integer> {

@@ -1,16 +1,15 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.command.handler.advertisement;
 
-import static java.util.stream.Collectors.toSet;
 import static lombok.AccessLevel.PACKAGE;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import static java.util.stream.Collectors.toSet;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
 
-import lombok.RequiredArgsConstructor;
 import pl.dawid0604.realestate.application.command.UpdateAdvertisementCommand;
 import pl.dawid0604.realestate.application.command.UpdateCommercialAdvertisementCommand;
 import pl.dawid0604.realestate.application.command.UpdateFlatAdvertisementCommand;
@@ -44,6 +43,12 @@ import pl.dawid0604.realestate.domain.port.out.AdvertisementRepository;
 import pl.dawid0604.realestate.domain.shared.AdvertisementType;
 import pl.dawid0604.realestate.domain.shared.exception.AdvertisementNotFoundException;
 
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Supplier;
+
+@Slf4j
 @Component
 @RequiredArgsConstructor(access = PACKAGE)
 class UpdateAdvertisementHandler implements CommandHandler<UpdateAdvertisementCommand, Void> {
@@ -52,11 +57,18 @@ class UpdateAdvertisementHandler implements CommandHandler<UpdateAdvertisementCo
     @Override
     public Void handle(final UpdateAdvertisementCommand command) {
         Objects.requireNonNull(command, "Command cannot be null");
+        final AdvertisementType advertisementType = getAdvertisementType(command);
+
+        log.info(
+                "Updating advertisement: slug={}, type={}, user={}",
+                command.slug(),
+                advertisementType,
+                command.userEmail());
 
         Advertisement advertisement =
                 advertisementRepository
-                        .findBySlug(command.slug(), getAdvertisementType(command))
-                        .orElseThrow(() -> new AdvertisementNotFoundException(command.slug()));
+                        .findBySlug(command.slug(), advertisementType)
+                        .orElseThrow(throwAdvertisementNotFoundException(command));
 
         advertisement = advertisement.updateArea(new Area(command.area()));
         advertisement = advertisement.updateDescription(new Description(command.description()));
@@ -69,7 +81,18 @@ class UpdateAdvertisementHandler implements CommandHandler<UpdateAdvertisementCo
 
         advertisementRepository.clearClaims(advertisement);
         advertisementRepository.save(advertisement);
+
+        log.info("Advertisement updated");
         return null;
+    }
+
+    private static Supplier<AdvertisementNotFoundException> throwAdvertisementNotFoundException(
+            final UpdateAdvertisementCommand command) {
+
+        return () -> {
+            log.warn("Advertisement not found: slug={}", command.slug());
+            return new AdvertisementNotFoundException(command.slug());
+        };
     }
 
     private static AdvertisementType getAdvertisementType(

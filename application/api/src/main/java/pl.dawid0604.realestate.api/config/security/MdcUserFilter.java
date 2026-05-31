@@ -1,3 +1,4 @@
+/* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.api.config.security;
 
 import jakarta.annotation.Nonnull;
@@ -38,7 +39,7 @@ class MdcUserFilter extends OncePerRequestFilter {
     }
 
     private static Optional<String> getRequestUsername() {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
+        final var auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth != null
                 && auth.isAuthenticated()

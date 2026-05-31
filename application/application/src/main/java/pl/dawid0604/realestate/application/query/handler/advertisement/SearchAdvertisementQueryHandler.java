@@ -1,22 +1,16 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.query.handler.advertisement;
 
-import static java.util.Collections.emptyMap;
-import static java.util.stream.Collectors.toSet;
 import static lombok.AccessLevel.PACKAGE;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toSet;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
 
-import lombok.RequiredArgsConstructor;
 import pl.dawid0604.realestate.application.dto.advertisement.AdvertisementCardDto;
 import pl.dawid0604.realestate.application.mapper.advertisement.AdvertisementMapper;
 import pl.dawid0604.realestate.application.port.in.QueryHandler;
@@ -35,6 +29,16 @@ import pl.dawid0604.realestate.domain.shared.advertisement.projection.HouseAdver
 import pl.dawid0604.realestate.domain.shared.advertisement.projection.PlotAdvertisementCardProjection;
 import pl.dawid0604.realestate.domain.shared.photo.projection.PhotoProjection;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+@Slf4j
 @Component
 @RequiredArgsConstructor(access = PACKAGE)
 class SearchAdvertisementQueryHandler
@@ -49,6 +53,11 @@ class SearchAdvertisementQueryHandler
     @Override
     public Page<AdvertisementCardDto> handle(final SearchAdvertisementsQuery query) {
         Objects.requireNonNull(query, "Query cannot be null");
+        log.info(
+                "Searching advertisements: localityId={}, page={}, pageSize={}",
+                query.criteria().localityId(),
+                query.criteria().page(),
+                query.criteria().pageSize());
 
         try (ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor()) {
             final var advertisementsPage = advertisementRepository.findByCriteria(query.criteria());

@@ -6,6 +6,7 @@ import static lombok.AccessLevel.PACKAGE;
 import static java.util.stream.Collectors.toSet;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
 
@@ -47,8 +48,11 @@ import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor(access = PACKAGE)
 class CreateAdvertisementHandler implements CommandHandler<CreateAdvertisementCommand, String> {
@@ -57,10 +61,13 @@ class CreateAdvertisementHandler implements CommandHandler<CreateAdvertisementCo
 
     @Override
     public String handle(final CreateAdvertisementCommand command) {
+        Objects.requireNonNull(command, "Command cannot be null");
+        log.info("Creating advertisement: user={}", command.userEmail());
+
         final User user =
                 userRepository
                         .findByEmail(command.userEmail())
-                        .orElseThrow(() -> new UserNotFoundException(command.userEmail()));
+                        .orElseThrow(throwException(command));
 
         user.verifyUser();
         final var builder = Advertisement.create();
@@ -78,7 +85,17 @@ class CreateAdvertisementHandler implements CommandHandler<CreateAdvertisementCo
         final Advertisement builtAdvertisement = builder.build();
         advertisementRepository.save(builtAdvertisement);
 
+        log.info("Advertisement created");
         return builtAdvertisement.getSlug().getValue();
+    }
+
+    private static Supplier<UserNotFoundException> throwException(
+            final CreateAdvertisementCommand command) {
+
+        return () -> {
+            log.warn("User account not found: email={}", command.userEmail());
+            return new UserNotFoundException(command.userEmail());
+        };
     }
 
     @Override

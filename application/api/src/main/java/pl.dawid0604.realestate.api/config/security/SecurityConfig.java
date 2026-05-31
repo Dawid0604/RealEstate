@@ -54,8 +54,7 @@ class SecurityConfig {
                 .build();
     }
 
-    private static @NonNull
-            Customizer<
+    private static @NonNull Customizer<
                     AuthorizeHttpRequestsConfigurer<HttpSecurity>
                             .AuthorizationManagerRequestMatcherRegistry>
             getAuthorizedHttpRequests() {

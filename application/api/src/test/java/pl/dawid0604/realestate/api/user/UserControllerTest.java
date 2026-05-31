@@ -30,7 +30,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import pl.dawid0604.realestate.api.config.security.AuthenticatedUser;
 import pl.dawid0604.realestate.api.user.request.ActivateUserRequest;
 import pl.dawid0604.realestate.api.user.request.BanUserRequest;
-import pl.dawid0604.realestate.api.user.request.DeleteUserRequest;
 import pl.dawid0604.realestate.api.user.request.UnbanUserRequest;
 import pl.dawid0604.realestate.api.user.request.UpdateUserPasswordRequest;
 import pl.dawid0604.realestate.api.user.request.UpdateUserProfileRequest;
@@ -214,16 +213,13 @@ class UserControllerTest {
         @DisplayName("Should delete successfully")
         void shouldDeleteSuccessfully() throws Exception {
             // Given
-            final DeleteUserRequest request = new DeleteUserRequest(USERNAME);
-
             // When
             // Then
             mockMvc.perform(
                             delete("/api/user")
                                     .with(csrf())
                                     .with(authentication(getUserAuth()))
-                                    .contentType(APPLICATION_JSON)
-                                    .content(OBJECT_MAPPER.writeValueAsString(request)))
+                                    .with(authentication(getUserAuth())))
                     .andExpect(status().isNoContent());
 
             verify(commandBus).send(new DeleteUserCommand(USERNAME));

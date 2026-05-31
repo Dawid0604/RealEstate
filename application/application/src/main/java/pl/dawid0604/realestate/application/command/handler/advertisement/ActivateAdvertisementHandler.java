@@ -4,6 +4,7 @@ package pl.dawid0604.realestate.application.command.handler.advertisement;
 import static lombok.AccessLevel.PACKAGE;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,10 @@ import pl.dawid0604.realestate.domain.port.out.UserRepository;
 import pl.dawid0604.realestate.domain.shared.exception.AdvertisementNotFoundException;
 import pl.dawid0604.realestate.domain.shared.exception.UserNotFoundException;
 
+import java.util.Objects;
+import java.util.function.Supplier;
+
+@Slf4j
 @Component
 @RequiredArgsConstructor(access = PACKAGE)
 class ActivateAdvertisementHandler implements CommandHandler<ActivateAdvertisementCommand, Void> {
@@ -26,23 +31,50 @@ class ActivateAdvertisementHandler implements CommandHandler<ActivateAdvertiseme
 
     @Override
     public Void handle(final ActivateAdvertisementCommand command) {
+        Objects.requireNonNull(command, "Command cannot be null");
+        log.info(
+                "Activating advertisement: slug={}, type={}, user={}",
+                command.slug(),
+                command.advertisementType(),
+                command.userEmail());
+
         final User user =
                 userRepository
                         .findByEmail(command.userEmail())
-                        .orElseThrow(() -> new UserNotFoundException(command.userEmail()));
+                        .orElseThrow(throwUserNotFoundException(command));
 
         user.verifyUser();
         Advertisement advertisement =
                 advertisementRepository
                         .findBySlug(command.slug(), command.advertisementType())
-                        .orElseThrow(() -> new AdvertisementNotFoundException(command.slug()));
+                        .orElseThrow(throwAdvertisementNotFoundException(command));
 
         advertisement.verifyOwner(user);
         advertisement = advertisement.activate();
 
         advertisementRepository.save(advertisement);
         advertisement.getEvents().forEach(eventPublisher::publishEvent);
+
+        log.info("Advertisement activated");
         return null;
+    }
+
+    private static Supplier<AdvertisementNotFoundException> throwAdvertisementNotFoundException(
+            final ActivateAdvertisementCommand command) {
+
+        return () -> {
+            log.warn("Advertisement not found: slug={}", command.slug());
+            return new AdvertisementNotFoundException(command.slug());
+        };
+    }
+
+    private static Supplier<UserNotFoundException> throwUserNotFoundException(
+            final ActivateAdvertisementCommand command) {
+
+        return () -> {
+            log.warn("User not found: email={}", command.userEmail());
+            return new UserNotFoundException(command.userEmail());
+        };
     }
 
     @Override

@@ -1,21 +1,25 @@
 /* Copyright 2026 RealEstate */
 package pl.dawid0604.realestate.application.query.handler.locality;
 
-import static java.util.stream.Collectors.toSet;
 import static lombok.AccessLevel.PACKAGE;
 
-import java.util.Objects;
-import java.util.Set;
+import static java.util.stream.Collectors.toSet;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
 
-import lombok.RequiredArgsConstructor;
 import pl.dawid0604.realestate.application.dto.locality.LocalityDto;
 import pl.dawid0604.realestate.application.mapper.locality.LocalityMapper;
 import pl.dawid0604.realestate.application.port.in.QueryHandler;
 import pl.dawid0604.realestate.application.query.FindLocalitiesQuery;
 import pl.dawid0604.realestate.domain.port.out.LocalityRepository;
 
+import java.util.Objects;
+import java.util.Set;
+
+@Slf4j
 @Component
 @RequiredArgsConstructor(access = PACKAGE)
 class FindLocalitiesHandler implements QueryHandler<FindLocalitiesQuery, Set<LocalityDto>> {
@@ -25,6 +29,8 @@ class FindLocalitiesHandler implements QueryHandler<FindLocalitiesQuery, Set<Loc
     @Override
     public Set<LocalityDto> handle(final FindLocalitiesQuery query) {
         Objects.requireNonNull(query, "Query cannot be null");
+        log.info("Fetching localities");
+
         return localityRepository.findAll().stream().map(localityMapper::toDto).collect(toSet());
     }
 
