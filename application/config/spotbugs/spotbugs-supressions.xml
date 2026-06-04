@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <Match>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+        <Class name="pl.dawid0604.realestate.domain.AdvertisementDetails"/>
+    </Match>
+
+    <Match>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+        <Class name="pl.dawid0604.realestate.domain.FlooredDetails"/>
+    </Match>
+
+    <Match>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+        <Class name="pl.dawid0604.realestate.domain.shared.event.AdvertisementEvent"/>
+    </Match>
+</FindBugsFilter>

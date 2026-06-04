@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %clr(%-5level){faint} %clr([user: %X{username:-anonymous}]){cyan} %clr([requestId: %X{requestId:-none}]){yellow} %clr([traceId: %X{traceId:-none}]){green} %clr([spanId: %X{spanId:-none}]){blue} %clr(%-40.40logger{39}){magenta} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+        <http>
+            <url>http://localhost:3100/loki/api/v1/push</url>
+        </http>
+        <format>
+            <label>
+                <pattern>app=realestate,host=${HOSTNAME},level=%level</pattern>
+                <structuredMetadataPattern>
+                    traceId=%X{traceId:-none},spanId=%X{spanId:-none},username=%X{username:-anonymous},requestId=%X{requestId:-none}
+                </structuredMetadataPattern>
+            </label>
+            <message>
+                <pattern>%d{HH:mm:ss.SSS} %-5level [%X{username:-anonymous}] [%X{requestId:-none}] %logger{36} - %msg%n
+                </pattern>
+            </message>
+        </format>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="LOKI"/>
+    </root>
+</configuration>

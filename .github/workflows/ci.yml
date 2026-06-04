@@ -30,9 +30,5 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Run Spotless check
-        run: mvn spotless:check
-        continue-on-error: false
-
       - name: Build and run all quality checks
         run: mvn clean verify -V
