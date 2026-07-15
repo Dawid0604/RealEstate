@@ -18,7 +18,6 @@
 | **Wzorce** | DDD · CQRS · Domain Events |
 | **Baza danych** | PostgreSQL 18 · Flyway · Spring Data JPA Specifications |
 | **Bezpieczeństwo** | JWT Bearer + Refresh Token · Spring Security stateless |
-| **Storage** | AWS S3 · MinIO (lokalnie) |
 | **Observability** | OpenTelemetry + Grafana Tempo · Loki + Loki4j · Micrometer + Prometheus + Grafana |
 | **Testy** | JUnit 6 · Mockito · Testcontainers · ArchUnit |
 | **DevOps** | Docker · docker-compose · GitHub Actions |
